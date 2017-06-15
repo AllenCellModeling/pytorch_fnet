@@ -83,6 +83,29 @@ def main():
     print('first 5 random coords:')
     print(coords_random[:5])
 
+def draw_rect(img, coord_tr, dims_rect, thickness=5):
+    """Draw rectangle on image.
+
+    Parameters:
+    img - 2d numpy array (image is modified)
+    coord_tr - coordinate within img to be top-right corner or rectangle
+    dims_rect - 2-value tuple indicated the dimensions of the rectangle
+
+    Returns:
+    None
+    """
+    assert len(img.shape) == len(coord_tr) == len(dims_rect) == 2
+    color = 0
+    for i in range(thickness):
+        if (i+1)*2 <= dims_rect[0]:
+            # create horizontal lines
+            img[coord_tr[0] + i, coord_tr[1]:coord_tr[1] + dims_rect[1]] = color
+            img[coord_tr[0] + dims_rect[0] - 1 - i, coord_tr[1]:coord_tr[1] + dims_rect[1]] = color
+        if (i+1)*2 <= dims_rect[1]:
+            # create vertical lines
+            img[coord_tr[0]:coord_tr[0] + dims_rect[0], coord_tr[1] + i] = color
+            img[coord_tr[0]:coord_tr[0] + dims_rect[0], coord_tr[1] + dims_rect[1] - 1 - i] = color
+
 def test_czireader():
     fname = './test_images/20161209_C01_001.czi'
     reader = io.cziReader.CziReader(fname)
@@ -90,6 +113,15 @@ def test_czireader():
     czi_np = reader.load()
     print(type(czi_np), czi_np.shape)
 
+def test_draw_rect():
+    img = np.ones((12, 10))*255
+    draw_rect(img, (1,2), (5,7))
+    print(img)
+    img = np.ones((12, 10))*255
+    draw_rect(img, (0,0), (7,7))
+    print(img)
+
 if __name__ == '__main__':
-    main()
+    # main()
     # test_czireader()
+    test_draw_rect()
