@@ -123,6 +123,15 @@ class CziLoader(Loader):
         if self.czi_reader.czi.axes == b'BCZYX0':
             return self.czi_np[0, c, :, :, :, 0]
 
+def show_img(ar):
+    import PIL
+    import PIL.ImageOps
+    from IPython.core.display import display
+    img_norm = ar - ar.min()
+    img_norm *= 255./img_norm.max()
+    img_pil = PIL.Image.fromarray(img_norm).convert('L')
+    display(img_pil)
+    
 def find_z_of_max_slice(ar):
     """Given a ZYX numpy array, return the z value of the XY-slice with the most signal."""
     z_max = np.argmax(np.sum(ar, axis=(1, 2)))
@@ -210,17 +219,25 @@ def display_batch(vol_light_np, vol_nuc_np, batch):
         coord = chunk_coord_list[i][1:]  # get yx coordinates
         draw_rect(img_light, coord, dims_rect, thickness=2, color=color)
         draw_rect(img_nuc, coord, dims_rect, thickness=2, color=color)
-    fig = plt.figure(figsize=(12, 6))
-    fig.suptitle('slice at z: ' + str(z_max_big))
-    ax = fig.add_subplot(121)
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
-    ax.imshow(img_light, cmap='gray', interpolation='bilinear', vmin=-3, vmax=3)
-    ax = fig.add_subplot(122)
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
-    ax.imshow(img_nuc, cmap='gray', interpolation='bilinear', vmin=-3, vmax=3)
-    plt.show()
+
+    # display originals
+    # fig = plt.figure(figsize=(12, 6))
+    # fig.suptitle('slice at z: ' + str(z_max_big))
+    # ax = fig.add_subplot(121)
+    # ax.get_xaxis().set_visible(False)
+    # ax.get_yaxis().set_visible(False)
+    # ax.imshow(img_light, cmap='gray', interpolation='bilinear', vmin=-3, vmax=3)
+    # ax = fig.add_subplot(122)
+    # ax.get_xaxis().set_visible(False)
+    # ax.get_yaxis().set_visible(False)
+    # ax.imshow(img_nuc, cmap='gray', interpolation='bilinear', vmin=-3, vmax=3)
+    # plt.show()
+
+    print('light volume slice | z =', z_max_big)
+    show_img(img_light)
+    print('-----')
+    print('nuc volume slice | z =', z_max_big)
+    show_img(img_nuc)
 
     # display chunks
     z_mid_chunk = batch[0].shape[2]//2  # z-dim
