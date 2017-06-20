@@ -214,11 +214,12 @@ def display_batch(vol_light_np, vol_nuc_np, batch):
     img_light, img_nuc = vol_light_np[z_max_big], vol_nuc_np[z_max_big]
     chunk_coord_list = batch[2]
     dims_rect = batch[0].shape[-2:]  # get size of chunk in along yz plane
-    color=-3
+    min_light, max_light = np.amin(vol_light_np), np.amax(vol_light_np)
+    min_nuc, max_nuc = np.amin(vol_nuc_np), np.amax(vol_nuc_np)
     for i in range(len(chunk_coord_list)):
         coord = chunk_coord_list[i][1:]  # get yx coordinates
-        draw_rect(img_light, coord, dims_rect, thickness=2, color=color)
-        draw_rect(img_nuc, coord, dims_rect, thickness=2, color=color)
+        draw_rect(img_light, coord, dims_rect, thickness=2, color=min_light)
+        draw_rect(img_nuc, coord, dims_rect, thickness=2, color=min_nuc)
 
     # display originals
     # fig = plt.figure(figsize=(12, 6))
@@ -250,11 +251,11 @@ def display_batch(vol_light_np, vol_nuc_np, batch):
         ax = fig.add_subplot(1, 2, 1)
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
-        ax.imshow(img_chunk_sig, cmap='gray', interpolation='bilinear', vmin=-3, vmax=3)
+        ax.imshow(img_chunk_sig, cmap='gray', interpolation='bilinear')
         ax = fig.add_subplot(1, 2, 2)
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
-        ax.imshow(img_chunk_tar, cmap='gray', interpolation='bilinear', vmin=-3, vmax=3)
+        ax.imshow(img_chunk_tar, cmap='gray', interpolation='bilinear')
         plt.show()
     
             
