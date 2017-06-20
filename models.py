@@ -129,17 +129,17 @@ class Model(object):
         scores_np = scores_v.data.cpu().numpy()
         return scores_np
 
-    def predict(self, x):
-        print('{:s}: predicting {:d} examples'.format(self.name, x.shape[0]))
-        features_pp = (x - self.mean_features)/self.std_features
+    def predict(self, signal):
+        print('{:s}: predicting {:d} examples'.format(self.name, signal.shape[0]))
         self.net.eval()
-        features_pp_v = torch.autograd.Variable(torch.FloatTensor(features_pp)).cuda(GPU_ID)
-        scores_v = self.net(features_pp_v)
-        scores_np = scores_v.data.cpu().numpy()
-
-        # apply threshold
-        y_pred = np.around(scores_np)
-        return y_pred
+        if CUDA:
+            signal_t = torch.Tensor(signal).cuda()
+        else:
+            signal_t = torch.Tensor(signal)
+        signal_v = torch.autograd.Variable(signal_t)
+        pred_v = self.net(signal_v)
+        pred_np = pred_v.data.cpu().numpy()
+        return pred_np
 
 class Net(nn.Module):
     def __init__(self):
@@ -157,7 +157,6 @@ class Net(nn.Module):
         self.conv4 = nn.Conv3d(some_param*4, 1, kernel_size=1)
 
     def forward(self, x):
-        print(x.size())
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu1(x)

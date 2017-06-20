@@ -2,23 +2,38 @@ import aicsimage.processing as proc
 import aicsimage.io as io
 import numpy as np
 import models
+import matplotlib.pyplot as plt
 import pdb
 
 class Loader(object):
     def __init__(self, file_path):
         self.file_path = file_path
-        self.signal_np = None
-        self.target_np = None
+        self.vol_light_np = None
+        self.vol_nuc_np = None
 
-    def get_batch(self, n, dims_chunk=(32, 32, 32), dims_pin=(None, None, None)):
+    def resize_data(self, factors):
+        """Rescale the light/nuclear channels.
+
+        Parameters:
+        factors - tuple of scaling factors for each dimension.
+        """
+        self.vol_light_np = proc.resize(self.vol_light_np, factors);
+        self.vol_nuc_np = proc.resize(self.vol_nuc_np, factors);
+
+    def get_batch(self, n, dims_chunk=(32, 32, 32), dims_pin=(None, None, None), return_coords=False):
         """Get a batch of examples from source data."
 
         Parameters:
         n - (int) batch size.
         dims_chunk - (tuple) ZYX dimensions of each example.
+        return_coords - (boolean) if True, also return the coordinates from where chunks were taken.
         
         Returns:
+        return_coord == False
         batch_x, batch_y - (2 numpy arrays) each array will have shape (n, 1) + dims_chunk.
+
+        return_coord == True
+        batch_x, batch_y, coords - same as above but with the addition of the chunk coordinates.
         """
         shape_batch = (n, 1) + dims_chunk
         batch_x = np.zeros(shape_batch)
@@ -30,10 +45,10 @@ class Loader(object):
             chunks_tup = self._extract_chunk(dims_chunk, coord)
             batch_x[i, 0, ...] = chunks_tup[0]
             batch_y[i, 0, ...] = chunks_tup[1]
-        return batch_x, batch_y
+        return (batch_x, batch_y) if not return_coords else (batch_x, batch_y, coords)
 
     def _pick_random_chunk_coord(self, dims_chunk, n=1, dims_pin=(None, None, None)):
-        """Returns a random coordinate from where an array chunk can be extracted from signal_, target_np.
+        """Returns a random coordinate from where an array chunk can be extracted from signal_, vol_nuc_np.
 
         Parameters:
         dims_chunk - tuple of chunk dimensions
@@ -46,20 +61,21 @@ class Loader(object):
           n == 1 : tuple of coordinates
           n > 1  : list of tuple of coordinates
         """
-        shape = self.signal_np.shape
+        shape = self.vol_light_np.shape
         coord_list = []
         for idx_chunk in range(n):
             coord = [0, 0, 0]
             for i in range(len(dims_chunk)):
                 if dims_pin[i] is None:
-                    coord[i] = np.random.random_integers(0, shape[i] - dims_chunk[i])
+                    # coord[i] = np.random.random_integers(0, shape[i] - dims_chunk[i])
+                    coord[i] = np.random.randint(0, shape[i] - dims_chunk[i] + 1)
                 else:
                     coord[i] = dims_pin[i]
             coord_list.append(tuple(coord))
         return coord_list if n > 1 else coord_list[0]
 
     def _extract_chunk(self, dims_chunk, coord):
-        """Returns smaller arrays extracted from signal_/target_np.
+        """Returns smaller arrays extracted from signal_/vol_nuc_np.
 
         Parameters:
         dims_chunk - tuple of chunk dimensions
@@ -69,7 +85,7 @@ class Loader(object):
         slices = []
         for i in range(len(coord)):
             slices.append(slice(coord[i], coord[i] + dims_chunk[i]))
-        return self.signal_np[slices], self.target_np[slices]
+        return self.vol_light_np[slices], self.vol_nuc_np[slices]
     
 
 class CziLoader(Loader):
@@ -83,22 +99,22 @@ class CziLoader(Loader):
         self.czi_np = czi_np
 
         # extract light and nuclear channels
-        self.signal_np = self.get_volume(channel_light)
-        self.target_np = self.get_volume(channel_nuclear)
+        self.vol_light_np = self.get_volume(channel_light)
+        self.vol_nuc_np = self.get_volume(channel_nuclear)
 
-        self._process_signal_np()
-        self._process_target_np()
+        self._process_vol_light_np()
+        self._process_vol_nuc_np()
 
-    def _process_signal_np(self):
-        mean = np.mean(self.signal_np)
-        std = np.std(self.signal_np)
-        self.signal_np = (self.signal_np - mean)/std
+    def _process_vol_light_np(self):
+        mean = np.mean(self.vol_light_np)
+        std = np.std(self.vol_light_np)
+        self.vol_light_np = (self.vol_light_np - mean)/std
     
-    def _process_target_np(self):
+    def _process_vol_nuc_np(self):
         # add background subtraction
-        mean = np.mean(self.target_np)
-        std = np.std(self.target_np)
-        self.target_np = (self.target_np - mean)/std
+        mean = np.mean(self.vol_nuc_np)
+        std = np.std(self.vol_nuc_np)
+        self.vol_nuc_np = (self.vol_nuc_np - mean)/std
         
     def get_volume(self, c):
         """Returns the image volume for the specified channel."""
@@ -107,6 +123,11 @@ class CziLoader(Loader):
         if self.czi_reader.czi.axes == b'BCZYX0':
             return self.czi_np[0, c, :, :, :, 0]
 
+def find_z_of_max_slice(ar):
+    """Given a ZYX numpy array, return the z value of the XY-slice with the most signal."""
+    z_max = np.argmax(np.sum(ar, axis=(1, 2)))
+    return z_max
+        
 def print_array_stats(ar):
     print('shape:', ar.shape, '|', 'dtype:', ar.dtype)
     print('min:', ar.min(), '| max:', ar.max(), '| median', np.median(ar))
@@ -151,28 +172,74 @@ def extract_chunk(larger_ar, dims_chunk, coord):
         slices.append(slice(coord[i], coord[i] + dims_chunk[i]))
     return larger_ar[slices]
 
-def draw_rect(img, coord_tr, dims_rect, thickness=5):
+def draw_rect(img, coord_tl, dims_rect, thickness=3, color=0):
     """Draw rectangle on image.
 
     Parameters:
     img - 2d numpy array (image is modified)
-    coord_tr - coordinate within img to be top-right corner or rectangle
+    coord_tl - coordinate within img to be top-left corner or rectangle
     dims_rect - 2-value tuple indicated the dimensions of the rectangle
 
     Returns:
     None
     """
-    assert len(img.shape) == len(coord_tr) == len(dims_rect) == 2
-    color = 0
+    assert len(img.shape) == len(coord_tl) == len(dims_rect) == 2
     for i in range(thickness):
         if (i+1)*2 <= dims_rect[0]:
             # create horizontal lines
-            img[coord_tr[0] + i, coord_tr[1]:coord_tr[1] + dims_rect[1]] = color
-            img[coord_tr[0] + dims_rect[0] - 1 - i, coord_tr[1]:coord_tr[1] + dims_rect[1]] = color
+            img[coord_tl[0] + i, coord_tl[1]:coord_tl[1] + dims_rect[1]] = color
+            img[coord_tl[0] + dims_rect[0] - 1 - i, coord_tl[1]:coord_tl[1] + dims_rect[1]] = color
         if (i+1)*2 <= dims_rect[1]:
             # create vertical lines
-            img[coord_tr[0]:coord_tr[0] + dims_rect[0], coord_tr[1] + i] = color
-            img[coord_tr[0]:coord_tr[0] + dims_rect[0], coord_tr[1] + dims_rect[1] - 1 - i] = color
+            img[coord_tl[0]:coord_tl[0] + dims_rect[0], coord_tl[1] + i] = color
+            img[coord_tl[0]:coord_tl[0] + dims_rect[0], coord_tl[1] + dims_rect[1] - 1 - i] = color
+
+def display_batch(vol_light_np, vol_nuc_np, batch):
+    """Display images of examples from batch.
+    vol_light_np - numpy array
+    vol_nuc_np - numpy array
+    batch - 3-element tuple: chunks from vol_light_np, chunks from vol_nuc_np, coordinates of chunks
+    """
+    n_chunks = batch[0].shape[0]
+    z_max_big = find_z_of_max_slice(vol_nuc_np)
+    img_light, img_nuc = vol_light_np[z_max_big], vol_nuc_np[z_max_big]
+    chunk_coord_list = batch[2]
+    dims_rect = batch[0].shape[-2:]  # get size of chunk in along yz plane
+    color=-3
+    for i in range(len(chunk_coord_list)):
+        coord = chunk_coord_list[i][1:]  # get yx coordinates
+        draw_rect(img_light, coord, dims_rect, thickness=2, color=color)
+        draw_rect(img_nuc, coord, dims_rect, thickness=2, color=color)
+    fig = plt.figure(figsize=(12, 6))
+    fig.suptitle('slice at z: ' + str(z_max_big))
+    ax = fig.add_subplot(121)
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+    ax.imshow(img_light, cmap='gray', interpolation='bilinear', vmin=-3, vmax=3)
+    ax = fig.add_subplot(122)
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+    ax.imshow(img_nuc, cmap='gray', interpolation='bilinear', vmin=-3, vmax=3)
+    plt.show()
+
+    # display chunks
+    z_mid_chunk = batch[0].shape[2]//2  # z-dim
+    for i in range(n_chunks):
+        title_str = 'chunk: ' + str(i) + ' | z:' + str(z_mid_chunk)
+        fig = plt.figure(figsize=(9, 4))
+        fig.suptitle(title_str)
+        img_chunk_sig = batch[0][i, 0, z_mid_chunk, ]
+        img_chunk_tar = batch[1][i, 0, z_mid_chunk, ]
+        ax = fig.add_subplot(1, 2, 1)
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+        ax.imshow(img_chunk_sig, cmap='gray', interpolation='bilinear', vmin=-3, vmax=3)
+        ax = fig.add_subplot(1, 2, 2)
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+        ax.imshow(img_chunk_tar, cmap='gray', interpolation='bilinear', vmin=-3, vmax=3)
+        plt.show()
+    
             
 # ***** TESTS *****
             
@@ -226,14 +293,89 @@ def test_CziLoader():
     loader = CziLoader(fname, channel_light=3, channel_nuclear=2)
     x, y = loader.get_batch(16, dims_chunk=(32, 64, 64), dims_pin=(10, None, None))
     print('x, y shapes:', x.shape, y.shape)
-    model = models.Model()
 
-    model.do_train_iter(x, y)
-    model.do_train_iter(x, y)
-    model.do_train_iter(x, y)
+def test_resize(show_figures=False):
+    print('*** test_resize ***')
+    fname = './test_images/20161209_C01_001.czi'
+    loader = CziLoader(fname, channel_light=3, channel_nuclear=2)
+    n_chunks = 3
+    dims_chunk = (32, 64, 64)
+    z_max_before = find_z_of_max_slice(loader.vol_nuc_np)
+    z_pin_before = z_max_before - dims_chunk[0]//2
+    if z_pin_before< 0:
+        z_pin_before = 0
+    print('before resize:')
+    print('  signal, target shapes:', loader.vol_light_np.shape, loader.vol_nuc_np.shape)
+    print('  target max z:', z_max_before)
+    batch_before = loader.get_batch(n_chunks, dims_chunk=dims_chunk, dims_pin=(z_pin_before, None, None), return_coords=True)
+    if show_figures:
+        display_batch(loader.vol_light_np, loader.vol_nuc_np, batch_before)
+    
+    z_fac = 0.96
+    xy_fac = 0.22
+    factors = (z_fac, xy_fac, xy_fac)
+    loader.resize_data(factors)
+    z_max_after = find_z_of_max_slice(loader.vol_nuc_np)
+    z_pin_after = z_max_after - dims_chunk[0]//2
+    if z_pin_after < 0:
+        z_pin_after = 0
+    print('after resize by factors:', factors)
+    print('  signal, target shapes:', loader.vol_light_np.shape, loader.vol_nuc_np.shape)
+    print('  target max z:', z_max_after)
+    # get and display random chunks
+    batch_after = loader.get_batch(n_chunks, dims_chunk=dims_chunk, dims_pin=(z_pin_after, None, None), return_coords=True)
+    if show_figures:
+        display_batch(loader.vol_light_np, loader.vol_nuc_np, batch_after)
+
+def test_find_z_of_max_slice():
+    print('*** test_find_max_target_z ***')
+    fname = './test_images/20161209_C01_001.czi'
+    loader = CziLoader(fname, channel_light=3, channel_nuclear=2)
+    z_max = find_z_of_max_slice(loader.vol_nuc_np)
+    print('z of vol_nuc_np with max fluorescence:', z_max)
+    
+def train_eval():
+    fname = './test_images/20161209_C01_001.czi'
+    loader = CziLoader(fname, channel_light=3, channel_nuclear=2)
+    x, y = loader.get_batch(16, dims_chunk=(32, 64, 64), dims_pin=(10, None, None))
+    print('x, y shapes:', x.shape, y.shape)
+    model = models.Model()
+    n_train_iter = 50
+    for i in range(n_train_iter):
+        model.do_train_iter(x, y)
+
+    n_check = 10  # number of examples to check
+    x_val = x[:n_check]
+    y_true = y[:n_check]
+    y_pred = model.predict(x_val)
+    display_visual_eval_images(x_val, y_true, y_pred)
+
+def display_visual_eval_images(signal, target, prediction):
+    """Display 3 images: light, nuclear, predicted nuclear.
+
+    Parameters:
+    signal (5d numpy array)
+    target (5d numpy array)
+    prediction (5d numpy array)
+    """
+    n_examples = signal.shape[0]
+    print('Displaying chunk slices for', n_examples, 'examples')
+    source_list = [signal, target, prediction]
+    z_mid = signal.shape[2]//2
+    for ex in range(n_examples):
+        fig = plt.figure(figsize=(10, 3))
+        for i in range(3):
+            fig.suptitle('example: ' + str(ex))
+            img = source_list[i][ex, 0, z_mid, ]
+            ax = fig.add_subplot(1, 3, i + 1)
+            ax.imshow(img, cmap='gray')
+    plt.show()
 
 if __name__ == '__main__':
     # test_czireader()
     # test_draw_rect()
     # test_pick_random_chunk_coord()
-    test_CziLoader()
+    # test_CziLoader()
+    # train_eval()
+    # test_find_z_of_max_slice()
+    test_resize()
