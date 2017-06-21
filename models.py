@@ -20,6 +20,8 @@ class Model(object):
         self.optimizer = torch.optim.SGD(self.net.parameters(), lr=lr, momentum=momentum)
         self.criterion = torch.nn.MSELoss()
 
+        self.count_iter = 0
+
     def save(self, fname):
         raise NotImplementedError
         print('saving model to:', fname)
@@ -53,10 +55,11 @@ class Model(object):
         signal_v, target_v = torch.autograd.Variable(signal_t), torch.autograd.Variable(target_t)
         self.optimizer.zero_grad()
         output = self.net(signal_v)
-        loss = self.criterion(output, signal_v)
+        loss = self.criterion(output, target_v)
         loss.backward()
         self.optimizer.step()
-        print("loss:", loss.data[0])
+        print("iter: {:3d} | loss: {:4f}".format(self.count_iter, loss.data[0]))
+        self.count_iter += 1
     
     def train_legacy(self, x, y, validate=False):
         """
@@ -141,7 +144,7 @@ class Model(object):
         pred_np = pred_v.data.cpu().numpy()
         return pred_np
 
-class Net(nn.Module):
+class Net_bk(nn.Module):
     def __init__(self):
         super().__init__()
         some_param = 32
@@ -169,35 +172,46 @@ class Net(nn.Module):
         x = self.conv4(x)
         return x
 
-class Net_bk(nn.Module):
+class Net(nn.Module):
     def __init__(self):
         super().__init__()
-        some_param = 32
-        self.conv1 = nn.Conv3d(1, some_param, kernel_size=4, stride=2, padding=1)
-        self.bn1 = nn.BatchNorm3d(some_param)
+        param_1 = 16
+        self.sub_1 = SubNet(1, param_1)
+        self.pool_1 = torch.nn.MaxPool3d(2, stride=2)
+        
+        self.sub_2 = SubNet(param_1, param_1*2)
+        
+        self.convt = torch.nn.ConvTranspose3d(param_1*2, param_1, kernel_size=2, stride=2)
+        
+        self.sub_3 = SubNet(param_1*2, param_1)
+        
+        self.conv_out = torch.nn.Conv3d(param_1,  1, kernel_size=3, padding=1)
+        
+    def forward(self, x):
+        x1 = self.sub_1(x)
+        x1d = self.pool_1(x1)
+        x2 = self.sub_2(x1d)
+        x2u = self.convt(x2)  # upsample
+        x1_2 = torch.cat((x1, x2u), 1)  # concatenate
+        x3 = self.sub_3(x1_2)
+        x_out = self.conv_out(x3)
+        return x_out
+    
+class SubNet(nn.Module):
+    def __init__(self, n_in, n_out):
+        super().__init__()
+        self.conv1 = nn.Conv3d(n_in,  n_out, kernel_size=3, padding=1)
+        self.bn1 = nn.BatchNorm3d(n_out)
         self.relu1 = nn.ReLU()
-        self.conv2 = nn.Conv3d(some_param, some_param*2, kernel_size=4, stride=2, padding=1)
-        self.bn2 = nn.BatchNorm3d(some_param*2)
+        self.conv2 = nn.Conv3d(n_out, n_out, kernel_size=3, padding=1)
+        self.bn2 = nn.BatchNorm3d(n_out)
         self.relu2 = nn.ReLU()
-        self.conv3 = nn.Conv3d(some_param*2, some_param*4, kernel_size=5)
-        self.bn3 = nn.BatchNorm3d(some_param*4)
-        self.relu3 = nn.ReLU()
-        self.conv4 = nn.Conv3d(some_param*4, 2, kernel_size=1)
 
     def forward(self, x):
-        print(x.size())
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu1(x)
-        print(x.size())
         x = self.conv2(x)
         x = self.bn2(x)
         x = self.relu2(x)
-        print(x.size())
-        covfefe
-        x = self.conv3(x)
-        x = self.bn3(x)
-        x = self.relu3(x)
-        x = self.conv4(x)
         return x
-    
