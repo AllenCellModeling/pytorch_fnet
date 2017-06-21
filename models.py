@@ -8,17 +8,20 @@ GPU_ID = 0
 CUDA = True
 
 class Model(object):
-    def __init__(self):
+    def __init__(self, mult_chan, depth):
         self.name = 'chek model'
-        print('ctor:', self.name)
-        self.net = Net()
+        self.net = Net(mult_chan=mult_chan, depth=depth)
+        # self.net = Net_bk(mult_chan)
+        print(self.net)
         if CUDA:
             self.net.cuda()
 
-        lr = 0.01
+        lr = 0.0001
         momentum = 0.5
-        self.optimizer = torch.optim.SGD(self.net.parameters(), lr=lr, momentum=momentum)
+        # self.optimizer = torch.optim.SGD(self.net.parameters(), lr=lr, momentum=momentum)
+        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=lr, betas=(0.5, 0.999))
         self.criterion = torch.nn.MSELoss()
+        # self.criterion = torch.nn.BCELoss()
 
         self.count_iter = 0
 
@@ -56,6 +59,7 @@ class Model(object):
         self.optimizer.zero_grad()
         output = self.net(signal_v)
         loss = self.criterion(output, target_v)
+        
         loss.backward()
         self.optimizer.step()
         print("iter: {:3d} | loss: {:4f}".format(self.count_iter, loss.data[0]))
@@ -145,46 +149,13 @@ class Model(object):
         return pred_np
 
 class Net_bk(nn.Module):
-    def __init__(self):
+    def __init__(self, param_1=16):
         super().__init__()
-        some_param = 32
-        self.conv1 = nn.Conv3d(1, some_param, kernel_size=5, padding=2)
-        self.bn1 = nn.BatchNorm3d(some_param)
-        self.relu1 = nn.ReLU()
-        self.conv2 = nn.Conv3d(some_param, some_param*2, kernel_size=5, padding=2)
-        self.bn2 = nn.BatchNorm3d(some_param*2)
-        self.relu2 = nn.ReLU()
-        self.conv3 = nn.Conv3d(some_param*2, some_param*4, kernel_size=5, padding=2)
-        self.bn3 = nn.BatchNorm3d(some_param*4)
-        self.relu3 = nn.ReLU()
-        self.conv4 = nn.Conv3d(some_param*4, 1, kernel_size=1)
-
-    def forward(self, x):
-        x = self.conv1(x)
-        x = self.bn1(x)
-        x = self.relu1(x)
-        x = self.conv2(x)
-        x = self.bn2(x)
-        x = self.relu2(x)
-        x = self.conv3(x)
-        x = self.bn3(x)
-        x = self.relu3(x)
-        x = self.conv4(x)
-        return x
-
-class Net(nn.Module):
-    def __init__(self):
-        super().__init__()
-        param_1 = 16
-        self.sub_1 = SubNet(1, param_1)
+        self.sub_1 = SubNet2Conv(1, param_1)
         self.pool_1 = torch.nn.MaxPool3d(2, stride=2)
-        
-        self.sub_2 = SubNet(param_1, param_1*2)
-        
+        self.sub_2 = SubNet2Conv(param_1, param_1*2)
         self.convt = torch.nn.ConvTranspose3d(param_1*2, param_1, kernel_size=2, stride=2)
-        
-        self.sub_3 = SubNet(param_1*2, param_1)
-        
+        self.sub_3 = SubNet2Conv(param_1*2, param_1)
         self.conv_out = torch.nn.Conv3d(param_1,  1, kernel_size=3, padding=1)
         
     def forward(self, x):
@@ -196,8 +167,54 @@ class Net(nn.Module):
         x3 = self.sub_3(x1_2)
         x_out = self.conv_out(x3)
         return x_out
+
+class Net(nn.Module):
+    def __init__(self, mult_chan=16, depth=1):
+        super().__init__()
+        self.net_recurse = _Net_recurse(n_in_channels=1, mult_chan=mult_chan, depth=depth)
+        self.conv_out = torch.nn.Conv3d(mult_chan,  1, kernel_size=3, padding=1)
+        self.sig = torch.nn.Sigmoid()
+
+    def forward(self, x):
+        x_rec = self.net_recurse(x)
+        x_pre_out = self.conv_out(x_rec)
+        x_out = self.sig(x_pre_out)
+        # return x_pre_out
+        return x_out
+
+class _Net_recurse(nn.Module):
+    def __init__(self, n_in_channels, mult_chan=2, depth=0):
+        """Class for recursive definition of U-network.p
+
+        Parameters:
+        in_channels - (int) number of channels for input.
+        mult_chan - (int) factor to determine number of output channels
+        depth - (int) if 0, this subnet will only be convolutions that double the channel count.
+        """
+        super().__init__()
+        self.depth = depth
+        n_out_channels = n_in_channels*mult_chan
+        self.sub_2conv_more = SubNet2Conv(n_in_channels, n_out_channels)
+        if depth > 0:
+            self.sub_2conv_less = SubNet2Conv(2*n_out_channels, n_out_channels)
+            self.pool = torch.nn.MaxPool3d(2, stride=2)
+            self.convt = torch.nn.ConvTranspose3d(2*n_out_channels, n_out_channels, kernel_size=2, stride=2)
+            self.sub_u = _Net_recurse(n_out_channels, mult_chan=2, depth=(depth - 1))
+            
+    def forward(self, x):
+        if self.depth == 0:
+            return self.sub_2conv_more(x)
+        else:  # depth > 0
+            x_2conv_more = self.sub_2conv_more(x)
+            x_pool = self.pool(x_2conv_more)
+            x_sub_u = self.sub_u(x_pool)
+            x_convt = self.convt(x_sub_u)
+            x_cat = torch.cat((x_2conv_more, x_convt), 1)  # concatenate
+            x_2conv_less = self.sub_2conv_less(x_cat)
+        return x_2conv_less
+
     
-class SubNet(nn.Module):
+class SubNet2Conv(nn.Module):
     def __init__(self, n_in, n_out):
         super().__init__()
         self.conv1 = nn.Conv3d(n_in,  n_out, kernel_size=3, padding=1)
