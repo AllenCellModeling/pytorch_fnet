@@ -6,8 +6,7 @@ import matplotlib.pyplot as plt
 import pdb
 
 class Loader(object):
-    def __init__(self, file_path):
-        self.file_path = file_path
+    def __init__(self):
         self.vol_light_np = None
         self.vol_nuc_np = None
 
@@ -88,9 +87,15 @@ class Loader(object):
         return self.vol_light_np[slices], self.vol_nuc_np[slices]
     
 
+class TifLoader(Loader):
+    def __init__(self, file_path_light, file_path_nuc):
+        super().__init__()
+        
+
+        
 class CziLoader(Loader):
     def __init__(self, file_path, channel_light, channel_nuclear):
-        super().__init__(file_path)
+        super().__init__()
         # Currently, expect to deal only with CZI files where 'B' and '0' dimensions are size 1
         self.czi_reader = io.cziReader.CziReader(file_path)
         czi_np = self.czi_reader.czi.asarray()
@@ -102,19 +107,25 @@ class CziLoader(Loader):
         self.vol_light_np = self.get_volume(channel_light)
         self.vol_nuc_np = self.get_volume(channel_nuclear)
 
+        z_fac = 0.96
+        xy_fac = 0.22
+        factors = (z_fac, xy_fac, xy_fac)
+        self.resize_data(factors)
         self._process_vol_light_np()
         self._process_vol_nuc_np()
 
     def _process_vol_light_np(self):
-        mean = np.mean(self.vol_light_np)
-        std = np.std(self.vol_light_np)
-        self.vol_light_np = (self.vol_light_np - mean)/std
+        # mean = np.mean(self.vol_light_np)
+        # std = np.std(self.vol_light_np)
+        # self.vol_light_np = (self.vol_light_np - mean)/std
+        self.vol_light_np = self.vol_light_np/np.amax(self.vol_light_np)
     
     def _process_vol_nuc_np(self):
-        # add background subtraction
-        mean = np.mean(self.vol_nuc_np)
-        std = np.std(self.vol_nuc_np)
-        self.vol_nuc_np = (self.vol_nuc_np - mean)/std
+        self.vol_nuc_np[self.vol_nuc_np < np.median(self.vol_nuc_np)] = 0
+        # mean = np.mean(self.vol_nuc_np)
+        # std = np.std(self.vol_nuc_np)
+        # self.vol_nuc_np = (self.vol_nuc_np - mean)/std
+        self.vol_nuc_np = self.vol_nuc_np/np.amax(self.vol_nuc_np)
         
     def get_volume(self, c):
         """Returns the image volume for the specified channel."""
@@ -329,10 +340,6 @@ def test_resize(show_figures=False):
     if show_figures:
         display_batch(loader.vol_light_np, loader.vol_nuc_np, batch_before)
     
-    z_fac = 0.96
-    xy_fac = 0.22
-    factors = (z_fac, xy_fac, xy_fac)
-    loader.resize_data(factors)
     z_max_after = find_z_of_max_slice(loader.vol_nuc_np)
     z_pin_after = z_max_after - dims_chunk[0]//2
     if z_pin_after < 0:
@@ -351,10 +358,20 @@ def test_find_z_of_max_slice():
     loader = CziLoader(fname, channel_light=3, channel_nuclear=2)
     z_max = find_z_of_max_slice(loader.vol_nuc_np)
     print('z of vol_nuc_np with max fluorescence:', z_max)
+
+def test_TifLoader():
+    print('*** test_TifLoader ***')
+    fname_light = '/allen/aics/modeling/cheko/projects/nucleus_predictor/test_images/20161209_C01_021.czi/20161209_C01_021.czi_1_trans.tif'
+    fname_nuc = '/allen/aics/modeling/cheko/projects/nucleus_predictor/test_images/20161209_C01_021.czi/20161209_C01_021.czi_1_dna.tif'
+    loader = TifLoader(fname_light, fname_nuc)
+    print(loader)
     
 def train_eval():
     fname = './test_images/20161209_C01_001.czi'
     loader = CziLoader(fname, channel_light=3, channel_nuclear=2)
+    print_array_stats(loader.vol_light_np)
+    print_array_stats(loader.vol_nuc_np)
+
     x, y = loader.get_batch(16, dims_chunk=(32, 64, 64), dims_pin=(10, None, None))
     print('x, y shapes:', x.shape, y.shape)
     model = models.Model()
@@ -377,6 +394,7 @@ def display_visual_eval_images(signal, target, prediction):
     prediction (5d numpy array)
     """
     n_examples = signal.shape[0]
+    n_examples = 3
     print('Displaying chunk slices for', n_examples, 'examples')
     source_list = [signal, target, prediction]
     z_mid = signal.shape[2]//2
@@ -386,7 +404,10 @@ def display_visual_eval_images(signal, target, prediction):
             fig.suptitle('example: ' + str(ex))
             img = source_list[i][ex, 0, z_mid, ]
             ax = fig.add_subplot(1, 3, i + 1)
-            ax.imshow(img, cmap='gray')
+            ax.get_xaxis().set_visible(False)
+            ax.get_yaxis().set_visible(False)
+            ax.imshow(img, cmap='gray', interpolation='bilinear', vmin=0, vmax=1)
+            # ax.imshow(img, cmap='gray', interpolation='bilinear')
     plt.show()
 
 if __name__ == '__main__':
@@ -394,6 +415,7 @@ if __name__ == '__main__':
     # test_draw_rect()
     # test_pick_random_chunk_coord()
     # test_CziLoader()
-    # train_eval()
     # test_find_z_of_max_slice()
-    test_resize()
+    # test_resize()
+    # test_TifLoader()
+    train_eval()
