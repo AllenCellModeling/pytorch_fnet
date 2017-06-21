@@ -121,7 +121,7 @@ class CziLoader(Loader):
         self.vol_light_np = self.vol_light_np/np.amax(self.vol_light_np)
     
     def _process_vol_nuc_np(self):
-        self.vol_nuc_np[self.vol_nuc_np < np.median(self.vol_nuc_np)] = 0
+        # self.vol_nuc_np[self.vol_nuc_np < np.median(self.vol_nuc_np)] = 0
         # mean = np.mean(self.vol_nuc_np)
         # std = np.std(self.vol_nuc_np)
         # self.vol_nuc_np = (self.vol_nuc_np - mean)/std
@@ -372,11 +372,14 @@ def train_eval():
     print_array_stats(loader.vol_light_np)
     print_array_stats(loader.vol_nuc_np)
 
-    x, y = loader.get_batch(16, dims_chunk=(32, 64, 64), dims_pin=(10, None, None))
-    print('x, y shapes:', x.shape, y.shape)
-    model = models.Model()
-    n_train_iter = 50
+    np.random.seed(666)
+    # x, y = loader.get_batch(16, dims_chunk=(32, 64, 64), dims_pin=(10, None, None))
+    # print(x[:5, 0, 20, 31, :5])  # DEBUG make sure seed is working
+    # print('x, y shapes:', x.shape, y.shape)
+    model = models.Model(mult_chan=32, depth=4)
+    n_train_iter = 500
     for i in range(n_train_iter):
+        x, y = loader.get_batch(16, dims_chunk=(32, 64, 64), dims_pin=(10, None, None))
         model.do_train_iter(x, y)
 
     n_check = 10  # number of examples to check
@@ -394,7 +397,6 @@ def display_visual_eval_images(signal, target, prediction):
     prediction (5d numpy array)
     """
     n_examples = signal.shape[0]
-    n_examples = 3
     print('Displaying chunk slices for', n_examples, 'examples')
     source_list = [signal, target, prediction]
     z_mid = signal.shape[2]//2
@@ -406,8 +408,8 @@ def display_visual_eval_images(signal, target, prediction):
             ax = fig.add_subplot(1, 3, i + 1)
             ax.get_xaxis().set_visible(False)
             ax.get_yaxis().set_visible(False)
-            ax.imshow(img, cmap='gray', interpolation='bilinear', vmin=0, vmax=1)
-            # ax.imshow(img, cmap='gray', interpolation='bilinear')
+            # ax.imshow(img, cmap='gray', interpolation='bilinear', vmin=0, vmax=1)
+            ax.imshow(img, cmap='gray', interpolation='bilinear')
     plt.show()
 
 if __name__ == '__main__':
