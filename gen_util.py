@@ -374,10 +374,8 @@ def train_eval():
 
     np.random.seed(666)
     # x, y = loader.get_batch(16, dims_chunk=(32, 64, 64), dims_pin=(10, None, None))
-    # print(x[:5, 0, 20, 31, :5])  # DEBUG make sure seed is working
-    # print('x, y shapes:', x.shape, y.shape)
     model = models.Model(mult_chan=32, depth=4)
-    n_train_iter = 500
+    n_train_iter = 10
     for i in range(n_train_iter):
         x, y = loader.get_batch(16, dims_chunk=(32, 64, 64), dims_pin=(10, None, None))
         model.do_train_iter(x, y)

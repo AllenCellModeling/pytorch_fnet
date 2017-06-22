@@ -8,10 +8,12 @@ CUDA = True
 
 class Model(object):
     def __init__(self, mult_chan, depth):
-        self.name = 'chek model'
+        self.name = 'U-Network V0'
+        self.mult_chan = mult_chan
+        self.depth = depth
         self.net = Net(mult_chan=mult_chan, depth=depth)
         # self.net = Net_bk(mult_chan)
-        print(self.net)
+        # print(self.net)
         if CUDA:
             self.net.cuda()
 
@@ -22,6 +24,10 @@ class Model(object):
         self.criterion = torch.nn.MSELoss()
         # self.criterion = torch.nn.BCELoss()
         self.count_iter = 0
+
+    def __str__(self):
+        out_str = '{:s} | mult_chan: {:d} | depth: {:d}'.format(self.name, self.mult_chan, self.depth)
+        return out_str
 
     def save(self, fname):
         raise NotImplementedError
