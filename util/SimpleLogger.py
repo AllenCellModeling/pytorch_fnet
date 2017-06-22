@@ -32,7 +32,6 @@ class SimpleLogger:
         path = os.path.join(self.log_folder, fname)
         if not os.path.exists(self.log_folder):
             os.makedirs(self.log_folder)
-        print(path)
         with open(path, 'w') as f:
             writer = csv.writer(f)
             if len(self.fields) == 0:
@@ -44,3 +43,5 @@ class SimpleLogger:
                 for field in self.fields:
                     row.append(self.log[field][i])
                 writer.writerow(row)
+            print('saved:', path)
+

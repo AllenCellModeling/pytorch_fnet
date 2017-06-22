@@ -1,4 +1,5 @@
 import aicsimage.processing as proc
+from aicsimage.io import omeTifWriter
 import aicsimage.io as io
 import numpy as np
 import models
@@ -268,7 +269,12 @@ def display_batch(vol_light_np, vol_nuc_np, batch):
         ax.get_yaxis().set_visible(False)
         ax.imshow(img_chunk_tar, cmap='gray', interpolation='bilinear')
         plt.show()
-    
+
+def save_img_np(img_np, fname):
+    """Save image (numpy array, ZYX) as a TIFF."""
+    with omeTifWriter.OmeTifWriter(fname, overwrite_file=True) as fo:
+        fo.save(img_np)
+        print('saved:', fname)
             
 # ***** TESTS *****
             
