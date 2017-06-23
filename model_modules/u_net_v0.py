@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import torch
 import torch.nn as nn
@@ -7,15 +8,19 @@ GPU_ID = 0
 CUDA = True
 
 class Model(object):
-    def __init__(self, mult_chan, depth):
-        self.name = 'U-Network V0'
-        self.mult_chan = mult_chan
-        self.depth = depth
-        self.net = Net(mult_chan=mult_chan, depth=depth)
-        # self.net = Net_bk(mult_chan)
-        # print(self.net)
-        if CUDA:
-            self.net.cuda()
+    def __init__(self, mult_chan=None, depth=None, load_path=None):
+        if load_path is None:
+            self.net = Net(mult_chan=mult_chan, depth=depth)
+            if CUDA:
+                self.net.cuda()
+            self.meta = {
+                'name': 'U-Network V0',
+                'count_iter': 0,
+                'mult_chan': mult_chan,
+                'depth': depth
+            }
+        else:
+            self._load(load_path)  # defines self.net, self.meta
 
         lr = 0.0001
         momentum = 0.5
@@ -23,27 +28,31 @@ class Model(object):
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr=lr, betas=(0.5, 0.999))
         self.criterion = torch.nn.MSELoss()
         # self.criterion = torch.nn.BCELoss()
-        self.count_iter = 0
 
     def __str__(self):
-        out_str = '{:s} | mult_chan: {:d} | depth: {:d}'.format(self.name, self.mult_chan, self.depth)
+        out_str = '{:s} | mult_chan: {:d} | depth: {:d}'.format(self.meta['name'],
+                                                                self.meta['mult_chan'],
+                                                                self.meta['depth'])
         return out_str
 
-    def save(self, fname):
-        raise NotImplementedError
-        print('saving model to:', fname)
-        package = (self.net, self.mean_features, self.std_features)
-        fo = open(fname, 'wb')
-        pickle.dump(package, fo)
-        fo.close()
+    def save(self, path):
+        dirname = os.path.dirname(path)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        package = (self.net, self.meta)
+        with open(path, 'wb') as fo:
+            print('saving model to:', path)
+            pickle.dump(package, fo)
+            print('saved model to:', path)
 
-    def load(self, fname):
-        raise NotImplementedError
-        print('loading model:', fname)
-        classifier_tup = pickle.load(open(fname, 'rb'))
-        self.net = classifier_tup[0]
-        self.mean_features = classifier_tup[1]
-        self.std_features = classifier_tup[2]
+    def _load(self, path):
+        print('loading model:', path)
+        new_name = os.path.basename(path).split('.')[0]
+        package = pickle.load(open(path, 'rb'))
+        assert len(package) == 2
+        self.net = package[0]
+        self.meta = package[1]
+        self.meta['name'] = new_name
 
     def do_train_iter(self, signal, target):
         self.net.train()
@@ -58,20 +67,12 @@ class Model(object):
         
         loss.backward()
         self.optimizer.step()
-        print("iter: {:3d} | loss: {:4f}".format(self.count_iter, loss.data[0]))
-        self.count_iter += 1
+        # print("iter: {:3d} | loss: {:4f}".format(self.meta['count_iter'], loss.data[0]))
+        self.meta['count_iter'] += 1
+        return loss.data[0]
     
-    def score(self, x):
-        print('{:s}: scoring {:d} examples'.format(self.name, x.shape[0]))
-        features_pp = (x - self.mean_features)/self.std_features
-        self.net.eval()
-        features_pp_v = torch.autograd.Variable(torch.FloatTensor(features_pp)).cuda(GPU_ID)
-        scores_v = self.net(features_pp_v)
-        scores_np = scores_v.data.cpu().numpy()
-        return scores_np
-
     def predict(self, signal):
-        print('{:s}: predicting {:d} examples'.format(self.name, signal.shape[0]))
+        print('{:s}: predicting {:d} examples'.format(self.meta['name'], signal.shape[0]))
         self.net.eval()
         if CUDA:
             signal_t = torch.Tensor(signal).cuda()
@@ -81,26 +82,6 @@ class Model(object):
         pred_v = self.net(signal_v)
         pred_np = pred_v.data.cpu().numpy()
         return pred_np
-
-class Net_bk(nn.Module):
-    def __init__(self, param_1=16):
-        super().__init__()
-        self.sub_1 = SubNet2Conv(1, param_1)
-        self.pool_1 = torch.nn.MaxPool3d(2, stride=2)
-        self.sub_2 = SubNet2Conv(param_1, param_1*2)
-        self.convt = torch.nn.ConvTranspose3d(param_1*2, param_1, kernel_size=2, stride=2)
-        self.sub_3 = SubNet2Conv(param_1*2, param_1)
-        self.conv_out = torch.nn.Conv3d(param_1,  1, kernel_size=3, padding=1)
-        
-    def forward(self, x):
-        x1 = self.sub_1(x)
-        x1d = self.pool_1(x1)
-        x2 = self.sub_2(x1d)
-        x2u = self.convt(x2)  # upsample
-        x1_2 = torch.cat((x1, x2u), 1)  # concatenate
-        x3 = self.sub_3(x1_2)
-        x_out = self.conv_out(x3)
-        return x_out
 
 class Net(nn.Module):
     def __init__(self, mult_chan=16, depth=1):

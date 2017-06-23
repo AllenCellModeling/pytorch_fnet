@@ -1,0 +1,6 @@
+../test_images/20161209_C01_005.czi
+../test_images/20161209_C01_006.czi
+../test_images/20161209_C01_007.czi
+
+../test_images/20161209_C01_008.czi
+../test_images/20161209_C01_009.czi
