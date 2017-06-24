@@ -15,7 +15,8 @@ class DataProvider(object):
         self.vol_trans_np = proc.resize(self.vol_trans_np, factors);
         self.vol_dna_np = proc.resize(self.vol_dna_np, factors);
 
-    def get_batch(self, dims_chunk=(32, 64, 64), dims_pin=(None, None, None), return_coords=False):
+    def get_batch(self, batch_size=None,
+                  dims_chunk=(32, 64, 64), dims_pin=(None, None, None), return_coords=False):
         """Get a batch of examples from source data."
 
         Parameters:
@@ -29,11 +30,12 @@ class DataProvider(object):
         return_coord == True
         batch_x, batch_y, coords - same as above but with the addition of the chunk coordinates.
         """
-        n = self.batch_size
-        shape_batch = (n, 1) + dims_chunk
-        batch_x = np.zeros(shape_batch)
-        batch_y = np.zeros(shape_batch)
-        coords = self._pick_random_chunk_coord(dims_chunk, n=n, dims_pin=dims_pin)
+        if batch_size is None:
+            batch_size = self.batch_size
+        shape_batch = (batch_size, 1) + dims_chunk
+        batch_x = np.zeros(shape_batch, dtype=np.float32)
+        batch_y = np.zeros(shape_batch, dtype=np.float32)
+        coords = self._pick_random_chunk_coord(dims_chunk, n=batch_size, dims_pin=dims_pin)
         for i in range(len(coords)):
             coord = coords[i]
             # print(coord)
@@ -62,7 +64,6 @@ class DataProvider(object):
             coord = [0, 0, 0]
             for i in range(len(dims_chunk)):
                 if dims_pin[i] is None:
-                    # coord[i] = np.random.random_integers(0, shape[i] - dims_chunk[i])
                     coord[i] = np.random.randint(0, shape[i] - dims_chunk[i] + 1)
                 else:
                     coord[i] = dims_pin[i]

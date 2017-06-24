@@ -1,4 +1,4 @@
-import DataProvider
+from . import DataProvider
 import os
 import glob
 from aicsimage.io import omeTifReader
@@ -17,6 +17,8 @@ class TiffDataProvider(DataProvider.DataProvider):
         n_batches_per_image - number of image chunks to pull from each image
         rescale - 3-element tuple describing any rescaling that should be applied to each image
         """
+        if rescale is not None:
+            raise NotImplementedError
         super().__init__()
         self.path_folders = path_folders
         self.n_epochs = n_epochs
@@ -35,6 +37,9 @@ class TiffDataProvider(DataProvider.DataProvider):
         self._count_batch = 0
         
         self._load_folder()  # load first folder with data
+
+    def get_current_iter(self):
+        return self._count_iter
 
     def get_current_epoch(self):
         return self._count_epoch
@@ -89,7 +94,6 @@ class TiffDataProvider(DataProvider.DataProvider):
         if self._count_batch == self.n_batches_per_img:
             self._count_batch = 0
             self._load_folder()
-        print(batch[0].shape, batch[1].shape, len(batch))
         return batch
 
     def __iter__(self):

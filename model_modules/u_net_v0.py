@@ -57,10 +57,12 @@ class Model(object):
     def do_train_iter(self, signal, target):
         self.net.train()
         if CUDA:
-            signal_t, target_t = torch.Tensor(signal).cuda(), torch.Tensor(target).cuda()
+            signal_v = torch.autograd.Variable(torch.Tensor(signal).cuda())
+            target_v = torch.autograd.Variable(torch.Tensor(target).cuda())
         else:
-            signal_t, target_t = torch.Tensor(signal), torch.Tensor(target)
-        signal_v, target_v = torch.autograd.Variable(signal_t), torch.autograd.Variable(target_t)
+            signal_v = torch.autograd.Variable(torch.Tensor(signal))
+            target_v = torch.autograd.Variable(torch.Tensor(target))
+            
         self.optimizer.zero_grad()
         output = self.net(signal_v)
         loss = self.criterion(output, target_v)
