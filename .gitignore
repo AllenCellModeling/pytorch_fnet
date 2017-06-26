@@ -1,4 +1,6 @@
 aicsimage
 .ipynb_checkpoints
 __pycache__
-test_images
+test_images/
+test_output/
+logs/

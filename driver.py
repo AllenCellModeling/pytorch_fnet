@@ -9,10 +9,12 @@ from util.SimpleLogger import SimpleLogger
 import numpy as np
 import torch
 import util.TiffDataProvider
+import pdb
+import time
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--batch_size', type=int, default=64, help='size of each batch')
+parser.add_argument('--batch_size', type=int, default=32, help='size of each batch')
 parser.add_argument('--dataProvider', default='DataProvider', help='name of Dataprovider class')
 parser.add_argument('--model_module', default='u_net_v0', help='name of the model module')
 parser.add_argument('--n_batches_per_img', type=int, default=100, help='number batches to draw from each image')
@@ -25,18 +27,40 @@ opts = parser.parse_args()
 model_module = importlib.import_module('model_modules.'  + opts.model_module)
 
 logger = SimpleLogger(('num_iter', 'epoch', 'file', 'batch_num', 'loss'),
-                      'num_iter: %4d | epoch: %d | file: %s | batch_num: %3d | loss: %.4f')
+                      'num_iter: %4d | epoch: %d | file: %s | batch_num: %3d | loss: %.6f')
 
 def train(model, data):
+    start = time.time()
     for batch in data:
         x, y = batch
-        
         loss = model.do_train_iter(x, y)
         logger.add((data.get_current_iter(),
                     data.get_current_epoch(),
                     data.get_current_folder(),
                     data.get_current_batch_num(),
                     loss))
+    t_elapsed = time.time() - start
+    print('***** Training Time *****')
+    print('total:', t_elapsed)
+    print('per epoch:', t_elapsed/opts.n_epochs)
+    print()
+
+def train_bk(model, data):
+    """Here, an epoch is a training round in which every image file is used once."""
+    file_list = ['some_file.czi']  # TODO: this should come from DataProvider
+    n_optimizations = opts.n_epochs*len(file_list)*opts.n_batches_per_img
+    print(n_optimizations, 'model optimizations expected')
+    num_iter = 0  # track total training iterations for this model
+    for epoch in range(opts.n_epochs):
+        print('epoch:', epoch)
+        for fname in file_list:
+            print('current file:', fname)
+            for batch_num in range(opts.n_batches_per_img):
+                x, y = data.get_batch(16, dims_chunk=(32, 64, 64), dims_pin=(10, None, None))
+                loss = model.do_train_iter(x, y)
+                logger.add((num_iter, epoch, fname, batch_num, loss))
+                num_iter += 1
+                
 
 def test_whole(model, data):
     print('trying out whole image')
@@ -52,7 +76,7 @@ def test_whole(model, data):
     # print(slices)
 
     # Crop original image
-    shape = (1, 1) + data.vol_light_np.shape
+    shape = (1, 1) + data.vol_trans_np.shape
     shape_adj = (1, 1, 32, 128, 128)  # TODO: calculate automatically
     offsets = [(shape[i] - shape_adj[i])//2 for i in range(5)]
     slices = [slice(offsets[i], offsets[i] + shape_adj[i]) for i in range(5)]
@@ -63,12 +87,13 @@ def test_whole(model, data):
     x_test = np.zeros(shape_adj)
     y_true = np.zeros(shape_adj)
     
-    x_test[0, 0, :] = data.vol_light_np[slices[-3:]]
-    y_true[0, 0, :] = data.vol_nuc_np[slices[-3:]]
+    x_test[0, 0, :] = data.vol_trans_np[slices[-3:]]
+    y_true[0, 0, :] = data.vol_dna_np[slices[-3:]]
     y_pred = model.predict(x_test)
 
     gen_util.display_visual_eval_images(x_test, y_true, y_pred)
 
+    return
     # save predictions
     img_light = x_test[0, 0, ].astype(np.float32)
     img_nuc = y_true[0, 0, ].astype(np.float32)
@@ -149,6 +174,7 @@ def main():
     
     name_run = get_name_run()
     
+    # path_folders = 'one_folder.txt'
     path_folders = 'some_folders.txt'
     data = util.TiffDataProvider.TiffDataProvider(path_folders, opts.n_epochs, opts.n_batches_per_img,
                                                   batch_size=opts.batch_size,
@@ -156,17 +182,16 @@ def main():
     # instatiate model
     model = model_module.Model(mult_chan=32, depth=4)
     print(model)
-    
     train(model, data)
     # test(model, data)
-    # test_whole(model, data)
+    test_whole(model, data)
     
     # save model
-    # model.save(os.path.join(opts.save_path, name_run + '.p'))
+    model.save(os.path.join(opts.save_path, name_run + '.p'))
         
     # display logger data
-    # logger.save_csv()
-    # plot_logger_data()
+    logger.save_csv()
+    plot_logger_data()
     
 def main_bk():
     # set seeds for randomizers
@@ -185,7 +210,7 @@ def main_bk():
     model = model_module.Model(mult_chan=32, depth=4)
     print(model)
     
-    train(model, data)
+    train_bk(model, data)
     # test(model, data)
     test_whole(model, data)
     
@@ -198,7 +223,8 @@ def main_bk():
 
 if __name__ == '__main__':
     if opts.test_mode:
-        main_test()
+        main_bk()
+        # main_test()
     else:
         main()
 

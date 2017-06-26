@@ -84,9 +84,9 @@ class TiffDataProvider(DataProvider.DataProvider):
         return self._length
     
     def _get_batch_and_incr(self):
-        print('epoch: {:d} | folder: {:s} | batch_num: {:d}'.format(self._count_epoch,
-                                                                    self._folder_path_list[self._idx_folder],
-                                                                    self._count_batch))
+        # print('provider > epoch: {:d} | folder: {:s} | batch_num: {:d}'.format(self._count_epoch,
+        #                                                                        self._folder_path_list[self._idx_folder],
+        #                                                                        self._count_batch))
 
         batch = self.get_batch()
         self._count_iter += 1
