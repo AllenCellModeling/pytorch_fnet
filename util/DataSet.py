@@ -35,3 +35,25 @@ class DataSet(object):
                                                                   len(self._test_set),
                                                                   len(self._all_set)))
         return os.linesep.join(str_list)
+
+def test():
+    print('testing DataSet')
+    data_path = '../data'
+    percent_test = 0.2
+    dataset = DataSet(data_path, percent_test=percent_test)
+    print(dataset)
+    test_set = dataset.get_test_set()
+    train_set = dataset.get_train_set()
+    test_tmp = set(test_set)
+    train_tmp = set(train_set)
+    union = test_tmp | train_tmp
+    intersect = test_tmp & train_tmp
+    print('union of test and train:', len(union))
+    print('intersection of test and train:', len(intersect))
+    assert len(union) == (len(test_set) + len(train_set))
+    assert len(intersect) == 0
+    print('*** TEST PASSED ***')
+
+if __name__ == '__main__':
+    test()
+    
