@@ -4,7 +4,6 @@ import torch
 import torch.nn as nn
 import pickle
 
-GPU_ID = 0
 CUDA = True
 
 class Model(object):
@@ -28,6 +27,9 @@ class Model(object):
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr=lr, betas=(0.5, 0.999))
         self.criterion = torch.nn.MSELoss()
         # self.criterion = torch.nn.BCELoss()
+
+        self.signal_v = None
+        self.target_v = None
 
     def __str__(self):
         out_str = '{:s} | mult_chan: {:d} | depth: {:d}'.format(self.meta['name'],
@@ -56,16 +58,20 @@ class Model(object):
 
     def do_train_iter(self, signal, target):
         self.net.train()
-        if CUDA:
-            signal_v = torch.autograd.Variable(torch.Tensor(signal).cuda())
-            target_v = torch.autograd.Variable(torch.Tensor(target).cuda())
+        if self.signal_v is None:
+            if CUDA:
+                self.signal_v = torch.autograd.Variable(torch.Tensor(signal).cuda())
+                self.target_v = torch.autograd.Variable(torch.Tensor(target).cuda())
+            else:
+                self.signal_v = torch.autograd.Variable(torch.Tensor(signal))
+                self.target_v = torch.autograd.Variable(torch.Tensor(target))
         else:
-            signal_v = torch.autograd.Variable(torch.Tensor(signal))
-            target_v = torch.autograd.Variable(torch.Tensor(target))
+            self.signal_v.data.copy_(torch.Tensor(signal))
+            self.target_v.data.copy_(torch.Tensor(signal))
             
         self.optimizer.zero_grad()
-        output = self.net(signal_v)
-        loss = self.criterion(output, target_v)
+        output = self.net(self.signal_v)
+        loss = self.criterion(output, self.target_v)
         
         loss.backward()
         self.optimizer.step()
