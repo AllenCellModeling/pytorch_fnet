@@ -6,6 +6,7 @@ import importlib
 import gen_util
 import matplotlib.pyplot as plt
 from util.SimpleLogger import SimpleLogger
+from util.DataSet import DataSet
 import numpy as np
 import torch
 import util.TiffDataProvider
@@ -16,9 +17,13 @@ import time
 parser = argparse.ArgumentParser()
 parser.add_argument('--batch_size', type=int, default=32, help='size of each batch')
 parser.add_argument('--dataProvider', default='DataProvider', help='name of Dataprovider class')
+parser.add_argument('--data_path', default='data', help='path to data directory')
+parser.add_argument('--gpu_id', type=int, default=0, help='GPU ID')
 parser.add_argument('--model_module', default='u_net_v0', help='name of the model module')
 parser.add_argument('--n_batches_per_img', type=int, default=100, help='number batches to draw from each image')
 parser.add_argument('--n_epochs', type=int, default=1, help='number of epochs')
+parser.add_argument('--no_model_save', action='store_true', help='do not save trained model')
+parser.add_argument('--percent_test', type=float, default=0.1, help='percent of data to use for testing')
 parser.add_argument('--save_path', default='saved_models', help='save directory for trained model')
 parser.add_argument('--seed', type=int, default=0, help='random seed')
 parser.add_argument('--test_mode', action='store_true', default=False, help='run test version of main')
@@ -31,14 +36,17 @@ logger = SimpleLogger(('num_iter', 'epoch', 'file', 'batch_num', 'loss'),
 
 def train(model, data):
     start = time.time()
-    for batch in data:
+    for i, batch in enumerate(data):
         x, y = batch
+        # pdb.set_trace()
         loss = model.do_train_iter(x, y)
-        logger.add((data.get_current_iter(),
-                    data.get_current_epoch(),
-                    data.get_current_folder(),
-                    data.get_current_batch_num(),
+        stats = data.get_last_batch_stats()
+        logger.add((stats['iteration'],
+                    stats['epoch'],
+                    stats['folder'],
+                    stats['batch'],
                     loss))
+        print('DEBUG: i', i)
     t_elapsed = time.time() - start
     print('***** Training Time *****')
     print('total:', t_elapsed)
@@ -152,6 +160,16 @@ def get_name_run():
     return name_run
 
 def main_test():
+    print('testing DataSet')
+    dataset = DataSet(opts.data_path, percent_test=opts.percent_test)
+    print(dataset)
+    test_set = dataset.get_test_set()
+    train_set = dataset.get_train_set()
+    test_tmp = set(test_set)
+    train_tmp = set(train_set)
+    print(opts.percent_test)
+    
+def main_load():
     print('load model test')
     load_path = 'saved_models/run_170622_174530.p'
     model = model_module.Model(load_path=load_path)
@@ -171,23 +189,31 @@ def main():
     np.random.seed(opts.seed)
     torch.manual_seed(opts.seed)
     torch.cuda.manual_seed(opts.seed)
+
+    torch.cuda.set_device(opts.gpu_id)
+    print('on GPU:', torch.cuda.current_device())
     
     name_run = get_name_run()
     
     # path_folders = 'one_folder.txt'
     path_folders = 'some_folders.txt'
+    # aiming for 0.3 um/px
+    z_fac = 0.97
+    xy_fac = 0.36
+    resize_factors= (z_fac, xy_fac, xy_fac)
     data = util.TiffDataProvider.TiffDataProvider(path_folders, opts.n_epochs, opts.n_batches_per_img,
                                                   batch_size=opts.batch_size,
-                                                  rescale=None)
+                                                  resize=resize_factors)
     # instatiate model
     model = model_module.Model(mult_chan=32, depth=4)
     print(model)
     train(model, data)
     # test(model, data)
-    test_whole(model, data)
+    # test_whole(model, data)
     
     # save model
-    model.save(os.path.join(opts.save_path, name_run + '.p'))
+    if not opts.no_model_save:
+        model.save(os.path.join(opts.save_path, name_run + '.p'))
         
     # display logger data
     logger.save_csv()
@@ -198,7 +224,7 @@ def main_bk():
     np.random.seed(opts.seed)
     torch.manual_seed(opts.seed)
     torch.cuda.manual_seed(opts.seed)
-    
+
     name_run = get_name_run()
     
     # load data. TODO: replace with DataProvider instance.
@@ -223,8 +249,8 @@ def main_bk():
 
 if __name__ == '__main__':
     if opts.test_mode:
-        main_bk()
-        # main_test()
+        # main_bk()
+        main_test()
     else:
         main()
 
