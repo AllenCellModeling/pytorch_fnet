@@ -1,4 +1,6 @@
 import numpy as np
+import aicsimage.processing as proc
+import pdb
 
 class DataProvider(object):
     def __init__(self):
@@ -7,13 +9,13 @@ class DataProvider(object):
         self.batch_size = None
 
     def resize_data(self, factors):
-        """Rescale the light/nuclear channels.
+        """Resize the transmitted light/DNA channels.
 
         Parameters:
         factors - tuple of scaling factors for each dimension.
         """
-        self.vol_trans_np = proc.resize(self.vol_trans_np, factors);
-        self.vol_dna_np = proc.resize(self.vol_dna_np, factors);
+        self.vol_trans_np = proc.resize(self.vol_trans_np, factors)
+        self.vol_dna_np = proc.resize(self.vol_dna_np, factors)
 
     def get_batch(self, batch_size=None,
                   dims_chunk=(32, 64, 64), dims_pin=(None, None, None), return_coords=False):

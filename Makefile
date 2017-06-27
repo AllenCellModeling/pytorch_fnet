@@ -3,8 +3,7 @@ all : normal
 normal:
 	python3 driver.py
 
-debug:
-	python3 tmp_debug.py
+test:
+	python3 driver.py --data_path data_test --no_model_save --n_epochs 1 --n_batches_per_img 2
 
-test_mode:
-	python3 driver.py --test_mode
+

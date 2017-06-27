@@ -7,21 +7,22 @@ import gen_util
 import matplotlib.pyplot as plt
 from util.SimpleLogger import SimpleLogger
 from util.DataSet import DataSet
+from util.TiffDataProvider import TiffDataProvider
 import numpy as np
 import torch
-import util.TiffDataProvider
 import pdb
 import time
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--batch_size', type=int, default=32, help='size of each batch')
+parser.add_argument('--batch_size', type=int, default=24, help='size of each batch')
 parser.add_argument('--dataProvider', default='DataProvider', help='name of Dataprovider class')
 parser.add_argument('--data_path', default='data', help='path to data directory')
 parser.add_argument('--gpu_id', type=int, default=0, help='GPU ID')
 parser.add_argument('--model_module', default='u_net_v0', help='name of the model module')
 parser.add_argument('--n_batches_per_img', type=int, default=100, help='number batches to draw from each image')
 parser.add_argument('--n_epochs', type=int, default=1, help='number of epochs')
+parser.add_argument('--show_plots', action='store_true', help='display plots and test images')
 parser.add_argument('--no_model_save', action='store_true', help='do not save trained model')
 parser.add_argument('--percent_test', type=float, default=0.1, help='percent of data to use for testing')
 parser.add_argument('--save_path', default='saved_models', help='save directory for trained model')
@@ -46,7 +47,6 @@ def train(model, data):
                     stats['folder'],
                     stats['batch'],
                     loss))
-        print('DEBUG: i', i)
     t_elapsed = time.time() - start
     print('***** Training Time *****')
     print('total:', t_elapsed)
@@ -159,17 +159,7 @@ def get_name_run():
     name_run = now_dt.strftime('run_%y%m%d_%H%M%S')
     return name_run
 
-def main_test():
-    print('testing DataSet')
-    dataset = DataSet(opts.data_path, percent_test=opts.percent_test)
-    print(dataset)
-    test_set = dataset.get_test_set()
-    train_set = dataset.get_train_set()
-    test_tmp = set(test_set)
-    train_tmp = set(train_set)
-    print(opts.percent_test)
-    
-def main_load():
+def main_load():  # TODO: move to separate .py file
     print('load model test')
     load_path = 'saved_models/run_170622_174530.p'
     model = model_module.Model(load_path=load_path)
@@ -194,20 +184,28 @@ def main():
     print('on GPU:', torch.cuda.current_device())
     
     name_run = get_name_run()
+
+    # create train, test datasets
+    dataset = DataSet(opts.data_path, percent_test=opts.percent_test)
+    print(dataset)
+    test_set = dataset.get_test_set()
+    train_set = dataset.get_train_set()
     
-    # path_folders = 'one_folder.txt'
-    path_folders = 'some_folders.txt'
     # aiming for 0.3 um/px
     z_fac = 0.97
     xy_fac = 0.36
-    resize_factors= (z_fac, xy_fac, xy_fac)
-    data = util.TiffDataProvider.TiffDataProvider(path_folders, opts.n_epochs, opts.n_batches_per_img,
-                                                  batch_size=opts.batch_size,
-                                                  resize=resize_factors)
+    resize_factors = (z_fac, xy_fac, xy_fac)
+    data_train = TiffDataProvider(train_set, opts.n_epochs, opts.n_batches_per_img,
+                                  batch_size=opts.batch_size,
+                                  resize_factors=resize_factors)
+    data_test = TiffDataProvider(test_set, 1, 8,
+                                 batch_size=1,
+                                 resize_factors=resize_factors)
+    
     # instatiate model
     model = model_module.Model(mult_chan=32, depth=4)
     print(model)
-    train(model, data)
+    train(model, data_train)
     # test(model, data)
     # test_whole(model, data)
     
@@ -217,7 +215,8 @@ def main():
         
     # display logger data
     logger.save_csv()
-    plot_logger_data()
+    if opts.show_plots:
+        plot_logger_data()
     
 def main_bk():
     # set seeds for randomizers
