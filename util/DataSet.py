@@ -15,6 +15,9 @@ class DataSet(object):
         if idx_split == 0:
             idx_split = 1
         self._test_set = self._all_set[:idx_split]
+        if len(self._all_set) == 1:
+            print('WARNING: DataSet has only one element')
+            idx_split = -1
         self._train_set = self._all_set[idx_split:]
 
     def get_test_set(self):

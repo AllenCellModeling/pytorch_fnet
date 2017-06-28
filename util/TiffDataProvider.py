@@ -37,32 +37,8 @@ class TiffDataProvider(DataProvider.DataProvider):
 
     def get_last_batch_stats(self):
         return self._last_batch_stats
-    
-    def _load_folder(self):
-        """Populate vol_light_np, vol_nuc_np with data from files in folder."""
-        def normalize_ar(ar):
-            ar -= np.amin(ar)
-            ar /= np.amax(ar)
 
-        path = self._folder_list[self._idx_folder]
-        print('TiffDataProvider: loading', path)
-        trans_fname_list = glob.glob(os.path.join(path, '*_trans.tif'))
-        dna_fname_list = glob.glob(os.path.join(path, '*_dna.tif'))
-        if len(trans_fname_list) > 1:
-            print('WARNING: more than 1 transmitted light image in:', path)
-        if len(dna_fname_list) > 1:
-            print('WARNING: more than 1 DNA image in:', path)
-        path_trans = trans_fname_list[0]
-        path_dna = dna_fname_list[0]
-        with omeTifReader.OmeTifReader(path_trans) as fin:
-            self.vol_trans_np = fin.load().astype(np.float32)[0, ]
-            normalize_ar(self.vol_trans_np)
-        with omeTifReader.OmeTifReader(path_dna) as fin:
-            self.vol_dna_np = fin.load().astype(np.float32)[0, ]
-            normalize_ar(self.vol_dna_np)
-        if self._resize_factors is not None:
-            self.resize_data(self._resize_factors)
-        
+    def _incr_idx_folder(self):
         self._active_folder = self._folder_list[self._idx_folder]
         self._last_batch_stats['folder'] = self._active_folder
         self._last_batch_stats['epoch'] = self._count_epoch
@@ -70,6 +46,45 @@ class TiffDataProvider(DataProvider.DataProvider):
         if self._idx_folder % len(self._folder_list) == 0:
             self._idx_folder = 0
             self._count_epoch += 1
+    
+    def _load_folder(self):
+        """Populate vol_light_np, vol_nuc_np with data from files in folder."""
+        def normalize_ar(ar):
+            ar -= np.amin(ar)
+            ar /= np.amax(ar)
+
+        
+        # *****
+        success = False
+
+        while not success:
+            path = self._folder_list[self._idx_folder]
+            print('TiffDataProvider: loading', path)
+            trans_fname_list = glob.glob(os.path.join(path, '*_trans.tif'))
+            dna_fname_list = glob.glob(os.path.join(path, '*_dna.tif'))
+            if len(trans_fname_list) > 1:
+                print('WARNING: more than 1 transmitted light image in:', path)
+            if len(dna_fname_list) > 1:
+                print('WARNING: more than 1 DNA image in:', path)
+            if len(trans_fname_list) == 0 or len(dna_fname_list) == 0:
+                print('WARNING: empty folder', path)
+                self._incr_idx_folder()
+                continue
+            success = True  # move this to after file reads
+            path_trans = trans_fname_list[0]
+            path_dna = dna_fname_list[0]
+            with omeTifReader.OmeTifReader(path_trans) as fin:
+                self.vol_trans_np = fin.load().astype(np.float32)[0, ]
+                normalize_ar(self.vol_trans_np)
+            with omeTifReader.OmeTifReader(path_dna) as fin:
+                self.vol_dna_np = fin.load().astype(np.float32)[0, ]
+                normalize_ar(self.vol_dna_np)
+            if self._resize_factors is not None:
+                self.resize_data(self._resize_factors)
+        # *****
+        self._incr_idx_folder()
+        
+
 
     def _incr_stuff(self):
         self._last_batch_stats['iteration'] = self._count_iter
@@ -95,6 +110,77 @@ class TiffDataProvider(DataProvider.DataProvider):
         batch = self.get_batch()
         self._incr_stuff()
         return batch
+
+class TiffCroppedDataProvider(DataProvider.DataProvider):
+    def __init__(self, folder_list, resize_factors=None, shape_cropped=(32, 128, 128)):
+        super().__init__()
+        self._folder_list = folder_list
+        self._resize_factors = resize_factors
+        self.shape_cropped = shape_cropped
+        self._length = len(self._folder_list)
+
+        self._idx_folder = 0
+        self._active_folder = None
+
+    def _load_folder(self):
+        """Populate vol_light_np, vol_nuc_np with data from files in folder."""
+        def normalize_ar(ar):
+            ar -= np.amin(ar)
+            ar /= np.amax(ar)
+
+        # *****
+        success = False
+        while not success:
+            path = self._folder_list[self._idx_folder]
+            print('TiffDataProvider: loading', path)
+            trans_fname_list = glob.glob(os.path.join(path, '*_trans.tif'))
+            dna_fname_list = glob.glob(os.path.join(path, '*_dna.tif'))
+            if len(trans_fname_list) > 1:
+                print('WARNING: more than 1 transmitted light image in:', path)
+            if len(dna_fname_list) > 1:
+                print('WARNING: more than 1 DNA image in:', path)
+            if len(trans_fname_list) == 0 or len(dna_fname_list) == 0:
+                print('WARNING: empty folder', path)
+                self._incr_idx_folder()
+                continue
+            success = True  # move this to after file reads
+            path_trans = trans_fname_list[0]
+            path_dna = dna_fname_list[0]
+            with omeTifReader.OmeTifReader(path_trans) as fin:
+                self.vol_trans_np = fin.load().astype(np.float32)[0, ]
+                normalize_ar(self.vol_trans_np)
+            with omeTifReader.OmeTifReader(path_dna) as fin:
+                self.vol_dna_np = fin.load().astype(np.float32)[0, ]
+                normalize_ar(self.vol_dna_np)
+            if self._resize_factors is not None:
+                self.resize_data(self._resize_factors)
+        # *****
+        self._active_folder = path
+        self._idx_folder += 1
+
+    def _get_cropped_img_pair(self):
+        shape = self.vol_trans_np.shape
+        shape_adj = self.shape_cropped
+        n_dim = len(shape)
+        offsets = [(shape[i] - shape_adj[i])//2 for i in range(n_dim)]
+        slices = [slice(offsets[i], offsets[i] + shape_adj[i]) for i in range(n_dim)]
+        img_trans_cropped = self.vol_trans_np[slices]
+        img_dna_cropped = self.vol_dna_np[slices]
+        return img_trans_cropped, img_dna_cropped
+    
+    def __len__(self):
+        return self._length
+    
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self._idx_folder == self._length:
+            raise StopIteration
+        self._load_folder()
+        pair_img_cropped = self._get_cropped_img_pair()
+        return pair_img_cropped
+    
 
 def test():
     print('testing TiffDataProvder')
