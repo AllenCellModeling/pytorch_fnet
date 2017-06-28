@@ -10,6 +10,9 @@ class Model(object):
     def __init__(self, mult_chan=None, depth=None, load_path=None):
         if load_path is None:
             self.net = Net(mult_chan=mult_chan, depth=depth)
+
+            self.net.apply(weights_init)
+
             if CUDA:
                 self.net.cuda()
             self.meta = {
@@ -22,7 +25,8 @@ class Model(object):
             self._load(load_path)  # defines self.net, self.meta
 
         lr = 0.0001
-        momentum = 0.5
+        # lr = 0.01
+
         # self.optimizer = torch.optim.SGD(self.net.parameters(), lr=lr, momentum=momentum)
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr=lr, betas=(0.5, 0.999))
         self.criterion = torch.nn.MSELoss()
@@ -67,7 +71,7 @@ class Model(object):
                 self.target_v = torch.autograd.Variable(torch.Tensor(target))
         else:
             self.signal_v.data.copy_(torch.Tensor(signal))
-            self.target_v.data.copy_(torch.Tensor(signal))
+            self.target_v.data.copy_(torch.Tensor(target))
             
         self.optimizer.zero_grad()
         output = self.net(self.signal_v)
@@ -118,6 +122,7 @@ class _Net_recurse(nn.Module):
         self.depth = depth
         n_out_channels = n_in_channels*mult_chan
         self.sub_2conv_more = SubNet2Conv(n_in_channels, n_out_channels)
+        
         if depth > 0:
             self.sub_2conv_less = SubNet2Conv(2*n_out_channels, n_out_channels)
             self.pool = torch.nn.MaxPool3d(2, stride=2)
@@ -154,3 +159,12 @@ class SubNet2Conv(nn.Module):
         x = self.bn2(x)
         x = self.relu2(x)
         return x
+
+
+def weights_init(m):
+    classname = m.__class__.__name__
+    if classname.startswith('Conv'):
+        m.weight.data.normal_(0.0, 0.02)
+    elif classname.find('BatchNorm') != -1:
+        m.weight.data.normal_(1.0, 0.02)
+        m.bias.data.fill_(0) 
