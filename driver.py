@@ -13,40 +13,45 @@ import torch
 import pdb
 import time
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument('--batch_size', type=int, default=24, help='size of each batch')
 parser.add_argument('--dataProvider', default='DataProvider', help='name of Dataprovider class')
 parser.add_argument('--data_path', default='data', help='path to data directory')
 parser.add_argument('--gpu_id', type=int, default=0, help='GPU ID')
+parser.add_argument('--iter_save_log', type=int, default=250, help='iterations between log saves')
+parser.add_argument('--iter_save_model', type=int, default=500, help='iterations between model saves')
 parser.add_argument('--model_module', default='u_net_v0', help='name of the model module')
 parser.add_argument('--n_batches_per_img', type=int, default=100, help='number batches to draw from each image')
-parser.add_argument('--n_epochs', type=int, default=1, help='number of epochs')
-parser.add_argument('--show_plots', action='store_true', help='display plots and test images')
+parser.add_argument('--n_epochs', type=int, default=5, help='number of epochs')
 parser.add_argument('--no_model_save', action='store_true', help='do not save trained model')
 parser.add_argument('--percent_test', type=float, default=0.1, help='percent of data to use for testing')
+parser.add_argument('--run_name', help='name of run')
 parser.add_argument('--save_path', default='saved_models', help='save directory for trained model')
 parser.add_argument('--seed', type=int, default=0, help='random seed')
-parser.add_argument('--test_mode', action='store_true', default=False, help='run test version of main')
-
+parser.add_argument('--show_plots', action='store_true', help='display plots and test images')
 opts = parser.parse_args()
+
 model_module = importlib.import_module('model_modules.'  + opts.model_module)
 
-logger = SimpleLogger(('num_iter', 'epoch', 'file', 'batch_num', 'loss'),
-                      'num_iter: %4d | epoch: %d | file: %s | batch_num: %3d | loss: %.6f')
-
-def train(model, data):
+def train(model, data, logger):
     start = time.time()
     for i, batch in enumerate(data):
         x, y = batch
         # pdb.set_trace()
         loss = model.do_train_iter(x, y)
         stats = data.get_last_batch_stats()
-        logger.add((stats['iteration'],
-                    stats['epoch'],
-                    stats['folder'],
-                    stats['batch'],
-                    loss))
+        logger.add((
+            stats['iteration'],
+            stats['epoch'],
+            stats['batch'],
+            loss,
+            stats['folder']
+        ))
+        if i % opts.iter_save_log == 0:
+            logger.save_csv()
+        if i % opts.iter_save_model == 0 and i > 0 and not opts.no_model_save:
+            model.save(os.path.join(opts.save_path, logger.logger_name + '.p'))
+            
     t_elapsed = time.time() - start
     print('***** Training Time *****')
     print('total:', t_elapsed)
@@ -154,25 +159,10 @@ def plot_logger_data():
     ax.set_ylabel('MSE loss')
     plt.show()
 
-def get_name_run():
+def get_run_name():
     now_dt = datetime.datetime.now(pytz.utc).astimezone(pytz.timezone('US/Pacific'))
-    name_run = now_dt.strftime('run_%y%m%d_%H%M%S')
-    return name_run
-
-def main_load():  # TODO: move to separate .py file
-    print('load model test')
-    load_path = 'saved_models/run_170622_174530.p'
-    model = model_module.Model(load_path=load_path)
-    print(model)
-
-    # load data. TODO: replace with DataProvider instance.
-    fname = './test_images/20161209_C01_001.czi'
-    # fname = './test_images/20161219_C01_034.czi'
-    print('loading data:', fname)
-    loader = gen_util.CziLoader(fname, channel_light=3, channel_nuclear=2)
-    data = loader
-
-    test_whole(model, data)
+    run_name = now_dt.strftime('run_%y%m%d_%H%M%S')
+    return run_name
 
 def main():
     # set seeds for randomizers
@@ -182,8 +172,13 @@ def main():
 
     torch.cuda.set_device(opts.gpu_id)
     print('on GPU:', torch.cuda.current_device())
-    
-    name_run = get_name_run()
+
+    run_name = opts.run_name
+    if run_name is None:
+        run_name = get_run_name()
+    logger = SimpleLogger(('num_iter', 'epoch', 'batch_num', 'loss', 'file'),
+                          'num_iter: %4d | epoch: %d | batch_num: %3d | loss: %.6f | file: %s',
+                          logger_name=run_name)
 
     # create train, test datasets
     dataset = DataSet(opts.data_path, percent_test=opts.percent_test)
@@ -205,51 +200,17 @@ def main():
     # instatiate model
     model = model_module.Model(mult_chan=32, depth=4)
     print(model)
-    train(model, data_train)
-    # test(model, data)
-    # test_whole(model, data)
+    train(model, data_train, logger)
+        
+    # display logger data
+    logger.save_csv()
     
     # save model
     if not opts.no_model_save:
-        model.save(os.path.join(opts.save_path, name_run + '.p'))
+        model.save(os.path.join(opts.save_path, run_name + '.p'))
         
-    # display logger data
-    logger.save_csv()
     if opts.show_plots:
         plot_logger_data()
     
-def main_bk():
-    # set seeds for randomizers
-    np.random.seed(opts.seed)
-    torch.manual_seed(opts.seed)
-    torch.cuda.manual_seed(opts.seed)
-
-    name_run = get_name_run()
-    
-    # load data. TODO: replace with DataProvider instance.
-    fname = './test_images/20161209_C01_001.czi'
-    loader = gen_util.CziLoader(fname, channel_light=3, channel_nuclear=2)
-    data = loader
-    
-    # instatiate model
-    model = model_module.Model(mult_chan=32, depth=4)
-    print(model)
-    
-    train_bk(model, data)
-    # test(model, data)
-    test_whole(model, data)
-    
-    # save model
-    # model.save(os.path.join(opts.save_path, name_run + '.p'))
-        
-    # display logger data
-    logger.save_csv()
-    # plot_logger_data()
-
 if __name__ == '__main__':
-    if opts.test_mode:
-        # main_bk()
-        main_test()
-    else:
-        main()
-
+    main()

@@ -401,13 +401,13 @@ def display_visual_eval_images(signal, target, prediction):
     prediction (5d numpy array)
     """
     n_examples = signal.shape[0]
-    print('Displaying chunk slices for', n_examples, 'examples')
+    # print('Displaying chunk slices for', n_examples, 'examples')
     source_list = [signal, target, prediction]
     z_mid = signal.shape[2]//2
     for ex in range(n_examples):
         fig = plt.figure(figsize=(10, 3))
         for i in range(3):
-            fig.suptitle('example: ' + str(ex))
+            # fig.suptitle('example: ' + str(ex))
             img = source_list[i][ex, 0, z_mid, ]
             ax = fig.add_subplot(1, 3, i + 1)
             ax.get_xaxis().set_visible(False)
