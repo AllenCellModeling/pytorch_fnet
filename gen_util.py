@@ -403,21 +403,23 @@ def display_visual_eval_images(signal, target, prediction):
     n_examples = signal.shape[0]
     # print('Displaying chunk slices for', n_examples, 'examples')
     source_list = [signal, target, prediction]
-    z_mid = signal.shape[2]//2
-    print('dna stats:')
-    print_array_stats()
-    print('predition stats:')
-    print_array_stats(prediction)
+    titles = ('transmitted', 'DNA', 'predicted')
+            
     for ex in range(n_examples):
-        fig = plt.figure(figsize=(10, 3))
+        # fig = plt.figure(figsize=(15, 15), tight_layout={'w_pad':1.0})
+        fig = plt.figure(figsize=(15, 15))
+        fig.subplots_adjust(wspace=0.05)
+        z_strong = find_z_of_max_slice(target[ex, 0, ])
+        print('z:', z_strong)
         for i in range(3):
-            # fig.suptitle('example: ' + str(ex))
-            img = source_list[i][ex, 0, z_mid, ]
+            img = source_list[i][ex, 0, z_strong, ]
             ax = fig.add_subplot(1, 3, i + 1)
+            ax.set_title(titles[i])
             ax.get_xaxis().set_visible(False)
             ax.get_yaxis().set_visible(False)
             # ax.imshow(img, cmap='gray', interpolation='bilinear', vmin=0, vmax=1)
             ax.imshow(img, cmap='gray', interpolation='bilinear')
+            
     plt.show()
 
 if __name__ == '__main__':

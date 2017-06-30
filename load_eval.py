@@ -27,11 +27,12 @@ def test_cropped(model, data):
     shape_example = (1, 1) + data.shape_cropped
     x_test = np.zeros(shape_example)
     y_true = np.zeros(shape_example)
+    y_pred = np.zeros(shape_example)
     for i, pair_img_cropped in enumerate(data):
-        print('example:', i)
         x_test[0, 0, :] = pair_img_cropped[0]
         y_true[0, 0, :] = pair_img_cropped[1]
-        y_pred = model.predict(x_test)
+        if model is not None:
+            y_pred = model.predict(x_test)
         gen_util.display_visual_eval_images(x_test, y_true, y_pred)
     return
 
@@ -88,9 +89,10 @@ def main():
                                         resize_factors=resize_factors,
                                         shape_cropped=(32, 128, 128))
     # load model
-    model = model_module.Model(load_path=opts.load_path)
+    model = None
+    if opts.load_path is not None:
+        model = model_module.Model(load_path=opts.load_path)
     print(model)
-    
     test_cropped(model, data_test)
 
 if __name__ == '__main__':
