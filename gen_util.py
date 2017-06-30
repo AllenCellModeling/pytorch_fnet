@@ -404,6 +404,10 @@ def display_visual_eval_images(signal, target, prediction):
     # print('Displaying chunk slices for', n_examples, 'examples')
     source_list = [signal, target, prediction]
     z_mid = signal.shape[2]//2
+    print('dna stats:')
+    print_array_stats()
+    print('predition stats:')
+    print_array_stats(prediction)
     for ex in range(n_examples):
         fig = plt.figure(figsize=(10, 3))
         for i in range(3):

@@ -3,11 +3,12 @@ import numpy as np
 import torch
 import torch.nn as nn
 import pickle
+import time
 
 CUDA = True
 
 class Model(object):
-    def __init__(self, mult_chan=None, depth=None, load_path=None):
+    def __init__(self, mult_chan=None, depth=None, load_path=None, lr=0.0001):
         if load_path is None:
             self.net = Net(mult_chan=mult_chan, depth=depth)
 
@@ -24,13 +25,9 @@ class Model(object):
         else:
             self._load(load_path)  # defines self.net, self.meta
 
-        lr = 0.0001
-        # lr = 0.01
-
-        # self.optimizer = torch.optim.SGD(self.net.parameters(), lr=lr, momentum=momentum)
-        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=lr, betas=(0.5, 0.999))
+        self.lr = lr
+        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=self.lr, betas=(0.5, 0.999))
         self.criterion = torch.nn.MSELoss()
-        # self.criterion = torch.nn.BCELoss()
 
         self.signal_v = None
         self.target_v = None
@@ -53,12 +50,15 @@ class Model(object):
 
     def _load(self, path):
         print('loading model:', path)
+        time_start = time.time()
         new_name = os.path.basename(path).split('.')[0]
         package = pickle.load(open(path, 'rb'))
         assert len(package) == 2
         self.net = package[0]
         self.meta = package[1]
         self.meta['name'] = new_name
+        time_load = time.time() - time_start
+        print('model load time: {:.1f} s'.format(time_load))
 
     def do_train_iter(self, signal, target):
         self.net.train()
@@ -84,7 +84,7 @@ class Model(object):
         return loss.data[0]
     
     def predict(self, signal):
-        print('{:s}: predicting {:d} examples'.format(self.meta['name'], signal.shape[0]))
+        # print('{:s}: predicting {:d} examples'.format(self.meta['name'], signal.shape[0]))
         self.net.eval()
         if CUDA:
             signal_t = torch.Tensor(signal).cuda()

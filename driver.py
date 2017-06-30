@@ -20,6 +20,7 @@ parser.add_argument('--data_path', default='data', help='path to data directory'
 parser.add_argument('--gpu_id', type=int, default=0, help='GPU ID')
 parser.add_argument('--iter_save_log', type=int, default=250, help='iterations between log saves')
 parser.add_argument('--iter_save_model', type=int, default=500, help='iterations between model saves')
+parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
 parser.add_argument('--model_module', default='u_net_v0', help='name of the model module')
 parser.add_argument('--n_batches_per_img', type=int, default=100, help='number batches to draw from each image')
 parser.add_argument('--n_epochs', type=int, default=5, help='number of epochs')
@@ -57,69 +58,6 @@ def train(model, data, logger):
     print('total:', t_elapsed)
     print('per epoch:', t_elapsed/opts.n_epochs)
     print()
-
-def train_bk(model, data):
-    """Here, an epoch is a training round in which every image file is used once."""
-    file_list = ['some_file.czi']  # TODO: this should come from DataProvider
-    n_optimizations = opts.n_epochs*len(file_list)*opts.n_batches_per_img
-    print(n_optimizations, 'model optimizations expected')
-    num_iter = 0  # track total training iterations for this model
-    for epoch in range(opts.n_epochs):
-        print('epoch:', epoch)
-        for fname in file_list:
-            print('current file:', fname)
-            for batch_num in range(opts.n_batches_per_img):
-                x, y = data.get_batch(16, dims_chunk=(32, 64, 64), dims_pin=(10, None, None))
-                loss = model.do_train_iter(x, y)
-                logger.add((num_iter, epoch, fname, batch_num, loss))
-                num_iter += 1
-                
-
-def test_whole(model, data):
-    print('trying out whole image')
-    # dimensions of image input into model must be powers of 2
-
-    # # Pad original test image with zeros
-    # shape = (1, 1) + data.vol_light_np.shape
-    # shape_padded = (1, 1, 128, 256, 256)  # TODO: calculate automatically
-    # offsets = [(shape_padded[i] - shape[i])//2 for i in range(5)]
-    # slices = [slice(offsets[i], offsets[i] + shape[i]) for i in range(5)]
-    # print(shape, shape_padded)
-    # print(offsets)
-    # print(slices)
-
-    # Crop original image
-    shape = (1, 1) + data.vol_trans_np.shape
-    shape_adj = (1, 1, 32, 128, 128)  # TODO: calculate automatically
-    offsets = [(shape[i] - shape_adj[i])//2 for i in range(5)]
-    slices = [slice(offsets[i], offsets[i] + shape_adj[i]) for i in range(5)]
-    print(shape, shape_adj)
-    print(offsets)
-    print(slices)
-    
-    x_test = np.zeros(shape_adj)
-    y_true = np.zeros(shape_adj)
-    
-    x_test[0, 0, :] = data.vol_trans_np[slices[-3:]]
-    y_true[0, 0, :] = data.vol_dna_np[slices[-3:]]
-    y_pred = model.predict(x_test)
-
-    gen_util.display_visual_eval_images(x_test, y_true, y_pred)
-
-    return
-    # save predictions
-    img_light = x_test[0, 0, ].astype(np.float32)
-    img_nuc = y_true[0, 0, ].astype(np.float32)
-    img_pred = y_pred[0, 0, ]
-    
-    name_pre = 'test_output/{:s}_whole_cropped_'.format(model.meta['name'])
-    name_post = '.tif'
-    name_light = name_pre + 'light' + name_post
-    name_nuc = name_pre + 'nuc' + name_post
-    name_pred = name_pre + 'prediction' + name_post
-    gen_util.save_img_np(img_light, name_light)
-    gen_util.save_img_np(img_nuc, name_nuc)
-    gen_util.save_img_np(img_pred, name_pred)
     
 def test(model, data):
     # TODO: change data provider to pull from test image set
@@ -198,7 +136,7 @@ def main():
                                  resize_factors=resize_factors)
     
     # instatiate model
-    model = model_module.Model(mult_chan=32, depth=4)
+    model = model_module.Model(mult_chan=32, depth=4, lr=opts.lr)
     print(model)
     train(model, data_train, logger)
         
