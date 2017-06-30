@@ -1,4 +1,5 @@
 from util.DataSet import DataSet
+from util.TiffDataProvider import TiffDataProvider
 
 def test_DataSet():
     print('testing DataSet')
@@ -19,5 +20,19 @@ def test_DataSet():
     assert len(intersect) == 0
     print('*** TEST PASSED ***')
 
+def test_TiffDataProvider():
+    print('testing TiffDataProvder')
+    path = 'data/test_files'
+    dataset = DataSet(path, percent_test=0.0, force_rebuild=True)
+    print(dataset)
+    train_set = dataset.get_train_set()
+    print(train_set)
+    tiff_dp = TiffDataProvider(train_set, 5, 1)
+    for batch in tiff_dp:
+        stats = tiff_dp.get_last_batch_stats()
+        print(stats)
+    # TODO: change the way iterations are determined when encoutering a bad file
+
 if __name__ == '__main__':
-    test_DataSet()
+    # test_DataSet()
+    test_TiffDataProvider()

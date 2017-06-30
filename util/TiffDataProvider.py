@@ -49,42 +49,40 @@ class TiffDataProvider(DataProvider.DataProvider):
     
     def _load_folder(self):
         """Populate vol_light_np, vol_nuc_np with data from files in folder."""
-        def normalize_ar(ar):
-            ar -= np.amin(ar)
-            ar /= np.amax(ar)
-
-        
-        # *****
         success = False
-
         while not success:
             path = self._folder_list[self._idx_folder]
             print('TiffDataProvider: loading', path)
             trans_fname_list = glob.glob(os.path.join(path, '*_trans.tif'))
             dna_fname_list = glob.glob(os.path.join(path, '*_dna.tif'))
-            if len(trans_fname_list) > 1:
-                print('WARNING: more than 1 transmitted light image in:', path)
-            if len(dna_fname_list) > 1:
-                print('WARNING: more than 1 DNA image in:', path)
-            if len(trans_fname_list) == 0 or len(dna_fname_list) == 0:
-                print('WARNING: empty folder', path)
+            if len(trans_fname_list) != 1 or len(dna_fname_list) != 1:
+                print('WARNING: incorrect number of transmitted light/dna channel files found:', path)
                 self._incr_idx_folder()
                 continue
-            success = True  # move this to after file reads
             path_trans = trans_fname_list[0]
             path_dna = dna_fname_list[0]
-            with omeTifReader.OmeTifReader(path_trans) as fin:
-                self.vol_trans_np = fin.load().astype(np.float32)[0, ]
-                normalize_ar(self.vol_trans_np)
-            with omeTifReader.OmeTifReader(path_dna) as fin:
-                self.vol_dna_np = fin.load().astype(np.float32)[0, ]
-                normalize_ar(self.vol_dna_np)
+            try:
+                fin_trans = omeTifReader.OmeTifReader(path_trans)
+            except:
+                print('WARNING: could not read trans file:', path_trans)
+                self._incr_idx_folder()
+                continue
+            try:
+                fin_dna = omeTifReader.OmeTifReader(path_dna)
+            except:
+                print('WARNING: could not read dna file:', path_dna)
+                self._incr_idx_folder()
+                continue
+            
+            self.vol_trans_np = fin_trans.load().astype(np.float32)[0, ]
+            normalize_ar(self.vol_trans_np)
+            self.vol_dna_np = fin_dna.load().astype(np.float32)[0, ]
+            normalize_ar(self.vol_dna_np)
             if self._resize_factors is not None:
                 self.resize_data(self._resize_factors)
+            success = True
         # *****
         self._incr_idx_folder()
-        
-
 
     def _incr_stuff(self):
         self._last_batch_stats['iteration'] = self._count_iter
@@ -124,11 +122,6 @@ class TiffCroppedDataProvider(DataProvider.DataProvider):
 
     def _load_folder(self):
         """Populate vol_light_np, vol_nuc_np with data from files in folder."""
-        def normalize_ar(ar):
-            ar -= np.amin(ar)
-            ar /= np.amax(ar)
-
-        # *****
         success = False
         while not success:
             path = self._folder_list[self._idx_folder]
@@ -180,17 +173,11 @@ class TiffCroppedDataProvider(DataProvider.DataProvider):
         self._load_folder()
         pair_img_cropped = self._get_cropped_img_pair()
         return pair_img_cropped
-    
 
-def test():
-    print('testing TiffDataProvder')
-    data_path = '../data_test'
-    data_set = [i.path for i in os.scandir(data_path) if i.is_dir()]
-    print(data_set)
-    tiff_dp = TiffDataProvider(data_set, 3, 2)
-    for batch in tiff_dp:
-        stats = tiff_dp.get_last_batch_stats()
-        print(stats)
+def normalize_ar(ar):
+    # return  # for now, do nothing
+    ar -= np.amin(ar)
+    ar /= np.amax(ar)
 
         
 if __name__ == '__main__':
