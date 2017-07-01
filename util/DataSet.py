@@ -2,7 +2,7 @@ import os
 import pickle
 
 class DataSet(object):
-    def __init__(self, path, percent_test=0.1, force_rebuild=False):
+    def __init__(self, path, percent_test=0.1, force_rebuild=False, train_set_limit=None):
         """
         path - path to parent directory that contains folders of data.
         percent_test - (float between 0.0 and 1.0) percent of folders to be used as test set
@@ -10,6 +10,7 @@ class DataSet(object):
         # member variables
         self._path = path
         self._percent_test = percent_test
+        self._train_set_limit = train_set_limit
         self._all_set = None
         self._test_set = None
         self._train_set = None
@@ -32,6 +33,9 @@ class DataSet(object):
             idx_split = round(len(self._all_set)*self._percent_test)
             self._test_set = self._all_set[:idx_split]
             self._train_set = self._all_set[idx_split:]
+            if self._train_set_limit is not None:
+                self._train_set = self._train_set[:self._train_set_limit]
+                print('limiting training set to {:d} elements'.format(self._train_set_limit))
     
     def get_test_set(self):
         return self._test_set

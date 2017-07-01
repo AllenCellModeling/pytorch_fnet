@@ -1,5 +1,4 @@
 from . import DataProvider
-# import DataProvider
 import os
 import glob
 from aicsimage.io import omeTifReader
@@ -80,9 +79,22 @@ class TiffDataProvider(DataProvider.DataProvider):
             normalize_ar(self.vol_dna_np)
             if self._resize_factors is not None:
                 self.resize_data(self._resize_factors)
+            if not self._arrays_okay():
+                print('WARNING: array shapes incorrect')
+                self._incr_idx_folder()
+                continue
             success = True
-        # *****
         self._incr_idx_folder()
+
+    def _arrays_okay(self):
+        """Check self.vol_trans_np, self.vol_dna_np for correct dimensionality and minimum size."""
+        dims_min = (32, 64, 64)
+        if (len(self.vol_trans_np.shape) != 3 or len(self.vol_dna_np.shape) != 3):
+            return False
+        for i in range(3):
+            if (self.vol_trans_np.shape[i] < dims_min[i]) or (self.vol_dna_np.shape[i] < dims_min[i]):
+                return False
+        return True
 
     def _incr_stuff(self):
         self._last_batch_stats['iteration'] = self._count_iter
@@ -182,4 +194,3 @@ def normalize_ar(ar):
         
 if __name__ == '__main__':
     test()
-        
