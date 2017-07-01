@@ -26,8 +26,9 @@ parser.add_argument('--n_batches_per_img', type=int, default=100, help='number b
 parser.add_argument('--n_epochs', type=int, default=5, help='number of epochs')
 parser.add_argument('--no_model_save', action='store_true', help='do not save trained model')
 parser.add_argument('--percent_test', type=float, default=0.1, help='percent of data to use for testing')
+parser.add_argument('--resume_path', help='path to saved model to resume training')
 parser.add_argument('--run_name', help='name of run')
-parser.add_argument('--save_path', default='saved_models', help='save directory for trained model')
+parser.add_argument('--save_dir', default='saved_models', help='save directory for trained model')
 parser.add_argument('--seed', type=int, default=0, help='random seed')
 parser.add_argument('--show_plots', action='store_true', help='display plots and test images')
 opts = parser.parse_args()
@@ -51,7 +52,7 @@ def train(model, data, logger):
         if i % opts.iter_save_log == 0:
             logger.save_csv()
         if i % opts.iter_save_model == 0 and i > 0 and not opts.no_model_save:
-            model.save(os.path.join(opts.save_path, logger.logger_name + '.p'))
+            model.save_checkpoint(os.path.join(opts.save_dir, logger.logger_name + '.p'))
             
     t_elapsed = time.time() - start
     print('***** Training Time *****')
@@ -135,8 +136,11 @@ def main():
                                  batch_size=1,
                                  resize_factors=resize_factors)
     
-    # instatiate model
-    model = model_module.Model(mult_chan=32, depth=4, lr=opts.lr)
+    # instatiate/load model
+    if opts.resume_path is None:
+        model = model_module.Model(mult_chan=32, depth=4, lr=opts.lr)
+    else:
+        model = model_module.Model(load_path=opts.resume_path)
     print(model)
     train(model, data_train, logger)
         
@@ -145,10 +149,12 @@ def main():
     
     # save model
     if not opts.no_model_save:
-        model.save(os.path.join(opts.save_path, run_name + '.p'))
+        # model.save(os.path.join(opts.save_path, run_name + '.p'))
+        model.save_checkpoint(os.path.join(opts.save_dir, run_name + '.p'))
         
     if opts.show_plots:
         plot_logger_data()
-    
+
+        
 if __name__ == '__main__':
     main()

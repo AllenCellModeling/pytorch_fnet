@@ -9,25 +9,23 @@ CUDA = True
 
 class Model(object):
     def __init__(self, mult_chan=None, depth=None, load_path=None, lr=0.0001):
+        self.criterion = torch.nn.MSELoss()
+        
         if load_path is None:
             self.net = Net(mult_chan=mult_chan, depth=depth)
-
-            self.net.apply(weights_init)
-
             if CUDA:
                 self.net.cuda()
+            self.net.apply(weights_init)
+            self.optimizer = torch.optim.Adam(self.net.parameters(), lr=lr, betas=(0.5, 0.999))
             self.meta = {
                 'name': 'U-Network V0',
                 'count_iter': 0,
                 'mult_chan': mult_chan,
-                'depth': depth
+                'depth': depth,
+                'lr': lr
             }
         else:
-            self._load(load_path)  # defines self.net, self.meta
-
-        self.lr = lr
-        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=self.lr, betas=(0.5, 0.999))
-        self.criterion = torch.nn.MSELoss()
+            self.load_checkpoint(load_path)
 
         self.signal_v = None
         self.target_v = None
@@ -38,6 +36,33 @@ class Model(object):
                                                                 self.meta['depth'])
         return out_str
 
+    def save_checkpoint(self, save_path):
+        """Save neural network and trainer states to disk."""
+        time_start = time.time()
+        training_state_dict = {
+            'nn': self.net,
+            'optimizer': self.optimizer,
+            'meta_dict': self.meta
+            }
+        print('saving checkpoint to:', save_path)
+        dirname = os.path.dirname(save_path)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        torch.save(training_state_dict, save_path)
+        time_save = time.time() - time_start
+        print('model load time: {:.1f} s'.format(time_save))
+
+    def load_checkpoint(self, load_path):
+        """Load neural network and trainer states from disk."""
+        time_start = time.time()
+        print('loading checkpoint from:', load_path)
+        training_state_dict = torch.load(load_path)
+        self.net = training_state_dict['nn']
+        self.optimizer = training_state_dict['optimizer']
+        self.meta = training_state_dict['meta_dict']
+        time_load = time.time() - time_start
+        print('model load time: {:.1f} s'.format(time_load))
+        
     def save(self, path):
         dirname = os.path.dirname(path)
         if not os.path.exists(dirname):
