@@ -1,10 +1,10 @@
-from . import DataProvider
+from util.data.DataProvider import DataProvider
 import os
 import glob
 from aicsimage.io import omeTifReader
 import numpy as np
 
-class TiffDataProvider(DataProvider.DataProvider):
+class TiffDataProvider(DataProvider):
     def __init__(self, folder_list, n_epochs, n_batches_per_img, batch_size=16, resize_factors=None):
         """TODO: add description
 
@@ -121,7 +121,7 @@ class TiffDataProvider(DataProvider.DataProvider):
         self._incr_stuff()
         return batch
 
-class TiffCroppedDataProvider(DataProvider.DataProvider):
+class TiffCroppedDataProvider(DataProvider):
     def __init__(self, folder_list, resize_factors=None, shape_cropped=(32, 128, 128)):
         super().__init__()
         self._folder_list = folder_list

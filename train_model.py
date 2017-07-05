@@ -3,11 +3,9 @@ import pytz
 import os
 import argparse
 import importlib
-import gen_util
 import matplotlib.pyplot as plt
-from util.SimpleLogger import SimpleLogger
-from util.DataSet import DataSet
-from util.TiffDataProvider import TiffDataProvider
+import util
+import util.data
 import numpy as np
 import torch
 import pdb
@@ -30,7 +28,6 @@ parser.add_argument('--resume_path', help='path to saved model to resume trainin
 parser.add_argument('--run_name', help='name of run')
 parser.add_argument('--save_dir', default='saved_models', help='save directory for trained model')
 parser.add_argument('--seed', type=int, default=0, help='random seed')
-parser.add_argument('--show_plots', action='store_true', help='display plots and test images')
 opts = parser.parse_args()
 
 model_module = importlib.import_module('model_modules.'  + opts.model_module)
@@ -60,44 +57,6 @@ def train(model, data, logger):
     print('per epoch:', t_elapsed/opts.n_epochs)
     print()
     
-def test(model, data):
-    # TODO: change data provider to pull from test image set
-    x_test, y_true = data.get_batch(batch_size=8)
-    y_pred = model.predict(x_test)
-    gen_util.display_visual_eval_images(x_test, y_true, y_pred)
-
-    return  # comment out to save data
-    
-    # save files
-    n_examples = x_test.shape[0]
-    
-    # name_pre = 'test_output/iter_{:04d}_'.format(logger.log['num_iter'][-1])
-    name_pre = 'test_output/{:s}_'.format(model.meta['name'])
-    for i in range(n_examples):
-        name_post = '_{:02d}.tif'.format(i)
-        
-        name_light = name_pre + 'light' + name_post
-        name_nuc = name_pre + 'nuc' + name_post
-        name_pred = name_pre + 'prediction' + name_post
-        
-        img_light = x_test[i, 0, ].astype(np.float32)
-        img_nuc = y_true[i, 0, ].astype(np.float32)
-        img_pred = y_pred[i, 0, ]
-
-        gen_util.save_img_np(img_light, name_light)
-        gen_util.save_img_np(img_nuc, name_nuc)
-        gen_util.save_img_np(img_pred, name_pred)
-
-def plot_logger_data():
-    # TODO move to util
-    x, y = logger.log['num_iter'], logger.log['loss']
-    fig = plt.figure(figsize=(10, 10))
-    ax = fig.add_axes((1, 1, 1, .3), label='training loss')
-    ax.plot(x, y)
-    ax.set_xlabel('training iteration')
-    ax.set_ylabel('MSE loss')
-    plt.show()
-
 def get_run_name():
     now_dt = datetime.datetime.now(pytz.utc).astimezone(pytz.timezone('US/Pacific'))
     run_name = now_dt.strftime('run_%y%m%d_%H%M%S')
@@ -115,12 +74,12 @@ def main():
     run_name = opts.run_name
     if run_name is None:
         run_name = get_run_name()
-    logger = SimpleLogger(('num_iter', 'epoch', 'batch_num', 'loss', 'file'),
-                          'num_iter: %4d | epoch: %d | batch_num: %3d | loss: %.6f | file: %s',
-                          logger_name=run_name)
+    logger = util.SimpleLogger(('num_iter', 'epoch', 'batch_num', 'loss', 'file'),
+                               'num_iter: %4d | epoch: %d | batch_num: %3d | loss: %.6f | file: %s',
+                               logger_name=run_name)
 
     # create train, test datasets
-    dataset = DataSet(opts.data_path, percent_test=opts.percent_test)
+    dataset = util.data.DataSet(opts.data_path, percent_test=opts.percent_test)
     print(dataset)
     test_set = dataset.get_test_set()
     train_set = dataset.get_train_set()
@@ -129,12 +88,12 @@ def main():
     z_fac = 0.97
     xy_fac = 0.36
     resize_factors = (z_fac, xy_fac, xy_fac)
-    data_train = TiffDataProvider(train_set, opts.n_epochs, opts.n_batches_per_img,
-                                  batch_size=opts.batch_size,
-                                  resize_factors=resize_factors)
-    data_test = TiffDataProvider(test_set, 1, 8,
-                                 batch_size=1,
-                                 resize_factors=resize_factors)
+    data_train = util.data.TiffDataProvider(train_set, opts.n_epochs, opts.n_batches_per_img,
+                                            batch_size=opts.batch_size,
+                                            resize_factors=resize_factors)
+    data_test = util.data.TiffDataProvider(test_set, 1, 8,
+                                           batch_size=1,
+                                           resize_factors=resize_factors)
     
     # instatiate/load model
     if opts.resume_path is None:
@@ -152,9 +111,6 @@ def main():
         # model.save(os.path.join(opts.save_path, run_name + '.p'))
         model.save_checkpoint(os.path.join(opts.save_dir, run_name + '.p'))
         
-    if opts.show_plots:
-        plot_logger_data()
-
         
 if __name__ == '__main__':
     main()

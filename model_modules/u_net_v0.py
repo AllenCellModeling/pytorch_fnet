@@ -50,7 +50,7 @@ class Model(object):
             os.makedirs(dirname)
         torch.save(training_state_dict, save_path)
         time_save = time.time() - time_start
-        print('model load time: {:.1f} s'.format(time_save))
+        print('model save time: {:.1f} s'.format(time_save))
 
     def load_checkpoint(self, load_path):
         """Load neural network and trainer states from disk."""

@@ -1,9 +1,8 @@
 import argparse
 import importlib
-from util.DataSet import DataSet
-from util.TiffDataProvider import TiffCroppedDataProvider
+import util.data
+import util.display
 import numpy as np
-import gen_util
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_path', default='data', help='path to data directory')
@@ -34,7 +33,7 @@ def test_cropped(model, data):
         y_true[0, 0, :] = pair_img_cropped[1]
         if model is not None:
             y_pred = model.predict(x_test)
-        gen_util.display_visual_eval_images(x_test, y_true, y_pred)
+        util.display.display_visual_eval_images(x_test, y_true, y_pred)
     return
 
     # save predictions
@@ -61,9 +60,9 @@ def main_test_mode():
     z_fac = 0.97
     xy_fac = 0.36
     resize_factors = (z_fac, xy_fac, xy_fac)
-    data_test = TiffCroppedDataProvider(test_set,
-                                        resize_factors=resize_factors,
-                                        shape_cropped=(32, 128, 128))
+    data_test = util.data.TiffCroppedDataProvider(test_set,
+                                                  resize_factors=resize_factors,
+                                                  shape_cropped=(32, 128, 128))
     # load model
     # model = model_module.Model(load_path=opts.load_path)
     model = None
@@ -73,7 +72,7 @@ def main_test_mode():
 
 def main():
     # create test datasets
-    dataset = DataSet(opts.data_path, percent_test=opts.percent_test)
+    dataset = util.data.DataSet(opts.data_path, percent_test=opts.percent_test)
     print(dataset)
     if not opts.use_train_set:
         img_set = dataset.get_test_set()
@@ -90,9 +89,9 @@ def main():
     if (opts.n_images is not None) and (opts.n_images < len(img_set)):
         limit = opts.n_images
     img_set = img_set[:limit]
-    data_test = TiffCroppedDataProvider(img_set,
-                                        resize_factors=resize_factors,
-                                        shape_cropped=(32, 128, 128))
+    data_test = util.data.TiffCroppedDataProvider(img_set,
+                                                  resize_factors=resize_factors,
+                                                  shape_cropped=(32, 128, 128))
     # load model
     model = None
     if opts.load_path is not None:
