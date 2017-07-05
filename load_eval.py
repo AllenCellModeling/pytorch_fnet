@@ -12,6 +12,7 @@ parser.add_argument('--model_module', default='u_net_v0', help='name of the mode
 parser.add_argument('--n_images', type=int, help='max number of images to test')
 parser.add_argument('--percent_test', type=float, default=0.1, help='percent of data to use for testing')
 parser.add_argument('--test_mode', action='store_true', default=False, help='run test version of main')
+parser.add_argument('--use_train_set', action='store_true', default=False, help='view predictions on training set images')
 opts = parser.parse_args()
 
 # command-line option imports
@@ -74,18 +75,22 @@ def main():
     # create test datasets
     dataset = DataSet(opts.data_path, percent_test=opts.percent_test)
     print(dataset)
-    test_set = dataset.get_test_set()
-    
+    if not opts.use_train_set:
+        img_set = dataset.get_test_set()
+    else:
+        print('*** Using training set ***')
+        img_set = dataset.get_train_set()
+        
     # aiming for 0.3 um/px
     # TODO: store this information in Model class
     z_fac = 0.97
     xy_fac = 0.36
     resize_factors = (z_fac, xy_fac, xy_fac)
-    limit = len(test_set)
-    if (opts.n_images is not None) and (opts.n_images < len(test_set)):
+    limit = len(img_set)
+    if (opts.n_images is not None) and (opts.n_images < len(img_set)):
         limit = opts.n_images
-    test_set = test_set[:limit]
-    data_test = TiffCroppedDataProvider(test_set,
+    img_set = img_set[:limit]
+    data_test = TiffCroppedDataProvider(img_set,
                                         resize_factors=resize_factors,
                                         shape_cropped=(32, 128, 128))
     # load model
