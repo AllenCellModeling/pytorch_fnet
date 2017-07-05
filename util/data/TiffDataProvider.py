@@ -1,11 +1,12 @@
 from util.data.DataProvider import DataProvider
+import util.data.transforms
 import os
 import glob
 from aicsimage.io import omeTifReader
 import numpy as np
 
 class TiffDataProvider(DataProvider):
-    def __init__(self, folder_list, n_epochs, n_batches_per_img, batch_size=16, resize_factors=None):
+    def __init__(self, folder_list, n_epochs, n_batches_per_img, batch_size=16, resize_factors=None, transform='normalize'):
         """TODO: add description
 
         Each folder represents a set of TIFF images, two of which are the transmitted light
@@ -23,6 +24,7 @@ class TiffDataProvider(DataProvider):
         self._n_batches_per_img = n_batches_per_img
         self._resize_factors = resize_factors
         self.batch_size = batch_size  # used in super class
+        self._transform = getattr(util.data.transforms, transform)  # select transform from transforms module
         
         self._length = self._n_epochs*len(self._folder_list)*self._n_batches_per_img
         
@@ -74,9 +76,9 @@ class TiffDataProvider(DataProvider):
                 continue
             
             self.vol_trans_np = fin_trans.load().astype(np.float32)[0, ]
-            normalize_ar(self.vol_trans_np)
+            self._transform(self.vol_trans_np)
             self.vol_dna_np = fin_dna.load().astype(np.float32)[0, ]
-            normalize_ar(self.vol_dna_np)
+            self._transform(self.vol_dna_np)
             if self._resize_factors is not None:
                 self.resize_data(self._resize_factors)
             if not self._arrays_okay():
@@ -122,12 +124,13 @@ class TiffDataProvider(DataProvider):
         return batch
 
 class TiffCroppedDataProvider(DataProvider):
-    def __init__(self, folder_list, resize_factors=None, shape_cropped=(32, 128, 128)):
+    def __init__(self, folder_list, resize_factors=None, shape_cropped=(32, 128, 128), transform='normalize'):
         super().__init__()
         self._folder_list = folder_list
         self._resize_factors = resize_factors
         self.shape_cropped = shape_cropped
         self._length = len(self._folder_list)
+        self._transform = getattr(util.data.transforms, transform)  # select transform from transforms module
 
         self._idx_folder = 0
         self._active_folder = None
@@ -153,10 +156,10 @@ class TiffCroppedDataProvider(DataProvider):
             path_dna = dna_fname_list[0]
             with omeTifReader.OmeTifReader(path_trans) as fin:
                 self.vol_trans_np = fin.load().astype(np.float32)[0, ]
-                normalize_ar(self.vol_trans_np)
+                self._transform(self.vol_trans_np)
             with omeTifReader.OmeTifReader(path_dna) as fin:
                 self.vol_dna_np = fin.load().astype(np.float32)[0, ]
-                normalize_ar(self.vol_dna_np)
+                self._transform(self.vol_dna_np)
             if self._resize_factors is not None:
                 self.resize_data(self._resize_factors)
         # *****
@@ -186,11 +189,5 @@ class TiffCroppedDataProvider(DataProvider):
         pair_img_cropped = self._get_cropped_img_pair()
         return pair_img_cropped
 
-def normalize_ar(ar):
-    # return  # for now, do nothing
-    ar -= np.amin(ar)
-    ar /= np.amax(ar)
-
-        
 if __name__ == '__main__':
     test()

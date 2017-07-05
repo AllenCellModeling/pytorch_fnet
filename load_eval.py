@@ -6,8 +6,9 @@ import numpy as np
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_path', default='data', help='path to data directory')
+parser.add_argument('--img_transform', default='normalize', help='transformation to apply to each image')
 parser.add_argument('--load_path', help='path to trained model')
-parser.add_argument('--model_module', default='u_net_v0', help='name of the model module')
+parser.add_argument('--model_module', default='default_model', help='name of the model module')
 parser.add_argument('--n_images', type=int, help='max number of images to test')
 parser.add_argument('--percent_test', type=float, default=0.1, help='percent of data to use for testing')
 parser.add_argument('--test_mode', action='store_true', default=False, help='run test version of main')
@@ -91,7 +92,9 @@ def main():
     img_set = img_set[:limit]
     data_test = util.data.TiffCroppedDataProvider(img_set,
                                                   resize_factors=resize_factors,
-                                                  shape_cropped=(32, 128, 128))
+                                                  shape_cropped=(32, 128, 128),
+                                                  transform=opts.img_transform
+    )
     # load model
     model = None
     if opts.load_path is not None:

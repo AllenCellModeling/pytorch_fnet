@@ -126,6 +126,7 @@ def display_visual_eval_images(signal, target, prediction):
         fig.subplots_adjust(wspace=0.05)
         z_strong = find_z_of_max_slice(target[ex, 0, ])
         print('z:', z_strong)
+        print('DNA channel stats:')
         print_array_stats(target)
         for i in range(3):
             img = source_list[i][ex, 0, z_strong, ]
