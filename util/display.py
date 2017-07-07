@@ -1,4 +1,3 @@
-from aicsimage.io import omeTifWriter
 import numpy as np
 import matplotlib.pyplot as plt
 from util import find_z_of_max_slice
@@ -99,13 +98,6 @@ def display_batch(vol_light_np, vol_nuc_np, batch):
         ax.get_yaxis().set_visible(False)
         ax.imshow(img_chunk_tar, cmap='gray', interpolation='bilinear')
         plt.show()
-
-def save_img_np(img_np, fname):
-    """Save image (numpy array, ZYX) as a TIFF."""
-    with omeTifWriter.OmeTifWriter(fname, overwrite_file=True) as fo:
-        fo.save(img_np)
-        print('saved:', fname)
-            
 
 def display_visual_eval_images(signal, target, prediction):
     """Display 3 images: light, nuclear, predicted nuclear.

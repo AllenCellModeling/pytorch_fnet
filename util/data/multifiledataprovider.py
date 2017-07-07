@@ -2,7 +2,7 @@ import numpy as np
 import queue
 
 class MultiFileDataProvider(object):
-    def __init__(self, dataset, buffer_size, n_iter, batch_size):
+    def __init__(self, dataset, buffer_size, n_iter, batch_size, dims_chunk=(32, 64, 64)):
         """
         dataset - DataSet instance
         buffer_size - (int) number images to generate batches from
@@ -13,9 +13,8 @@ class MultiFileDataProvider(object):
         self._n_iter = n_iter
         self._batch_size = batch_size
 
-        # TODO: make parameters
-        self._dims_chunk = (32, 64, 64)
-        self._dims_pin=(None, None, None)
+        self._dims_chunk = dims_chunk
+        self._dims_pin = (None, None, None)
         
         self._buffer = []
         self._n_folders = len(dataset)
@@ -25,6 +24,9 @@ class MultiFileDataProvider(object):
 
         self._fill_buffer()
         print('DEBUG: source list =>', self.get_sources())
+
+    def set_dims_pin(self, dims_pin):
+        self._dims_pin = dims_pin
 
     def _fill_buffer(self):
         while len(self._buffer) < self._buffer_size:
@@ -52,13 +54,7 @@ class MultiFileDataProvider(object):
             self._incr_idx_folder()
         return (idx_folder, volumes[0], volumes[1])
 
-    def _enqueue_fifo(self, package):
-        """Enqueue item to fifo.
-        package - 3-element tuple (idx_folder, vol_trans, vol_dna)
-        """
-        self._fifo.put(package)
-
-    def get_sources(self):
+    def get_sources(self):  # TODO: pull indices from buffer directly
         return '|'.join(self._source_list)
 
     def get_batch(self):
@@ -77,7 +73,7 @@ class MultiFileDataProvider(object):
         for i in range(len(coords)):
             coord = coords[i]
             chunks_tup = self._extract_chunk(coord)
-            # print(i, coord, chunks_tup[0].shape, chunks_tup[1].shape)
+            print('DEBUG: get_batch', i, coord, chunks_tup[0].shape, chunks_tup[1].shape)
             batch_x[i, 0, ...] = chunks_tup[0]
             batch_y[i, 0, ...] = chunks_tup[1]
         return (batch_x, batch_y)
