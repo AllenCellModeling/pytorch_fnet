@@ -130,7 +130,7 @@ class DataSet(object):
         volumes_pre = _read_tifs(path_folder)  # TODO add option to read different file types
         if volumes_pre is None:
             return None
-        print('DEBUG:', volumes_pre[0].shape, volumes_pre[1].shape)
+        # print('DEBUG:', volumes_pre[0].shape, volumes_pre[1].shape)
         volumes = (self._apply_transform(volumes_pre[0]), self._apply_transform(volumes_pre[1]))
         return volumes
     

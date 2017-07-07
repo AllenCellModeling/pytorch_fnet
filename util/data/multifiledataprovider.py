@@ -2,16 +2,21 @@ import numpy as np
 import queue
 
 class MultiFileDataProvider(object):
-    def __init__(self, dataset, buffer_size, n_iter, batch_size, dims_chunk=(32, 64, 64)):
+    def __init__(self, dataset, buffer_size, n_iter, batch_size, replace_interval, dims_chunk=(32, 64, 64)):
         """
         dataset - DataSet instance
         buffer_size - (int) number images to generate batches from
         n_iter - (int) number of batches that the data provider should supply
+        
+        replace_interval - (int) number of batches between buffer item replacements. Set to -1 for no replacement.
         """
         self._dataset = dataset
         self._buffer_size = buffer_size
         self._n_iter = n_iter
         self._batch_size = batch_size
+        self._replace_interval = replace_interval
+
+        self.last_sources = ''  # str indicating indices of folders in buffer
 
         self._dims_chunk = dims_chunk
         self._dims_pin = (None, None, None)
@@ -19,25 +24,31 @@ class MultiFileDataProvider(object):
         self._buffer = []
         self._n_folders = len(dataset)
         self._idx_folder = 0
-        self._source_list = []
         self._count_iter = 0
+        self._idx_replace = 0  # next 
 
         self._fill_buffer()
-        print('DEBUG: source list =>', self.get_sources())
 
     def set_dims_pin(self, dims_pin):
         self._dims_pin = dims_pin
+
+    def _replace_buffer_item(self):
+        """Replace oldest package in buffer with another package."""
+        package = self._create_package()
+        self._buffer[self._idx_replace] = package
+        self._idx_replace += 1
+        if self._idx_replace >= self._buffer_size:
+            self._idx_replace = 0
 
     def _fill_buffer(self):
         while len(self._buffer) < self._buffer_size:
             package = self._create_package()
             self._buffer.append(package)
-            self._source_list.append(str(package[0]))
         print('DEBUG: current buffer size', len(self._buffer))
 
     def _incr_idx_folder(self):
         self._idx_folder += 1
-        if self._idx_folder % self._n_folders == 0:
+        if self._idx_folder >= self._n_folders:
             self._idx_folder = 0
 
     def _create_package(self):
@@ -54,14 +65,12 @@ class MultiFileDataProvider(object):
             self._incr_idx_folder()
         return (idx_folder, volumes[0], volumes[1])
 
-    def get_sources(self):  # TODO: pull indices from buffer directly
-        return '|'.join(self._source_list)
+    def _update_last_sources(self):
+        source_list = [str(package[0]) for package in self._buffer]
+        self.last_sources = '|'.join(source_list)
 
     def get_batch(self):
         """Get a batch of examples from source data."
-
-        Parameters:
-        return_coords - (boolean) if True, also return the coordinates from where chunks were taken.
         
         Returns:
         batch_x, batch_y - (2 numpy arrays) each array will have shape (n, 1) + dims_chunk.
@@ -73,7 +82,7 @@ class MultiFileDataProvider(object):
         for i in range(len(coords)):
             coord = coords[i]
             chunks_tup = self._extract_chunk(coord)
-            print('DEBUG: get_batch', i, coord, chunks_tup[0].shape, chunks_tup[1].shape)
+            # print('  DEBUG: get_batch', i, coord, chunks_tup[0].shape, chunks_tup[1].shape)
             batch_x[i, 0, ...] = chunks_tup[0]
             batch_y[i, 0, ...] = chunks_tup[1]
         return (batch_x, batch_y)
@@ -82,12 +91,12 @@ class MultiFileDataProvider(object):
         """Returns a random coordinate from random images in buffer.
 
         Returns:
-        coords - list of tuple of coordinates
+        coords - list of tuples of the form (idx_buffer, (z, y, z))
         """
-        idx_rand = np.random.randint(0, self._buffer_size)
-        shape = self._buffer[idx_rand][1].shape  # get shape from trans channel image
         coord_list = []
         for idx_chunk in range(self._batch_size):
+            idx_rand = np.random.randint(0, self._buffer_size)
+            shape = self._buffer[idx_rand][1].shape  # get shape from trans channel image
             coord = [0, 0, 0]
             for i in range(len(coord)):
                 coord[i] = np.random.randint(0, shape[i] - self._dims_chunk[i] + 1)
@@ -114,5 +123,8 @@ class MultiFileDataProvider(object):
         if self._count_iter == self._n_iter:
             raise StopIteration
         self._count_iter += 1
+        self._update_last_sources()
+        if (self._replace_interval > 0) and (self._count_iter % self._replace_interval == 0):
+            self._replace_buffer_item()
         return self.get_batch()
 

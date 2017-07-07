@@ -58,20 +58,22 @@ def test_load_checkpoint():
 
 def test_multi_file_data_provider():
     print('***** testing MultiFileDataProvider *****')
-    path = 'data/one_file'
+    path = 'data/no_hots'
     dataset = util.data.DataSet(path, train=True)
     print(dataset)
     print()
-    fifo_size = 3
-    n_iter = 4
-    dp = util.data.MultiFileDataProvider(dataset, fifo_size, n_iter, 4)
+    buffer_size = 8
+    n_iter = 10
+    batch_size = 2
+    replace_interval = -1
+    dp = util.data.MultiFileDataProvider(dataset, buffer_size, n_iter, batch_size, replace_interval)
     for i, batch in dp:
-        print('got batch')
+        print('got batch', dp.last_sources)
     
 
 if __name__ == '__main__':
-    test_DataSet()
+    # test_DataSet()
     # test_TiffDataProvider()
     # test_save_checkpoint()
     # test_load_checkpoint()
-    # test_multi_file_data_provider()
+    test_multi_file_data_provider()

@@ -13,21 +13,17 @@ import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--batch_size', type=int, default=24, help='size of each batch')
-parser.add_argument('--dataProvider', default='DataProvider', help='name of Dataprovider class')
+parser.add_argument('--buffer_size', type=int, default=5, help='number of images to cache in memory')
 parser.add_argument('--data_path', default='data', help='path to data directory')
 parser.add_argument('--dont_init_weights', action='store_true', help='do not init nn weights')
 parser.add_argument('--gpu_id', type=int, default=0, help='GPU ID')
-parser.add_argument('--img_transform', default='normalize', help='transformation to apply to each image')
 parser.add_argument('--iter_save_log', type=int, default=250, help='iterations between log saves')
 parser.add_argument('--iter_save_model', type=int, default=500, help='iterations between model saves')
 parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
 parser.add_argument('--model_module', default='default_model', help='name of the model module')
-parser.add_argument('--n_batches_per_img', type=int, default=100, help='number batches to draw from each image')
-parser.add_argument('--n_epochs', type=int, default=5, help='number of epochs')
 parser.add_argument('--n_iter', type=int, default=500, help='number of training iterations')
 parser.add_argument('--nn_module', default='nosigmoid_nn', help='name of neural network module')
-parser.add_argument('--no_model_save', action='store_true', help='do not save trained model')
-parser.add_argument('--percent_test', type=float, default=0.1, help='percent of data to use for testing')
+parser.add_argument('--replace_interval', type=int, default=-1, help='iterations between replacements of images in cache')
 parser.add_argument('--resume_path', help='path to saved model to resume training')
 parser.add_argument('--run_name', help='name of run')
 parser.add_argument('--save_dir', default='saved_models', help='save directory for trained model')
@@ -42,21 +38,20 @@ def train(model, data, logger):
         x, y = batch
         # pdb.set_trace()
         loss = model.do_train_iter(x, y)
-        str_sources = data.get_sources()
         logger.add((
             i,
             loss,
-            str_sources
+            data.last_sources
         ))
         if i % opts.iter_save_log == 0:
             logger.save_csv()
         if i % opts.iter_save_model == 0 and i > 0 and not opts.no_model_save:
             model.save_checkpoint(os.path.join(opts.save_dir, logger.logger_name + '.p'))
+            # add testing with current model
             
     t_elapsed = time.time() - start
     print('***** Training Time *****')
     print('total:', t_elapsed)
-    print('per epoch:', t_elapsed/opts.n_epochs)
     print()
     
 def get_run_name():
@@ -76,19 +71,21 @@ def main():
     run_name = opts.run_name
     if run_name is None:
         run_name = get_run_name()
-    # logger = util.SimpleLogger(('num_iter', 'epoch', 'batch_num', 'loss', 'file'),
-    #                            'num_iter: %4d | epoch: %d | batch_num: %3d | loss: %.6f | file: %s',
-    #                            logger_name=run_name)
     logger = util.SimpleLogger(('num_iter', 'loss', 'sources'),
                                'num_iter: %4d | loss: %.6f | sources: %s',
                                logger_name=run_name)
 
-    # create train dataset
+    # get training dataset
     dataset = util.data.DataSet(opts.data_path, train=True)
     print(dataset)
     
-    fifo_size = 5
-    data_train = util.data.MultiFileDataProvider(dataset, fifo_size, opts.n_iter, batch_size=opts.batch_size)
+    data_train = util.data.MultiFileDataProvider(
+        dataset,
+        buffer_size=opts.buffer_size,
+        n_iter=opts.n_iter,
+        batch_size=opts.batch_size,
+        replace_interval=opts.replace_interval
+    )
     
     # instatiate/load model
     if opts.resume_path is None:
@@ -103,9 +100,7 @@ def main():
     logger.save_csv()
     
     # save model
-    if not opts.no_model_save:
-        # model.save(os.path.join(opts.save_path, run_name + '.p'))
-        model.save_checkpoint(os.path.join(opts.save_dir, run_name + '.p'))
+    model.save_checkpoint(os.path.join(opts.save_dir, run_name + '.p'))
         
         
 if __name__ == '__main__':
