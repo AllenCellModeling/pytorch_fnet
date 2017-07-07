@@ -24,7 +24,8 @@ parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
 parser.add_argument('--model_module', default='default_model', help='name of the model module')
 parser.add_argument('--n_batches_per_img', type=int, default=100, help='number batches to draw from each image')
 parser.add_argument('--n_epochs', type=int, default=5, help='number of epochs')
-parser.add_argument('--nn_module', default='default_nn', help='name of neural network module')
+parser.add_argument('--n_iter', type=int, default=500, help='number of training iterations')
+parser.add_argument('--nn_module', default='nosigmoid_nn', help='name of neural network module')
 parser.add_argument('--no_model_save', action='store_true', help='do not save trained model')
 parser.add_argument('--percent_test', type=float, default=0.1, help='percent of data to use for testing')
 parser.add_argument('--resume_path', help='path to saved model to resume training')
@@ -41,13 +42,11 @@ def train(model, data, logger):
         x, y = batch
         # pdb.set_trace()
         loss = model.do_train_iter(x, y)
-        stats = data.get_last_batch_stats()
+        str_sources = data.get_sources()
         logger.add((
-            stats['iteration'],
-            stats['epoch'],
-            stats['batch'],
+            i,
             loss,
-            stats['folder']
+            str_sources
         ))
         if i % opts.iter_save_log == 0:
             logger.save_csv()
@@ -77,24 +76,19 @@ def main():
     run_name = opts.run_name
     if run_name is None:
         run_name = get_run_name()
-    logger = util.SimpleLogger(('num_iter', 'epoch', 'batch_num', 'loss', 'file'),
-                               'num_iter: %4d | epoch: %d | batch_num: %3d | loss: %.6f | file: %s',
+    # logger = util.SimpleLogger(('num_iter', 'epoch', 'batch_num', 'loss', 'file'),
+    #                            'num_iter: %4d | epoch: %d | batch_num: %3d | loss: %.6f | file: %s',
+    #                            logger_name=run_name)
+    logger = util.SimpleLogger(('num_iter', 'loss', 'sources'),
+                               'num_iter: %4d | loss: %.6f | sources: %s',
                                logger_name=run_name)
 
-    # create train, test datasets
-    dataset = util.data.DataSet(opts.data_path, percent_test=opts.percent_test)
+    # create train dataset
+    dataset = util.data.DataSet(opts.data_path, train=True)
     print(dataset)
-    train_set = dataset.get_train_set()
     
-    # aiming for 0.3 um/px
-    z_fac = 0.97
-    xy_fac = 0.36
-    resize_factors = (z_fac, xy_fac, xy_fac)
-    data_train = util.data.TiffDataProvider(train_set, opts.n_epochs, opts.n_batches_per_img,
-                                            batch_size=opts.batch_size,
-                                            resize_factors=resize_factors,
-                                            transform=opts.img_transform
-    )
+    fifo_size = 5
+    data_train = util.data.MultiFileDataProvider(dataset, fifo_size, opts.n_iter, batch_size=opts.batch_size)
     
     # instatiate/load model
     if opts.resume_path is None:
