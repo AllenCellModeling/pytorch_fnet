@@ -1,5 +1,6 @@
 import numpy as np
 import queue
+import pdb
 
 class MultiFileDataProvider(object):
     def __init__(self, dataset, buffer_size, n_iter, batch_size, replace_interval, dims_chunk=(32, 64, 64)):
@@ -31,6 +32,9 @@ class MultiFileDataProvider(object):
 
     def set_dims_pin(self, dims_pin):
         self._dims_pin = dims_pin
+
+    def get_dims_chunk(self):
+        return self._dims_chunk
 
     def _replace_buffer_item(self):
         """Replace oldest package in buffer with another package."""
@@ -115,6 +119,9 @@ class MultiFileDataProvider(object):
         for i in range(len(coord_img)):
             slices.append(slice(coord_img[i], coord_img[i] + self._dims_chunk[i]))
         return self._buffer[idx_buf][1][slices], self._buffer[idx_buf][2][slices]
+
+    def __len__(self):
+        return self._n_iter
     
     def __iter__(self):
         return self

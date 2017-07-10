@@ -45,7 +45,7 @@ def train(model, data, logger):
         ))
         if i % opts.iter_save_log == 0:
             logger.save_csv()
-        if i % opts.iter_save_model == 0 and i > 0 and not opts.no_model_save:
+        if i % opts.iter_save_model == 0 and i > 0:
             model.save_checkpoint(os.path.join(opts.save_dir, logger.logger_name + '.p'))
             # add testing with current model
             

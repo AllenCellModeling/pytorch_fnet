@@ -22,7 +22,6 @@ class DataSet(object):
         
         self._save_path = os.path.join(os.path.dirname(path), 'dataset_saves', os.path.basename(path) + '.p')
         if not os.path.exists(self._save_path) or force_rebuild:
-            raise NotImplementedError  # TODO force use of precreated datasets for now
             self._build_new_sets()
             self._save()
         else:
