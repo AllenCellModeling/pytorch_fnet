@@ -48,6 +48,9 @@ class DataSet(object):
             self._test_set = self._all_set[:idx_split]
             self._train_set = self._all_set[idx_split:]
     
+    def get_active_set(self):
+        return self._active_set
+    
     def get_test_set(self):
         return self._test_set
     
@@ -59,11 +62,6 @@ class DataSet(object):
         pass
 
     def _save(self):
-
-        (self._path, self._percent_test, self._train_set_limit, self._transform,
-         self._all_set, self._test_set, self._train_set)
-
-        
         dirname = os.path.dirname(self._save_path)
         if not os.path.exists(dirname):
             os.makedirs(dirname)

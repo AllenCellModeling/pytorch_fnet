@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from util import find_z_of_max_slice
 from util import print_array_stats
+import os
 import pdb
 
 def plot_logger_data():
@@ -130,5 +131,54 @@ def display_visual_eval_images(signal, target, prediction):
             ax.imshow(img, cmap='gray', interpolation='bilinear')
     plt.show()
 
+def save_image_stacks(dir_save, images):
+    """Display 3 images: light, nuclear, predicted nuclear.
+
+    Parameters:
+    dir_save - directory in which to save files
+    images - tuple/list of 5-d numpy arrays: transmitted, DNA, predicted
+    """
+    n_examples = images[0].shape[0]
+    n_z_slices = images[0].shape[2]
+    print('DEBUG: dir_save', dir_save)
+    print('DEBUG: n_examples', n_examples)
+    print('DEBUG: n_z_slices', n_z_slices)
+    titles = ('transmitted', 'DNA', 'predicted')
+
+    # get min/max pixel values
+    vmins = np.zeros(3, dtype=np.float32)
+    vmaxs = np.zeros(3, dtype=np.float32)
+
+    if os.path.exists(dir_save):
+        assert os.path.isdir(dir_save)
+    else:
+        os.makedirs(dir_save)
+    for ex in range(n_examples):
+        # fig = plt.figure(figsize=(15, 15), tight_layout={'w_pad':1.0})
+
+        for i in range(3):
+            vmins[i] = np.amin(images[i][ex, 0])
+            vmaxs[i] = np.amax(images[i][ex, 0])*0.9
+        print('DEBUG: min', vmins)
+        print('DEBUG: max', vmaxs)
+        
+        for z in range(n_z_slices):
+        # for z in range(1):
+            fig = plt.figure(figsize=(20, 15))
+            fig.subplots_adjust(wspace=0.05)
+            path_save = os.path.join(dir_save, 'img_{:02d}_z_{:02d}'.format(ex, z))
+            print('DEBUG: path_save', path_save)
+            for i in range(3):
+                img = images[i][ex, 0, z, ]
+                ax = fig.add_subplot(1, 3, i + 1)
+                ax.set_title(titles[i])
+                ax.get_xaxis().set_visible(False)
+                ax.get_yaxis().set_visible(False)
+                ax.imshow(img, cmap='gray', interpolation='bilinear', vmin=vmins[i], vmax=vmaxs[i])
+                # ax.imshow(img, cmap='gray', interpolation='bilinear')
+            fig.savefig(path_save)
+            plt.close(fig)
+    # plt.show()
+    
 if __name__ == '__main__':
     print('util.display')

@@ -9,11 +9,11 @@ CUDA = True
 
 class Model(object):
     def __init__(self, mult_chan=None, depth=None, load_path=None, lr=0.0001, nn_module='default_nn', init_weights=True):
-        nn_module = importlib.import_module('model_modules.nn_modules.' + nn_module)
         
         self.criterion = torch.nn.MSELoss()
         
         if load_path is None:
+            nn_module = importlib.import_module('model_modules.nn_modules.' + nn_module)
             self.net = nn_module.Net(mult_chan=mult_chan, depth=depth)
             if CUDA:
                 self.net.cuda()
