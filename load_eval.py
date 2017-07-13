@@ -10,6 +10,7 @@ parser.add_argument('--data_path', default='data', help='path to data directory'
 parser.add_argument('--load_path', help='path to trained model')
 parser.add_argument('--model_module', default='default_model', help='name of the model module')
 parser.add_argument('--n_images', type=int, help='max number of images to test')
+parser.add_argument('--save_each_slice', action='store_true', default=False, help='save each z slice of test image')
 parser.add_argument('--save_images', action='store_true', default=False, help='save test image results')
 parser.add_argument('--use_train_set', action='store_true', default=False, help='view predictions on training set images')
 opts = parser.parse_args()
@@ -35,6 +36,9 @@ def test_display(model, data):
             util.save_img_np(img_trans, name_trans)
             util.save_img_np(img_dna, name_dna)
             util.save_img_np(img_pred, name_pred)
+        if opts.save_each_slice:
+            dir_save = 'presentation/' + ('test' if not opts.use_train_set else 'train') + '_{:02d}'.format(i)
+            util.display.save_image_stacks(dir_save, (x_test, y_true, y_pred))
         if (opts.n_images is not None) and (i == (opts.n_images - 1)):
             break
     
@@ -43,7 +47,7 @@ def main():
         print('*** Using training set ***')
     train_select = opts.use_train_set
 
-    # create test dataset
+    # load test dataset
     dataset = util.data.DataSet(opts.data_path, train=train_select)
     print(dataset)
 

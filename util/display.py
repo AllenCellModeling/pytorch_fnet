@@ -153,9 +153,8 @@ def save_image_stacks(dir_save, images):
         assert os.path.isdir(dir_save)
     else:
         os.makedirs(dir_save)
-    for ex in range(n_examples):
-        # fig = plt.figure(figsize=(15, 15), tight_layout={'w_pad':1.0})
 
+    for ex in range(n_examples):
         for i in range(3):
             vmins[i] = np.amin(images[i][ex, 0])
             vmaxs[i] = np.amax(images[i][ex, 0])*0.9
@@ -163,19 +162,26 @@ def save_image_stacks(dir_save, images):
         print('DEBUG: max', vmaxs)
         
         for z in range(n_z_slices):
-        # for z in range(1):
-            fig = plt.figure(figsize=(20, 15))
+        # for z in [0, 1, 30, 31]:
+            fig = plt.figure(figsize=(25, 15), frameon=False)
             fig.subplots_adjust(wspace=0.05)
-            path_save = os.path.join(dir_save, 'img_{:02d}_z_{:02d}'.format(ex, z))
-            print('DEBUG: path_save', path_save)
             for i in range(3):
                 img = images[i][ex, 0, z, ]
-                ax = fig.add_subplot(1, 3, i + 1)
-                ax.set_title(titles[i])
+                ax = fig.add_subplot(1, 4, i + 1)
+                ax.set_title(titles[i], fontsize=18)
                 ax.get_xaxis().set_visible(False)
                 ax.get_yaxis().set_visible(False)
                 ax.imshow(img, cmap='gray', interpolation='bilinear', vmin=vmins[i], vmax=vmaxs[i])
-                # ax.imshow(img, cmap='gray', interpolation='bilinear')
+            # add bar image to figure
+            img_bar = np.ones((n_z_slices*2, n_z_slices*2), dtype=np.uint8)*255
+            z_start = (n_z_slices - z - 1)*2
+            img_bar[z_start: z_start + 2] = 0
+            ax_bar = fig.add_subplot(1, 4, 4)
+            ax_bar.imshow(img_bar, cmap='gray')
+            ax_bar.axis('off')
+            
+            path_save = os.path.join(dir_save, 'img_{:02d}_z_{:02d}'.format(ex, z))
+            print('DEBUG: path_save', path_save)
             fig.savefig(path_save)
             plt.close(fig)
     # plt.show()
