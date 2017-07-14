@@ -3,13 +3,16 @@ import queue
 import pdb
 
 class MultiFileDataProvider(object):
-    def __init__(self, dataset, buffer_size, n_iter, batch_size, replace_interval, dims_chunk=(32, 64, 64)):
+    def __init__(self, dataset, buffer_size, n_iter, batch_size, replace_interval, dims_chunk=(32, 64, 64), dims_pin=(None, None, None)):
         """
         dataset - DataSet instance
         buffer_size - (int) number images to generate batches from
         n_iter - (int) number of batches that the data provider should supply
-        
+        ...
         replace_interval - (int) number of batches between buffer item replacements. Set to -1 for no replacement.
+        dims_chunk - (tuple) shape of extracted chunks
+        dims_pin - (tuple) optionally pin the chunk extraction from this coordinate. Use None to indicate no pinning
+                   for any particular dimension.
         """
         self._dataset = dataset
         self._buffer_size = buffer_size
@@ -20,7 +23,7 @@ class MultiFileDataProvider(object):
         self.last_sources = ''  # str indicating indices of folders in buffer
 
         self._dims_chunk = dims_chunk
-        self._dims_pin = (None, None, None)
+        self._dims_pin = dims_pin
         
         self._buffer = []
         self._n_folders = len(dataset)
@@ -48,7 +51,6 @@ class MultiFileDataProvider(object):
         while len(self._buffer) < self._buffer_size:
             package = self._create_package()
             self._buffer.append(package)
-        print('DEBUG: current buffer size', len(self._buffer))
 
     def _incr_idx_folder(self):
         self._idx_folder += 1
@@ -86,7 +88,7 @@ class MultiFileDataProvider(object):
         for i in range(len(coords)):
             coord = coords[i]
             chunks_tup = self._extract_chunk(coord)
-            # print('  DEBUG: get_batch', i, coord, chunks_tup[0].shape, chunks_tup[1].shape)
+            # print('  DEBUG: batch element', i, coord, chunks_tup[0].shape, chunks_tup[1].shape)
             batch_x[i, 0, ...] = chunks_tup[0]
             batch_y[i, 0, ...] = chunks_tup[1]
         return (batch_x, batch_y)
@@ -101,17 +103,20 @@ class MultiFileDataProvider(object):
         for idx_chunk in range(self._batch_size):
             idx_rand = np.random.randint(0, self._buffer_size)
             shape = self._buffer[idx_rand][1].shape  # get shape from trans channel image
-            coord = [0, 0, 0]
-            for i in range(len(coord)):
-                coord[i] = np.random.randint(0, shape[i] - self._dims_chunk[i] + 1)
-            coord_list.append((idx_rand, tuple(coord)))
+            coord_3d = [0]*len(self._dims_chunk)
+            for i in range(len(coord_3d)):
+                if self._dims_pin[i] is None:
+                    coord_3d[i] = np.random.randint(0, shape[i] - self._dims_chunk[i] + 1) # upper bound of randint is exclusive, so +1
+                else:
+                    coord_3d[i] = self._dims_pin[i]
+            coord_list.append((idx_rand, tuple(coord_3d)))
         return coord_list
 
     def _extract_chunk(self, coord):
         """Returns smaller arrays extracted from images in buffer.
 
         Parameters:
-        coord - tuple to indicate coordinate in larger_ar to start the extraction. If None,
+        coord - (list) tuples in the form of (idx_buffer, (z, y, z)) to indicate where to extract chunks from buffer
         """
         idx_buf = coord[0]
         coord_img = coord[1]

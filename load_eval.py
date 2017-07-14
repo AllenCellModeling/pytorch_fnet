@@ -4,9 +4,11 @@ import util.data
 import util.display
 import numpy as np
 import os
+import torch
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_path', default='data', help='path to data directory')
+parser.add_argument('--gpu_id', type=int, default=0, help='GPU ID')
 parser.add_argument('--load_path', help='path to trained model')
 parser.add_argument('--model_module', default='default_model', help='name of the model module')
 parser.add_argument('--n_images', type=int, help='max number of images to test')
@@ -22,7 +24,7 @@ def test_display(model, data):
     for i, (x_test, y_true) in enumerate(data):
         if model is not None:
             y_pred[:] = model.predict(x_test)
-        util.display.display_visual_eval_images(x_test, y_true, y_pred)
+        util.display.display_visual_eval_images(x_test, y_true, y_pred, z_pin=16)
         if opts.save_images:
             name_model = os.path.basename(opts.load_path).split('.')[0]
             img_trans = x_test[0, 0, ].astype(np.float32)
@@ -43,6 +45,9 @@ def test_display(model, data):
             break
     
 def main():
+    torch.cuda.set_device(opts.gpu_id)
+    print('on GPU:', torch.cuda.current_device())
+    
     if opts.use_train_set:
         print('*** Using training set ***')
     train_select = opts.use_train_set
@@ -51,8 +56,10 @@ def main():
     dataset = util.data.DataSet(opts.data_path, train=train_select)
     print(dataset)
 
-    dims_chunk = (32, 224, 224)
-    data_test = util.data.TestImgDataProvider(dataset, dims_chunk=dims_chunk)
+    # dims_chunk = (32, 224, 224)
+    dims_chunk = (32, 208, 208)
+    dims_pin = (0, 0, 0)
+    data_test = util.data.TestImgDataProvider(dataset, dims_chunk=dims_chunk, dims_pin=dims_pin)
     
     # load model
     model = None

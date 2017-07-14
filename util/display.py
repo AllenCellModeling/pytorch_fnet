@@ -100,7 +100,7 @@ def display_batch(vol_light_np, vol_nuc_np, batch):
         ax.imshow(img_chunk_tar, cmap='gray', interpolation='bilinear')
         plt.show()
 
-def display_visual_eval_images(signal, target, prediction):
+def display_visual_eval_images(signal, target, prediction, z_pin=None):
     """Display 3 images: light, nuclear, predicted nuclear.
 
     Parameters:
@@ -117,12 +117,12 @@ def display_visual_eval_images(signal, target, prediction):
         # fig = plt.figure(figsize=(15, 15), tight_layout={'w_pad':1.0})
         fig = plt.figure(figsize=(15, 15))
         fig.subplots_adjust(wspace=0.05)
-        z_strong = find_z_of_max_slice(target[ex, 0, ])
-        print('z:', z_strong)
+        z_val = find_z_of_max_slice(target[ex, 0, ]) if z_pin is None else z_pin
+        print('z:', z_val)
         print('DNA channel stats:')
         print_array_stats(target)
         for i in range(3):
-            img = source_list[i][ex, 0, z_strong, ]
+            img = source_list[i][ex, 0, z_val, ]
             ax = fig.add_subplot(1, 3, i + 1)
             ax.set_title(titles[i])
             ax.get_xaxis().set_visible(False)
