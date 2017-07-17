@@ -1,10 +1,12 @@
 import numpy as np
 import aicsimage.processing as proc
 
-def normalize(img):
-    """Adjust pixel intensity to (0.0, 1.0)"""
-    img -= np.amin(img)
-    img /= np.amax(img)
+def sub_mean_norm(img):
+    """Subtract mean, set STD to 1.0"""
+    result = img.copy()
+    result -= np.mean(img)
+    result /= np.std(img)
+    return result
 
 def do_nothing(img):
     pass

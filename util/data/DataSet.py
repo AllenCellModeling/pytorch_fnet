@@ -3,9 +3,10 @@ import pickle
 import glob
 from aicsimage.io import omeTifReader
 import numpy as np
+from natsort import natsorted
 
 class DataSet(object):
-    def __init__(self, path, train, percent_test=0.1, train_set_limit=None, transform=None, force_rebuild=False):
+    def __init__(self, path, train, percent_test=0.1, train_set_limit=None, transform=None, target_transform=None, force_rebuild=False):
         """
         path - path to parent directory that contains folders of data.
         train - (bool) if True, creates a dataset from 
@@ -16,6 +17,7 @@ class DataSet(object):
         self._percent_test = percent_test
         self._train_set_limit = train_set_limit
         self._transform = transform
+        self._target_transform = target_transform
         self._all_set = None
         self._test_set = None
         self._train_set = None
@@ -30,7 +32,8 @@ class DataSet(object):
             self._active_set = self._train_set
         else:
             self._active_set = self._test_set
-        assert self._active_set is not None
+        self._active_set = natsorted(self._active_set)  # TODO: is this wanted?
+        self._validate_dataset()
 
     def _build_new_sets(self):
         self._all_set = [i.path for i in os.scandir(self._path) if i.is_dir()]  # order is arbitrary
@@ -57,17 +60,17 @@ class DataSet(object):
     def get_train_set(self):
         return self._train_set
 
-    def _validate_folders(self):
-        # TODO: validate all folders
-        pass
+    def _validate_dataset(self):
+        assert self._active_set is not None
+        # TODO: check folders?
 
     def _save(self):
         dirname = os.path.dirname(self._save_path)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
-        package = (self._path, self._percent_test, self._train_set_limit, self._transform,
+        package = (self._path, self._percent_test, self._train_set_limit, self._transform, self._target_transform,
                    self._all_set, self._test_set, self._train_set)
-        assert len(package) == 7
+        assert len(package) == 8
         with open(self._save_path, 'wb') as fo:
             pickle.dump(package, fo)
             print('saved dataset split to:', self._save_path)
@@ -75,21 +78,30 @@ class DataSet(object):
     def _load(self):
         with open(self._save_path, 'rb') as fin:
             package = pickle.load(fin)
-        assert len(package) == 7
-        (self._path, self._percent_test, self._train_set_limit, self._transform,
-         self._all_set, self._test_set, self._train_set) = package
+        if len(package) == 7:
+            # TODO: added to make compatible with older datasets
+            (self._path, self._percent_test, self._train_set_limit, self._transform,
+             self._all_set, self._test_set, self._train_set) = package
+            self._target_transform = self._transform
+        if len(package) == 8:
+            (self._path, self._percent_test, self._train_set_limit, self._transform, self._target_transform,
+             self._all_set, self._test_set, self._train_set) = package
         print('loaded dataset split from:', self._save_path)
 
     def __str__(self):
-        if self._transform is None:
-            str_transform = str(None)
-        elif isinstance(self._transform, list):
-            str_list = []
-            for t in self._transform:
-                str_list.append(str(t))
-            str_transform = '=>'.join(str_list)
-        else:
-            str_transform = str(self._transform)
+        def get_str_transform(transform):
+            # Return the string representation of the given transform
+            if transform is None:
+                str_transform = str(None)
+            elif isinstance(transform, (list, tuple)):
+                str_list = []
+                for t in transform:
+                    str_list.append(str(t))
+                str_transform = ' => '.join(str_list)
+            else:
+                str_transform = str(transform)
+            return str_transform
+            
         str_active = 'train' if self._train_select else 'test'
         str_list = []
         str_list.append('DataSet from: ' + self._path)
@@ -99,17 +111,10 @@ class DataSet(object):
         str_list.append('train/test/total: {:d}/{:d}/{:d}'.format(len(self._train_set),
                                                                   len(self._test_set),
                                                                   len(self._all_set)))
-        str_list.append('transform: ' + str_transform)
+        str_list.append('transform: ' + get_str_transform(self._transform))
+        str_list.append('target_transform: ' + get_str_transform(self._target_transform))
         return os.linesep.join(str_list)
 
-    def _apply_transform(self, ar):
-        """Apply the transformation(s) specified in the constructor to the supplied array."""
-        if self._transform is None:
-            return None
-        if isinstance(self._transform, list):
-            raise NotImplementedError
-        else:
-            return self._transform(ar)
 
     def __len__(self):
         return len(self._active_set)
@@ -123,15 +128,28 @@ class DataSet(object):
         volumes - 2-element tuple or None. If the file read was successful, return tuple
         (array of the trans channel, array of the DNA channel) else return None
         """
+        def get_vol_transformed(ar, transform):
+            """Apply the transformation(s) specified in the constructor to the supplied array."""
+            result = ar
+            if transform is None:
+                pass
+            elif isinstance(transform, (list, tuple)):
+                for t in transform:
+                    result = t(result)
+            else:
+                result = transform(result)
+            return result
+
         path_folder = self._active_set[index]
-        volumes_pre = _read_tifs(path_folder)  # TODO add option to read different file types
+        volumes_pre = _read_tifs(path_folder)  # TODO: add option to read different file types
         if volumes_pre is None:
             return None
-        # print('DEBUG:', volumes_pre[0].shape, volumes_pre[1].shape)
-        volumes = (self._apply_transform(volumes_pre[0]), self._apply_transform(volumes_pre[1]))
+        volumes = (get_vol_transformed(volumes_pre[0], self._transform),
+                   get_vol_transformed(volumes_pre[1], self._target_transform))
+        # print('DEBUG: DataSet. item shapes:', volumes[0].shape, volumes[1].shape)
         return volumes
     
-
+    
 def _read_tifs(path_folder):
     """Read in TIFs and return as numpy arrays."""
     print('reading TIFs from', path_folder)
