@@ -1,5 +1,4 @@
 import numpy as np
-import queue
 import pdb
 
 class MultiFileDataProvider(object):
