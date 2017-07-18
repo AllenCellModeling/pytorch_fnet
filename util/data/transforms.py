@@ -9,7 +9,7 @@ def sub_mean_norm(img):
     return result
 
 def do_nothing(img):
-    pass
+    return img
 
 class Resizer(object):
     def __init__(self, factors):
