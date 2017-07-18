@@ -4,6 +4,7 @@ import glob
 from aicsimage.io import omeTifReader
 import numpy as np
 from natsort import natsorted
+from util import get_vol_transformed
 
 class DataSet(object):
     def __init__(self, path, train, percent_test=0.1, train_set_limit=None, transform=None, target_transform=None, force_rebuild=False):
@@ -128,18 +129,6 @@ class DataSet(object):
         volumes - 2-element tuple or None. If the file read was successful, return tuple
         (array of the trans channel, array of the DNA channel) else return None
         """
-        def get_vol_transformed(ar, transform):
-            """Apply the transformation(s) specified in the constructor to the supplied array."""
-            result = ar
-            if transform is None:
-                pass
-            elif isinstance(transform, (list, tuple)):
-                for t in transform:
-                    result = t(result)
-            else:
-                result = transform(result)
-            return result
-
         path_folder = self._active_set[index]
         volumes_pre = _read_tifs(path_folder)  # TODO: add option to read different file types
         if volumes_pre is None:
@@ -149,32 +138,5 @@ class DataSet(object):
         # print('DEBUG: DataSet. item shapes:', volumes[0].shape, volumes[1].shape)
         return volumes
     
-    
-def _read_tifs(path_folder):
-    """Read in TIFs and return as numpy arrays."""
-    print('reading TIFs from', path_folder)
-    trans_fname_list = glob.glob(os.path.join(path_folder, '*_trans.tif'))
-    dna_fname_list = glob.glob(os.path.join(path_folder, '*_dna.tif'))
-    if len(trans_fname_list) != 1 or len(dna_fname_list) != 1:
-        print('WARNING: incorrect number of transmitted light/dna channel files found:', path_folder)
-        return None
-    path_trans = trans_fname_list[0]
-    path_dna = dna_fname_list[0]
-    try:
-        fin_trans = omeTifReader.OmeTifReader(path_trans)
-    except:
-        print('WARNING: could not read trans file:', path_trans)
-        return None
-    try:
-        fin_dna = omeTifReader.OmeTifReader(path_dna)
-    except:
-        print('WARNING: could not read dna file:', path_dna)
-        return None
-    # Extract the sole channel
-    vol_trans = fin_trans.load().astype(np.float32)[0, ]
-    vol_dna = fin_dna.load().astype(np.float32)[0, ]
-    return (vol_trans, vol_dna)
-
 if __name__ == '__main__':
     pass
-    

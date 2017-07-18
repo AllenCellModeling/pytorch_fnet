@@ -24,7 +24,7 @@ def test_display(model, data):
     for i, (x_test, y_true) in enumerate(data):
         if model is not None:
             y_pred[:] = model.predict(x_test)
-        util.display.display_visual_eval_images(x_test, y_true, y_pred, z_pin=16)
+        util.display.display_visual_eval_images(x_test, y_true, y_pred, z_pin=None)
         if opts.save_images:
             name_model = os.path.basename(opts.load_path).split('.')[0]
             img_trans = x_test[0, 0, ].astype(np.float32)
