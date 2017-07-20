@@ -4,6 +4,7 @@ import torch
 import pickle
 import time
 import importlib
+import pdb
 
 CUDA = True
 
@@ -13,6 +14,7 @@ class Model(object):
         self.criterion = torch.nn.MSELoss()
         
         if load_path is None:
+            nn_name = nn_module
             nn_module = importlib.import_module('model_modules.nn_modules.' + nn_module)
             self.net = nn_module.Net(mult_chan=mult_chan, depth=depth)
             if CUDA:
@@ -22,7 +24,7 @@ class Model(object):
                 self.net.apply(weights_init)
             self.optimizer = torch.optim.Adam(self.net.parameters(), lr=lr, betas=(0.5, 0.999))
             self.meta = {
-                'name': 'U-Network V0',
+                'nn': nn_name,
                 'count_iter': 0,
                 'mult_chan': mult_chan,
                 'depth': depth,
@@ -35,9 +37,11 @@ class Model(object):
         self.target_v = None
 
     def __str__(self):
-        out_str = '{:s} | mult_chan: {:d} | depth: {:d}'.format(self.meta['name'],
-                                                                self.meta['mult_chan'],
-                                                                self.meta['depth'])
+        some_name = self.meta.get('nn')
+        if some_name is None:   # TODO: remove once support for older models no longer needed
+            some_name = self.meta.get('name')
+        out_str = '{:s} | iter: {:d}'.format(some_name,
+                                             self.meta['count_iter'])
         return out_str
 
     def save_checkpoint(self, save_path):
@@ -88,6 +92,11 @@ class Model(object):
         self.meta['name'] = new_name
         time_load = time.time() - time_start
         print('model load time: {:.1f} s'.format(time_load))
+
+    def set_lr(self, lr):
+        lr_old = self.optimizer.param_groups[0]['lr']
+        self.optimizer.param_groups[0]['lr'] = lr
+        print('learning rate: {} => {}'.format(lr_old, lr))
 
     def do_train_iter(self, signal, target):
         self.net.train()
