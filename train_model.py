@@ -15,6 +15,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--batch_size', type=int, default=24, help='size of each batch')
 parser.add_argument('--buffer_size', type=int, default=5, help='number of images to cache in memory')
 parser.add_argument('--data_path', default='data', help='path to data directory')
+parser.add_argument('--data_provider', default='multifiledataprovider', help='data provider class')
 parser.add_argument('--dont_init_weights', action='store_true', help='do not init nn weights')
 parser.add_argument('--gpu_id', type=int, default=0, help='GPU ID')
 parser.add_argument('--iter_save_log', type=int, default=250, help='iterations between log saves')
@@ -31,6 +32,7 @@ parser.add_argument('--seed', type=int, default=0, help='random seed')
 opts = parser.parse_args()
 
 model_module = importlib.import_module('model_modules.' + opts.model_module)
+dataprovider_module = importlib.import_module('util.data.' + opts.data_provider)
 
 def train(model, data, logger):
     start = time.time()
@@ -53,8 +55,11 @@ def train(model, data, logger):
     print('***** Training Time *****')
     print('total:', t_elapsed)
     print()
+
+def create_run_folder():
+    pass
     
-def get_run_name():
+def gen_run_name():
     now_dt = datetime.datetime.now(pytz.utc).astimezone(pytz.timezone('US/Pacific'))
     run_name = now_dt.strftime('run_%y%m%d_%H%M%S')
     return run_name
@@ -70,23 +75,12 @@ def main():
 
     run_name = opts.run_name
     if run_name is None:
-        run_name = get_run_name()
+        run_name = gen_run_name()
     logger = util.SimpleLogger(('num_iter', 'loss', 'sources'),
                                'num_iter: %4d | loss: %.6f | sources: %s',
                                logger_name=run_name)
+    
 
-    # get training dataset
-    dataset = util.data.DataSet(opts.data_path, train=True)
-    print(dataset)
-    
-    data_train = util.data.MultiFileDataProvider(
-        dataset,
-        buffer_size=opts.buffer_size,
-        n_iter=opts.n_iter,
-        batch_size=opts.batch_size,
-        replace_interval=opts.replace_interval
-    )
-    
     # instatiate/load model
     if opts.resume_path is None:
         model = model_module.Model(mult_chan=32, depth=4, lr=opts.lr, nn_module=opts.nn_module,
@@ -94,6 +88,19 @@ def main():
     else:
         model = model_module.Model(load_path=opts.resume_path)
     print(model)
+    
+    # get training dataset
+    dataset = util.data.DataSet(opts.data_path, train_select=True)
+    print(dataset)
+
+    data_train = dataprovider_module.DataProvider(
+        dataset,
+        buffer_size=opts.buffer_size,
+        n_iter=opts.n_iter,
+        batch_size=opts.batch_size,
+        replace_interval=opts.replace_interval
+    )
+    
     train(model, data_train, logger)
         
     # display logger data

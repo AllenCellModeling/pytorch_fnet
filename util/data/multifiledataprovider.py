@@ -57,13 +57,13 @@ class MultiFileDataProvider(object):
             self._idx_folder = 0
 
     def _create_package(self):
-        """Read trans and dna channel images from current folder and return package.
+        """Read signal, target images from current folder and return data package.
 
         Returns:
-        package - 3-element tuple (idx_folder, vol_trans, vol_dna)
+        package - 3-element tuple (idx_folder, vol_signal, vol_target)
         """
         volumes = None
-        while volumes is None:
+        while volumes is None:  # TODO: potential for infinite loop here; limit max number of tries?
             volumes = self._dataset[self._idx_folder]
             if volumes:
                 idx_folder = self._idx_folder
@@ -138,4 +138,7 @@ class MultiFileDataProvider(object):
         if (self._replace_interval > 0) and (self._count_iter % self._replace_interval == 0):
             self._replace_buffer_item()
         return self.get_batch()
+
+
+DataProvider = MultiFileDataProvider  # to fit with the train_model API
 
