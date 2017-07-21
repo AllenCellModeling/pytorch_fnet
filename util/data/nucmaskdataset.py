@@ -1,8 +1,8 @@
 import pdb
-from util.data.dataset import DataSet
+from util.data.dataset import DataSet as _DataSet
 import numpy as np
 
-class NucMaskDataSet(DataSet):
+class NucMaskDataSet(_DataSet):
     # override
     def __getitem__(self, index):
         """Sets target to be a custom mask that is a combination of nuclear and cell masks.
@@ -18,5 +18,4 @@ class NucMaskDataSet(DataSet):
         vol_classes[np.where(vol_nuc_seg > 0)] = 0
         return (vol_dna, vol_classes)
     
-    
-        
+DataSet = NucMaskDataSet        

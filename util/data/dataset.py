@@ -123,10 +123,9 @@ class DataSet(object):
                 else:
                     all_transforms.append(str(transform))
             return (os.linesep + '            ').join(all_transforms)
-            
         str_active = 'train' if self._train_select else 'test'
         str_list = []
-        str_list.append('DataSet from: ' + self._path)
+        str_list.append('{} from: {}'.format(self.__class__.__name__, self._path))
         str_list.append('file_tags: ' + str(self._file_tags))
         str_list.append('active_set: ' + str_active)
         if self._train_set_size:

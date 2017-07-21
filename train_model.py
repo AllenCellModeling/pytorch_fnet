@@ -15,7 +15,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--batch_size', type=int, default=24, help='size of each batch')
 parser.add_argument('--buffer_size', type=int, default=5, help='number of images to cache in memory')
 parser.add_argument('--data_path', default='data', help='path to data directory')
-parser.add_argument('--data_provider', default='multifiledataprovider', help='data provider class')
+parser.add_argument('--data_provider_module', default='multifiledataprovider', help='data provider class')
+parser.add_argument('--data_set_module', default='dataset', help='data set class')
 parser.add_argument('--dont_init_weights', action='store_true', help='do not init nn weights')
 parser.add_argument('--gpu_id', type=int, default=0, help='GPU ID')
 parser.add_argument('--iter_save_log', type=int, default=250, help='iterations between log saves')
@@ -32,13 +33,13 @@ parser.add_argument('--seed', type=int, default=0, help='random seed')
 opts = parser.parse_args()
 
 model_module = importlib.import_module('model_modules.' + opts.model_module)
-dataprovider_module = importlib.import_module('util.data.' + opts.data_provider)
+data_provider_module = importlib.import_module('util.data.' + opts.data_provider_module)
+data_set_module = importlib.import_module('util.data.' + opts.data_set_module)
 
 def train(model, data, logger):
     start = time.time()
     for i, batch in enumerate(data):
         x, y = batch
-        # pdb.set_trace()
         loss = model.do_train_iter(x, y)
         logger.add((
             i,
@@ -90,10 +91,11 @@ def main():
     print(model)
     
     # get training dataset
-    dataset = util.data.DataSet(opts.data_path, train_select=True)
+    dataset = data_set_module.DataSet(opts.data_path, train_select=True)
+    print('DEBUG: data_set_module', data_set_module)
     print(dataset)
 
-    data_train = dataprovider_module.DataProvider(
+    data_train = data_provider_module.DataProvider(
         dataset,
         buffer_size=opts.buffer_size,
         n_iter=opts.n_iter,

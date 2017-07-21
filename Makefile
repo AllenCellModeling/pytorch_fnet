@@ -1,18 +1,26 @@
-tmp:
-	python3 train_model.py --data_path data/one_file --n_epochs 1 --n_batches_per_img 5000 \
-	--run_name one_file_test_nosig_nonorm --img_transform do_nothing --nn_module nosigmoid_nn \
-	--lr 0.001
-
-tmp_lr01:
-	python3 train_model.py --data_path data/one_file --n_epochs 1 --n_batches_per_img 500 \
-	--run_name one_file_test_nosig_nonorm_lr01 --img_transform do_nothing --nn_module nosigmoid_nn \
-	--lr 0.01
+NN = v5_nn
+RUN_NAME = no_hots_norm_v5_50k
+DATA = data/no_hots
 
 long:
-	python3 train_model.py --data_path data/no_hots --n_iter 50000 --run_name no_hots_multi
+	python3 train_model.py --data_path $(DATA) --n_iter 50000 --buffer_size 15 --replace_interval -1 \
+	--nn_module $(NN) \
+	--run_name $(RUN_NAME)
 
-test_one_img:
-	python3 train_model.py --data_path data/one_file --n_iter 20 --run_name one_file_test
+snm :
+	python train_model.py --n_iter 50000 --buffer_size 15 --replace_interval -1 \
+	--data_path data/nuc_mask \
+	--data_set_module nucmaskdataset \
+	--model_module snm_model \
+	--nn_module snm_v0_nn \
+	--run_name snm_v0
 
-test_modules:
-	python3 test_modules.py
+test_one_file:
+	python3 train_model.py --data_path data/one_file --n_iter 1000 \
+	--buffer_size 1 \
+	--replace_interval -1 \
+	--nn_module $(NN) \
+	--run_name test_one_file
+
+test_dataset :
+	python -m unittest -v tests.test_dataset
