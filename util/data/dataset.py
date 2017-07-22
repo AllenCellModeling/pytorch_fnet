@@ -59,6 +59,10 @@ class DataSet(object):
             if self._train_set_size is not None:
                 idx_split = self._train_set_size*-1
                 print('setting training set size to to {:d} elements'.format(self._train_set_size))
+                if self._train_set_size == 0:  # happens when train_set_size == 0
+                    self._test_set = self._all_set[:]
+                    self._train_set = []
+                    return
             else:
                 idx_split = round(len(self._all_set)*self._percent_test)
             self._test_set = self._all_set[:idx_split]
