@@ -102,7 +102,10 @@ def display_batch(vol_light_np, vol_nuc_np, batch):
 
 def display_visual_eval_images(signal, target, prediction, z_selector=None,
                                titles=('signal', 'target', 'predicted'),
-                               verbose=False):
+                               vmins=None,
+                               vmaxs=None,
+                               verbose=False,
+                               path_z_ani=None):
     """Display 3 images: light, nuclear, predicted nuclear.
 
     Parameters:
@@ -115,90 +118,69 @@ def display_visual_eval_images(signal, target, prediction, z_selector=None,
     source_list = [signal, target, prediction]
             
     for ex in range(n_examples):
-        # fig = plt.figure(figsize=(15, 15), tight_layout={'w_pad':1.0})
-        fig = plt.figure(figsize=(15, 15))
-        fig.subplots_adjust(wspace=0.05)
-
-        # get z slice to display
-        if isinstance(z_selector, int):
-            z_val = z_selector
-        elif z_selector == 'strongest_in_signal':
-            z_val = find_z_of_max_slice(signal[ex, 0, ])
-        elif z_selector == 'strongest_in_target':
-            z_val = find_z_of_max_slice(target[ex, 0, ])
+        if path_z_ani is None:
+            # get z slice to display
+            if isinstance(z_selector, int):
+                z_val = z_selector
+            elif z_selector == 'strongest_in_signal':
+                z_val = find_z_of_max_slice(signal[ex, 0, ])
+            elif z_selector == 'strongest_in_target':
+                z_val = find_z_of_max_slice(target[ex, 0, ])
+            else:
+                assert False, 'invalid z_selector'
+            print('z:', z_val)
+            z_list = [z_val]
+            n_subplots = 3
         else:
-            assert False, 'invalid z_selector'
-
-        print('z:', z_val)
-        if verbose:
-            print('trans channel stats:')
-            print_array_stats(signal)
-            print('DNA channel stats:')
-            print_array_stats(target)
+            n_z_slices = signal.shape[2]
+            z_list = range(n_z_slices)
+            n_subplots = 4
+            if not os.path.exists(path_z_ani):
+                os.makedirs(path_z_ani)
+    
+        kwargs_list = []
         for i in range(3):
-            img = source_list[i][ex, 0, z_val, ]
-            ax = fig.add_subplot(1, 3, i + 1)
-            ax.set_title(titles[i])
-            ax.get_xaxis().set_visible(False)
-            ax.get_yaxis().set_visible(False)
-            # ax.imshow(img, cmap='gray', interpolation='bilinear', vmin=0, vmax=1)
-            ax.imshow(img, cmap='gray', interpolation='bilinear')
-    plt.show()
+            kwargs = {}
+            if vmins is not None:
+                if vmins[i] == 'std_based':
+                    vmin_val = np.mean(source_list[i]) - 9*np.std(source_list[i])
+                    print('DEBUG: {} using vmin {}'.format(titles[i], vmin_val))
+                    kwargs['vmin'] = vmin_val
+                else:
+                    kwargs['vmin'] = vmins[i] if path_z_ani is None else np.amin(source_list[i])
+            if vmaxs is not None:
+                if vmaxs[i] == 'std_based':
+                    vmax_val = np.mean(source_list[i]) + 9*np.std(source_list[i])
+                    print('DEBUG: {} using vmax {}'.format(titles[i], vmax_val))
+                    kwargs['vmax'] = vmax_val
+                else:
+                    kwargs['vmax'] = vmaxs[i] if path_z_ani is None else np.amax(source_list[i])
+            kwargs_list.append(kwargs)
+        print(kwargs_list)
 
-def save_image_stacks(dir_save, images):
-    """Display 3 images: light, nuclear, predicted nuclear.
-
-    Parameters:
-    dir_save - directory in which to save files
-    images - tuple/list of 5-d numpy arrays: transmitted, DNA, predicted
-    """
-    n_examples = images[0].shape[0]
-    n_z_slices = images[0].shape[2]
-    print('DEBUG: dir_save', dir_save)
-    print('DEBUG: n_examples', n_examples)
-    print('DEBUG: n_z_slices', n_z_slices)
-    titles = ('transmitted', 'DNA', 'predicted')
-
-    # get min/max pixel values
-    vmins = np.zeros(3, dtype=np.float32)
-    vmaxs = np.zeros(3, dtype=np.float32)
-
-    if os.path.exists(dir_save):
-        assert os.path.isdir(dir_save)
-    else:
-        os.makedirs(dir_save)
-
-    for ex in range(n_examples):
-        for i in range(3):
-            vmins[i] = np.amin(images[i][ex, 0])
-            vmaxs[i] = np.amax(images[i][ex, 0])*0.9
-        print('DEBUG: min', vmins)
-        print('DEBUG: max', vmaxs)
-        
-        for z in range(n_z_slices):
-        # for z in [0, 1, 30, 31]:
-            fig = plt.figure(figsize=(25, 15), frameon=False)
+        for z in z_list:
+            fig, ax = plt.subplots(ncols=n_subplots, figsize=(20, 15))
             fig.subplots_adjust(wspace=0.05)
             for i in range(3):
-                img = images[i][ex, 0, z, ]
-                ax = fig.add_subplot(1, 4, i + 1)
-                ax.set_title(titles[i], fontsize=18)
-                ax.get_xaxis().set_visible(False)
-                ax.get_yaxis().set_visible(False)
-                ax.imshow(img, cmap='gray', interpolation='bilinear', vmin=vmins[i], vmax=vmaxs[i])
-            # add bar image to figure
-            img_bar = np.ones((n_z_slices*2, n_z_slices*2), dtype=np.uint8)*255
-            z_start = (n_z_slices - z - 1)*2
-            img_bar[z_start: z_start + 2] = 0
-            ax_bar = fig.add_subplot(1, 4, 4)
-            ax_bar.imshow(img_bar, cmap='gray')
-            ax_bar.axis('off')
+                if verbose:
+                    print(titles[i] + ' stats:')
+                    print_array_stats(source_list[i])
+                img = source_list[i][ex, 0, z, ]
+                ax[i].set_title(titles[i])
+                ax[i].axis('off')
+                ax[i].imshow(img, cmap='gray', interpolation='bilinear', **kwargs_list[i])
+            if path_z_ani:
+                path_save = os.path.join(path_z_ani, 'img_{:02d}_z_{:02d}'.format(ex, z))
+                print(path_save)
+                img_bar = np.ones((n_z_slices*2, n_z_slices*2), dtype=np.uint8)*255
+                z_start = (n_z_slices - z - 1)*2
+                img_bar[z_start: z_start + 2, :2] = 0
+                ax[3].imshow(img_bar, cmap='gray')
+                ax[3].axis('off')
+                fig.savefig(path_save)
+                plt.close(fig)
             
-            path_save = os.path.join(dir_save, 'img_{:02d}_z_{:02d}'.format(ex, z))
-            print('DEBUG: path_save', path_save)
-            fig.savefig(path_save)
-            plt.close(fig)
-    # plt.show()
+    plt.show()
     
 if __name__ == '__main__':
     print('util.display')

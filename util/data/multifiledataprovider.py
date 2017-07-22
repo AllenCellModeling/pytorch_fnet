@@ -31,6 +31,8 @@ class MultiFileDataProvider(object):
         self._idx_replace = 0  # next 
 
         self._fill_buffer()
+        
+        self._shape_batch = (self._batch_size, 1) + self._dims_chunk
 
     def set_dims_pin(self, dims_pin):
         self._dims_pin = dims_pin
@@ -80,9 +82,8 @@ class MultiFileDataProvider(object):
         Returns:
         batch_x, batch_y - (2 numpy arrays) each array will have shape (n, 1) + dims_chunk.
         """
-        shape_batch = (self._batch_size, 1) + self._dims_chunk
-        batch_x = np.zeros(shape_batch, dtype=np.float32)
-        batch_y = np.zeros(shape_batch, dtype=np.float32)
+        batch_x = np.zeros(self._shape_batch, dtype=np.float32)
+        batch_y = np.zeros(self._shape_batch, dtype=np.float32)
         coords = self._pick_random_chunk_coords()
         for i in range(len(coords)):
             coord = coords[i]
@@ -112,7 +113,7 @@ class MultiFileDataProvider(object):
         return coord_list
 
     def _extract_chunk(self, coord):
-        """Returns smaller arrays extracted from images in buffer.
+        """Returns arrays extracted from images in buffer.
 
         Parameters:
         coord - (list) tuples in the form of (idx_buffer, (z, y, z)) to indicate where to extract chunks from buffer
@@ -122,6 +123,7 @@ class MultiFileDataProvider(object):
         slices = []
         for i in range(len(coord_img)):
             slices.append(slice(coord_img[i], coord_img[i] + self._dims_chunk[i]))
+        # pdb.set_trace()
         return self._buffer[idx_buf][1][slices], self._buffer[idx_buf][2][slices]
 
     def __len__(self):

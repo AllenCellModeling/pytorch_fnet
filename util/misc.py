@@ -27,7 +27,14 @@ def get_vol_transformed(ar, transform):
 
 def print_array_stats(ar):
     print('shape:', ar.shape, '|', 'dtype:', ar.dtype)
-    print('min:', ar.min(), '| max:', ar.max(), '| median', np.median(ar))
+    stat_list = []
+    stat_list.append('min: {:.3f}'.format(ar.min()))
+    stat_list.append('max: {:.3f}'.format(ar.max()))
+    stat_list.append('median: {:.3f}'.format(np.median(ar)))
+    stat_list.append('mean: {:.3f}'.format(np.mean(ar)))
+    stat_list.append('std: {:.3f}'.format(np.std(ar)))
+    print(' | '.join(stat_list))
+    # print('min:', ar.min(), '| max:', ar.max(), '| median', np.median(ar))
 
 def save_img_np(img_np, path):
     """Save image (numpy array, ZYX) as a TIFF."""
