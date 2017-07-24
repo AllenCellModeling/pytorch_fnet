@@ -100,46 +100,60 @@ def display_batch(vol_light_np, vol_nuc_np, batch):
         ax.imshow(img_chunk_tar, cmap='gray', interpolation='bilinear')
         plt.show()
 
-def display_visual_eval_images(signal, target, prediction, z_selector=None,
+def display_visual_eval_images(sources,
+                               z_selector=None,
                                titles=('signal', 'target', 'predicted'),
                                vmins=None,
                                vmaxs=None,
                                verbose=False,
-                               path_z_ani=None):
-    """Display 3 images: light, nuclear, predicted nuclear.
+                               path_z_ani=None,
+                               path_save_pre=None):
+    """Display row of images.
 
     Parameters:
-    signal (5d numpy array)
-    target (5d numpy array)
-    prediction (5d numpy array)
+    sources - list/tuple of image sources, each being a 5d numpy array
+    z_selector - (int, 'sweep')
+    path_z_ani - path to directory 
+    path_save_pre - partial path to directory to save generated figures.
+                    Filename tags will be added to the end of path_save_pre for each saved image.
+    ...
     """
-    n_examples = signal.shape[0]
-    # print('Displaying chunk slices for', n_examples, 'examples')
-    source_list = [signal, target, prediction]
+    assert isinstance(sources, (list, tuple))
+    assert len(sources) == len(titles)
+    if vmins is not None: assert len(vmins) == len(sources)
+    if vmaxs is not None: assert len(vmaxs) == len(sources)
+    
+    n_examples = sources[0].shape[0]
             
     for ex in range(n_examples):
+        # get z slice to display
         if path_z_ani is None:
-            # get z slice to display
             if isinstance(z_selector, int):
                 z_val = z_selector
-            elif z_selector == 'strongest_in_signal':
-                z_val = find_z_of_max_slice(signal[ex, 0, ])
-            elif z_selector == 'strongest_in_target':
-                z_val = find_z_of_max_slice(target[ex, 0, ])
             else:
-                assert False, 'invalid z_selector'
+                raise NotImplementedError
+            # elif z_selector = 'sweep':
+            #     pass
+            # elif z_selector == 'strongest_in_signal':
+            #     z_val = find_z_of_max_slice(signal[ex, 0, ])
+            # elif z_selector == 'strongest_in_target':
+            #     z_val = find_z_of_max_slice(target[ex, 0, ])
+            # else:
+            #     assert False, 'invalid z_selector'
             print('z:', z_val)
             z_list = [z_val]
-            n_subplots = 3
+            n_subplots = len(sources)
         else:
+            raise NotImplementedError
             n_z_slices = signal.shape[2]
             z_list = range(n_z_slices)
-            n_subplots = 4
+            n_subplots = len(sources) + 1  # +1 for the scrolling bar
             if not os.path.exists(path_z_ani):
                 os.makedirs(path_z_ani)
-    
+
+        # determine vmins and vmaxs for subplots
         kwargs_list = []
-        for i in range(3):
+        for i in range(len(sources)):
             kwargs = {}
             if vmins is not None:
                 if vmins[i] == 'std_based':
@@ -156,19 +170,26 @@ def display_visual_eval_images(signal, target, prediction, z_selector=None,
                 else:
                     kwargs['vmax'] = vmaxs[i] if path_z_ani is None else np.amax(source_list[i])
             kwargs_list.append(kwargs)
-        print(kwargs_list)
+        print('plot kwargs:', kwargs_list)
 
         for z in z_list:
             fig, ax = plt.subplots(ncols=n_subplots, figsize=(20, 15))
             fig.subplots_adjust(wspace=0.05)
-            for i in range(3):
+            for i in range(len(sources)):
                 if verbose:
                     print(titles[i] + ' stats:')
-                    print_array_stats(source_list[i])
-                img = source_list[i][ex, 0, z, ]
-                ax[i].set_title(titles[i])
+                    print_array_stats(sources[i])
+                img = sources[i][ex, 0, z, ]
+                ax[i].set_title(titles[i], fontsize='xx-large')
                 ax[i].axis('off')
                 ax[i].imshow(img, cmap='gray', interpolation='bilinear', **kwargs_list[i])
+
+            # save generated figure
+            if path_save_pre:
+                path_save = path_save_pre + '_ex_{:02d}_z_{:02d}.png'.format(ex, z)
+                print('saving image to:', path_save)
+                fig.savefig(path_save)
+                plt.close(fig)
             if path_z_ani:
                 path_save = os.path.join(path_z_ani, 'img_{:02d}_z_{:02d}'.format(ex, z))
                 print(path_save)
@@ -180,7 +201,7 @@ def display_visual_eval_images(signal, target, prediction, z_selector=None,
                 fig.savefig(path_save)
                 plt.close(fig)
             
-    plt.show()
+    # plt.show()
     
 if __name__ == '__main__':
     print('util.display')
