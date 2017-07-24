@@ -38,8 +38,9 @@ class Model(object):
 
     def __str__(self):
         some_name = self.meta.get('nn')
-        out_str = '{:s} | iter: {:d}'.format(some_name,
-                                             self.meta['count_iter'])
+        out_str = '{:s} | lr: {:f} | iter: {:d}'.format(some_name,
+                                                        self.meta['lr'],
+                                                        self.meta['count_iter'])
         return out_str
 
     def save_checkpoint(self, save_path):
@@ -111,6 +112,7 @@ class Model(object):
         shape = (pred_np.shape[0], 1, *pred_np.shape[2:])
         pred = np.zeros(shape)
         pred[:, 0, :, :, :] = np.argmax(pred_np[:, :2, :, :, :], axis=1)
+        # pred[:, 0, :, :, :] = np.argmax(pred_np[:, :3, :, :, :], axis=1)
         return pred
 
 def _weights_init(m):

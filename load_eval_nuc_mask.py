@@ -28,7 +28,12 @@ def test_display(model, data):
     for i, (x_test, y_true) in enumerate(data):
         if model is not None:
             y_pred[:] = model.predict(x_test)
-        util.display.display_visual_eval_images(x_test, y_true, y_pred, z_selector='strongest_in_signal')
+        util.display.display_visual_eval_images(x_test, y_true, y_pred, z_selector='strongest_in_signal',
+                                                titles=('DNA', 'combi-mask', 'predicted'),
+                                                vmins=None,
+                                                vmaxs=None,
+                                                verbose=False,
+                                                path_z_ani=None)
         if opts.save_images:
             name_model = os.path.basename(opts.load_path).split('.')[0]
             img_trans = x_test[0, 0, ].astype(np.float32)
