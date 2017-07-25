@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from aicsimage.io import omeTifWriter
 
@@ -11,7 +12,7 @@ __all__ = [
 def find_z_of_max_slice(ar):
     """Given a ZYX numpy array, return the z value of the XY-slice with the most signal."""
     z_max = np.argmax(np.sum(ar, axis=(1, 2)))
-    return z_max
+    return int(z_max)
 
 def get_vol_transformed(ar, transform):
     """Apply the transformation(s) to the supplied array and return the result."""
@@ -38,7 +39,10 @@ def print_array_stats(ar):
 
 def save_img_np(img_np, path):
     """Save image (numpy array, ZYX) as a TIFF."""
+    path_dirname = os.path.dirname(path)
+    if not os.path.exists(path_dirname):
+        os.makedirs(path_dirname)
     with omeTifWriter.OmeTifWriter(path, overwrite_file=True) as fo:
         fo.save(img_np)
-        print('saved:', path)
+        print('saved tif:', path)
             

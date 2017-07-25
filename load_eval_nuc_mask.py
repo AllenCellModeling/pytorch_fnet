@@ -1,5 +1,6 @@
 import argparse
 import importlib
+import util
 import util.data
 import util.display
 import numpy as np
@@ -25,28 +26,26 @@ model_module = importlib.import_module('model_modules.'  + opts.model_module)
 
 def test_display(model, data):
     y_pred = np.zeros((1, 1) + data.get_dims_chunk(), dtype=np.float32)
+    titles = ('DNA', 'combi-mask', 'predicted')
     for i, (x_test, y_true) in enumerate(data):
         if model is not None:
             y_pred[:] = model.predict(x_test)
-        util.display.display_visual_eval_images(x_test, y_true, y_pred, z_selector='strongest_in_signal',
-                                                titles=('DNA', 'combi-mask', 'predicted'),
+        sources = (x_test, y_true, y_pred)
+        z_max = util.find_z_of_max_slice(x_test[0, 0, ])
+        util.display.display_visual_eval_images(sources,
+                                                z_display=z_max,
+                                                titles=titles,
                                                 vmins=None,
                                                 vmaxs=None,
                                                 verbose=False,
                                                 path_z_ani=None)
         if opts.save_images:
-            name_model = os.path.basename(opts.load_path).split('.')[0]
-            img_trans = x_test[0, 0, ].astype(np.float32)
-            img_dna = y_true[0, 0, ].astype(np.float32)
-            img_pred = y_pred[0, 0, ]
-            name_pre = 'test_output/{:s}_test_{:02d}_'.format(name_model, i)
-            name_post = '.tif'
-            name_trans = name_pre + 'trans' + name_post
-            name_dna = name_pre + 'dna' + name_post
-            name_pred = name_pre + 'prediction' + name_post
-            util.save_img_np(img_trans, name_trans)
-            util.save_img_np(img_dna, name_dna)
-            util.save_img_np(img_pred, name_pred)
+            path_base = os.path.join('test_output', os.path.basename(opts.load_path).split('.')[0])
+            for idx, source in enumerate(sources):
+                img = source[0, 0, ].astype(np.float32)
+                path_img = os.path.join(path_base, 'img_{:02d}_{:s}.tif'.format(i, titles[idx]))
+                print('saving to:', path_img)
+                util.save_img_np(img, path_img)
         if opts.save_each_slice:
             dir_save = 'presentation/' + ('test' if not opts.use_train_set else 'train') + '_{:02d}'.format(i)
             util.display.save_image_stacks(dir_save, (x_test, y_true, y_pred))

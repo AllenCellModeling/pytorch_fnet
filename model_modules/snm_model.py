@@ -10,8 +10,10 @@ CUDA = True
 
 class Model(object):
     def __init__(self, mult_chan=None, depth=None, load_path=None, lr=0.0001, nn_module=None, init_weights=True):
-        
-        self.criterion = torch.nn.CrossEntropyLoss()
+
+        # give zero weight to "unknown" class
+        weights = torch.FloatTensor([0.5, 0.5, 0.0]).cuda()
+        self.criterion = torch.nn.CrossEntropyLoss(weight=weights)
         
         if load_path is None:
             nn_name = nn_module

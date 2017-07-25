@@ -101,7 +101,7 @@ def display_batch(vol_light_np, vol_nuc_np, batch):
         plt.show()
 
 def display_visual_eval_images(sources,
-                               z_selector=None,
+                               z_display=None,
                                titles=('signal', 'target', 'predicted'),
                                vmins=None,
                                vmaxs=None,
@@ -127,23 +127,17 @@ def display_visual_eval_images(sources,
             
     for ex in range(n_examples):
         # get z slice to display
-        if path_z_ani is None:
-            if isinstance(z_selector, int):
-                z_val = z_selector
-            else:
-                raise NotImplementedError
-            # elif z_selector = 'sweep':
-            #     pass
-            # elif z_selector == 'strongest_in_signal':
-            #     z_val = find_z_of_max_slice(signal[ex, 0, ])
-            # elif z_selector == 'strongest_in_target':
-            #     z_val = find_z_of_max_slice(target[ex, 0, ])
-            # else:
-            #     assert False, 'invalid z_selector'
-            print('z:', z_val)
-            z_list = [z_val]
-            n_subplots = len(sources)
+        if isinstance(z_display, int):
+            z_list = [z_display]
+        elif z_display == 'sweep':
+            z_list = range(sources[0].shape[2])
         else:
+            # assumes z_display is an iterable
+            z_list = z_display
+        print('z displayed:', z_list)
+
+        n_subplots = len(sources)
+        if path_z_ani is not None:
             raise NotImplementedError
             n_z_slices = signal.shape[2]
             z_list = range(n_z_slices)
@@ -191,6 +185,7 @@ def display_visual_eval_images(sources,
                 fig.savefig(path_save)
                 plt.close(fig)
             if path_z_ani:
+                raise NotImplementedError
                 path_save = os.path.join(path_z_ani, 'img_{:02d}_z_{:02d}'.format(ex, z))
                 print(path_save)
                 img_bar = np.ones((n_z_slices*2, n_z_slices*2), dtype=np.uint8)*255
@@ -200,8 +195,7 @@ def display_visual_eval_images(sources,
                 ax[3].axis('off')
                 fig.savefig(path_save)
                 plt.close(fig)
-            
-    # plt.show()
+    plt.show()
     
 if __name__ == '__main__':
     print('util.display')
