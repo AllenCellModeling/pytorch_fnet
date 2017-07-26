@@ -18,9 +18,8 @@ parser.add_argument('--data_path', default='data', help='path to data directory'
 parser.add_argument('--data_provider_module', default='multifiledataprovider', help='data provider class')
 parser.add_argument('--data_set_module', default='dataset', help='data set class')
 parser.add_argument('--dont_init_weights', action='store_true', help='do not init nn weights')
-parser.add_argument('--gpu_id', type=int, default=0, help='GPU ID')
-parser.add_argument('--iter_save_log', type=int, default=250, help='iterations between log saves')
-parser.add_argument('--iter_save_model', type=int, default=500, help='iterations between model saves')
+parser.add_argument('--gpu_ids', type=int, nargs='+', default=0, help='GPU ID')
+parser.add_argument('--iter_checkpoint', type=int, default=500, help='iterations between saving log/model checkpoints')
 parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
 parser.add_argument('--model_module', default='ttf_model', help='name of the model module')
 parser.add_argument('--n_iter', type=int, default=500, help='number of training iterations')
@@ -46,11 +45,10 @@ def train(model, data, logger):
             loss,
             data.last_sources
         ))
-        if i % opts.iter_save_log == 0:
+        if i % (opts.iter_checkpoint - 1) == 0 and i > 0:
             logger.save_csv()
-        if i % opts.iter_save_model == 0 and i > 0:
             model.save_checkpoint(os.path.join(opts.save_dir, logger.logger_name + '.p'))
-            # add testing with current model
+            # TODO add testing with current model
             
     t_elapsed = time.time() - start
     print('***** Training Time *****')
@@ -71,8 +69,9 @@ def main():
     torch.manual_seed(opts.seed)
     torch.cuda.manual_seed(opts.seed)
 
-    torch.cuda.set_device(opts.gpu_id)
-    print('on GPU:', torch.cuda.current_device())
+    main_gpu_id = opts.gpu_ids if isinstance(opts.gpu_ids, int) else opts.gpu_ids[0]
+    torch.cuda.set_device(main_gpu_id)
+    print('main GPU ID:', torch.cuda.current_device())
 
     run_name = opts.run_name
     if run_name is None:
@@ -85,9 +84,13 @@ def main():
     # instatiate/load model
     if opts.resume_path is None:
         model = model_module.Model(mult_chan=32, depth=4, lr=opts.lr, nn_module=opts.nn_module,
-                                   init_weights=(not opts.dont_init_weights))
+                                   init_weights=(not opts.dont_init_weights),
+                                   gpu_ids=opts.gpu_ids
+        )
     else:
-        model = model_module.Model(load_path=opts.resume_path)
+        model = model_module.Model(load_path=opts.resume_path,
+                                   gpu_ids=opts.gpu_ids
+        )
     print(model)
     
     # get training dataset

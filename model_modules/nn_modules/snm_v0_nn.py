@@ -15,6 +15,7 @@ class Net(torch.nn.Module):
         x_rec = self.net_recurse(x)
         x_pre_out = self.conv_out(x_rec)
         x_out = self.relu(x_pre_out)
+        # print('DEBUG: x_out', x_out.size(), x_out.get_device())
         return x_out
 
 class _Net_recurse(torch.nn.Module):
