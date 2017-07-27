@@ -195,6 +195,7 @@ def _read_tifs(path_dir, file_tags):
             print('WARNING: could not read file:', path)
             return None
         vol_list.append(fin.load().astype(np.float32)[0, ])  # Extract the sole channel
+        fin.close()
     if len(vol_list) != len(file_tags):
         print('WARNING: did not read in correct number of files')
         return None
