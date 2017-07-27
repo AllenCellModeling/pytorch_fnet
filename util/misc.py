@@ -5,6 +5,7 @@ from aicsimage.io import omeTifWriter
 __all__ = [
     'find_z_of_max_slice',
     'get_vol_transformed',
+    'pad_mirror',
     'print_array_stats',
     'save_img_np'
 ]
@@ -24,6 +25,28 @@ def get_vol_transformed(ar, transform):
             result = t(result)
     else:
         result = transform(result)
+    return result
+
+def pad_mirror(ar, padding):
+    """Pad 3d array using mirroring.
+
+    Parameters:
+    ar - (numpy.array) array to be padded
+    padding - (tuple) per-dimension padding values
+    """
+    shape = tuple((ar.shape[i] + 2*padding[i]) for i in range(3))
+    result = np.zeros(shape, dtype=ar.dtype)
+    slices_center = tuple(slice(padding[i], padding[i] + ar.shape[i]) for i in range(3))
+    result[slices_center] = ar
+    # z-axis, centers
+    result[0:padding[0], slices_center[1] , slices_center[2]] = np.flip(ar[0:padding[0], :, :], axis=0)
+    result[ar.shape[0] + padding[0]:, slices_center[1] , slices_center[2]] = np.flip(ar[-padding[0]:, :, :], axis=0)
+    # y-axis
+    result[:, 0:padding[1], :] = np.flip(result[:, padding[1]:2*padding[1], :], axis=1)
+    result[:, padding[1] + ar.shape[1]:, :] = np.flip(result[:, ar.shape[1]:ar.shape[1] + padding[1], :], axis=1)
+    # x-axis
+    result[:, :, 0:padding[2]] = np.flip(result[:, :, padding[2]:2*padding[2]], axis=2)
+    result[:, :, padding[2] + ar.shape[2]:] = np.flip(result[:, :, ar.shape[2]:ar.shape[2] + padding[2]], axis=2)
     return result
 
 def print_array_stats(ar):
