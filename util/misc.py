@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from aicsimage.io import omeTifWriter
+import pdb
 
 __all__ = [
     'find_z_of_max_slice',
@@ -39,8 +40,9 @@ def pad_mirror(ar, padding):
     slices_center = tuple(slice(padding[i], padding[i] + ar.shape[i]) for i in range(3))
     result[slices_center] = ar
     # z-axis, centers
-    result[0:padding[0], slices_center[1] , slices_center[2]] = np.flip(ar[0:padding[0], :, :], axis=0)
-    result[ar.shape[0] + padding[0]:, slices_center[1] , slices_center[2]] = np.flip(ar[-padding[0]:, :, :], axis=0)
+    if padding[0] > 0:
+        result[0:padding[0], slices_center[1] , slices_center[2]] = np.flip(ar[0:padding[0], :, :], axis=0)
+        result[ar.shape[0] + padding[0]:, slices_center[1] , slices_center[2]] = np.flip(ar[-padding[0]:, :, :], axis=0)
     # y-axis
     result[:, 0:padding[1], :] = np.flip(result[:, padding[1]:2*padding[1], :], axis=1)
     result[:, padding[1] + ar.shape[1]:, :] = np.flip(result[:, ar.shape[1]:ar.shape[1] + padding[1], :], axis=1)

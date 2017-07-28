@@ -6,41 +6,44 @@ import numpy as np
 from natsort import natsorted
 from util import get_vol_transformed
 import pdb
+import warnings
 
 class DataSet(object):
-    def __init__(self, path, file_tags=None,
-                 train_select=True, percent_test=None, train_set_size=None,
+    def __init__(self,
+                 path_load=None,
+                 path_save=None,
+                 path_source=None,
+                 train_select=True,
+                 file_tags=None,
+                 train_set_size=None, percent_test=None,
                  transforms=None):
-        """Load or build new data set.
+        """Load or build/save new data set.
 
-        If either percent_test or train_set_size is set, a new data set will be created and saved.
-
-        path - path to parent directory that contains folders of data.
-        file_tags - (list or tuple or strings) string "tags" that can uniquely identify files in the directory specified by path
+        path_load - path to saved DataSet
+        path_save - path where generated DataSet will be saved
+        path_source - path to parent directory that contains folders of data
         train_select - (bool) if True, DataSet returns elements from training set, otherwise returns elements from test set
+        file_tags - (list or tuple or strings) string "tags" that can uniquely identify files in the directory specified by path
         percent_test - (float between 0.0 and 1.0) percent of folders to be used as test set
-        train_set_limit - (int) number of elements in training set. If set, this will be used instead of percent_test.
+        train_set_size - (int) number of elements in training set. If set, this will be used instead of percent_test.
         transforms - list/tuple of transforms, where each element is a transform or transform list to be applied
                      to a component of a DataSet element
         """
-        self._path = path
+        assert (path_save is None) != (path_load is None), "must choose between either saving or loading a dataset"
+        self._path_save = path_load if path_load is not None else path_save
+        self._path_source = path_source
         self._file_tags = file_tags
         self._train_select = train_select
         self._percent_test = percent_test
         self._train_set_size = train_set_size
         self._transforms = transforms
-
-        self._all_set = None
-        self._test_set = None
-        self._train_set = None
+        self._active_set = None
         
-        self._save_path = os.path.join(os.path.dirname(path), 'dataset_saves', os.path.basename(path) + '.p')
-        if not os.path.exists(self._save_path) or self._percent_test or self._train_set_size:
+        if path_load is None:
             self._build_new_sets()
             self._save()
         else:
             self._load()
-            self._train_select = train_select  # use train_select from parameter ctor
         if self._train_select:
             self._active_set = self._train_set
         else:
@@ -48,25 +51,42 @@ class DataSet(object):
         self._active_set = natsorted(self._active_set)  # TODO: is this wanted?
         self._validate_dataset()
 
+    def get_state(self):
+        """Returns a dict representing the DataSet."""
+        state = {
+            '_file_tags': self._file_tags,
+            '_path_save': self._path_save,
+            '_path_source': self._path_source,
+            '_test_set': self._test_set,
+            '_train_set': self._train_set,
+            '_transforms': self._transforms
+        }
+        return state
+
+    def set_state(self, state):
+        """Sets the DataSet state."""
+        assert isinstance(state, dict)
+        vars(self).update(state)
+
     def _build_new_sets(self):
-        self._all_set = [i.path for i in os.scandir(self._path) if i.is_dir()]  # order is arbitrary
-        # TODO: shuffle self._all_set
-        if len(self._all_set) == 1:
-            print('WARNING: DataSet has only one element')
-            self._test_set = self._all_set
-            self._train_set = self._all_set
+        """Create test_set and train_set instance variables."""
+        all_set = [i.path for i in os.scandir(self._path_source) if i.is_dir()]  # order is arbitrary
+        # TODO: shuffle _all_set?
+        if len(all_set) == 1:
+            warnings.warn('DataSet has only one element. Training and test sets will be identical.')
+            self._test_set = all_set
+            self._train_set = all_set
+            return
+        if self._train_set_size is not None:
+            if self._train_set_size == 0:
+                self._test_set = all_set[:]
+                self._train_set = []
+                return
+            idx_split = self._train_set_size*-1
         else:
-            if self._train_set_size is not None:
-                idx_split = self._train_set_size*-1
-                print('setting training set size to to {:d} elements'.format(self._train_set_size))
-                if self._train_set_size == 0:  # happens when train_set_size == 0
-                    self._test_set = self._all_set[:]
-                    self._train_set = []
-                    return
-            else:
-                idx_split = round(len(self._all_set)*self._percent_test)
-            self._test_set = self._all_set[:idx_split]
-            self._train_set = self._all_set[idx_split:]
+            idx_split = round(len(all_set)*self._percent_test)
+        self._test_set = all_set[:idx_split]
+        self._train_set = all_set[idx_split:]
     
     def get_active_set(self):
         return self._active_set
@@ -85,30 +105,19 @@ class DataSet(object):
         # TODO: check folders?
 
     def _save(self):
-        dirname = os.path.dirname(self._save_path)
+        dirname = os.path.dirname(self._path_save)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
-        package = vars(self)
-        with open(self._save_path, 'wb') as fo:
+        package = self.get_state()
+        with open(self._path_save, 'wb') as fo:
             pickle.dump(package, fo)
-            print('saved dataset to:', self._save_path)
+            print('saved dataset to:', self._path_save)
 
     def _load(self):
-        with open(self._save_path, 'rb') as fin:
+        with open(self._path_save, 'rb') as fin:
             package = pickle.load(fin)
-        # TODO: remove if statements eventually
-        if isinstance(package, dict):
-            self.__dict__.update(package)
-        elif len(package) == 7:
-            print('WARNING: legacy DataSet. Rebuild recommended.')
-            (self._path, self._percent_test, self._train_set_size, self._transform,
-             self._all_set, self._test_set, self._train_set) = package
-            self._target_transform = self._transform
-        elif len(package) == 8:
-            print('WARNING: legacy DataSet. Rebuild recommended.')
-            (self._path, self._percent_test, self._train_set_size, self._transform, self._target_transform,
-             self._all_set, self._test_set, self._train_set) = package
-        print('loaded dataset split from:', self._save_path)
+        print('loaded dataset from:', self._path_save)
+        self.set_state(package)
 
     def __str__(self):
         def get_str_transform(transforms):
@@ -129,16 +138,12 @@ class DataSet(object):
             return (os.linesep + '            ').join(all_transforms)
         str_active = 'train' if self._train_select else 'test'
         str_list = []
-        str_list.append('{} from: {}'.format(self.__class__.__name__, self._path))
+        str_list.append('{} from: {}'.format(self.__class__.__name__, self._path_save))
         str_list.append('file_tags: ' + str(self._file_tags))
         str_list.append('active_set: ' + str_active)
-        if self._train_set_size:
-            str_list.append('train_set_size: ' + str(self._train_set_size))
-        else:
-            str_list.append('percent_test: ' + str(self._percent_test))
         str_list.append('train/test/total: {:d}/{:d}/{:d}'.format(len(self._train_set),
                                                                   len(self._test_set),
-                                                                  len(self._all_set)))
+                                                                  len(self._train_set) + len(self._test_set)))
         str_list.append('transforms: ' + get_str_transform(self._transforms))
         return os.linesep.join(str_list)
 
@@ -162,6 +167,7 @@ class DataSet(object):
         for i, volume_pre in enumerate(volumes_pre):
             volumes.append(get_vol_transformed(volume_pre, self._transforms[i]))
         return tuple(volumes)
+    
 
 def _read_tifs(path_dir, file_tags):
     """Read TIFs in folder and return as tuple of numpy arrays.
