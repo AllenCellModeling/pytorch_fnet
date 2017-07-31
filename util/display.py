@@ -131,6 +131,9 @@ def display_visual_eval_images(sources,
             z_list = [z_display]
         elif z_display == 'sweep':
             z_list = range(sources[0].shape[2])
+        elif 'strongest_' in z_display:
+            idx_source = int(z_display.split('_')[1])
+            z_list = [find_z_of_max_slice(sources[idx_source][0, 0, ])]
         else:
             # assumes z_display is an iterable
             z_list = z_display

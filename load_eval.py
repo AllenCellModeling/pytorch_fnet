@@ -31,8 +31,8 @@ def test_display(model, data):
         if opts.build_z_animation:
             path_z_ani = 'presentation/' + ('test' if not opts.use_train_set else 'train') + '_{:02d}'.format(i)
         # z_selector = 'strongest_in_target'  # select z based on DNA channel
-        z_display = 12
         sources = (x_test, y_true, y_pred)
+        z_display = 'strongest_1'
         titles = ('bright-field', 'DNA', 'prediction')
         util.display.display_visual_eval_images(sources,
                                                 z_display=z_display,
@@ -59,15 +59,18 @@ def main():
     train_select = opts.use_train_set
 
     # load test dataset
-    dataset = util.data.DataSet(opts.data_path, train_select=train_select)
+    dataset = util.data.DataSet(path_load=opts.data_path,
+                                train_select=train_select)
     print(dataset)
 
     # dims_chunk = (32, 208, 208)
     # dims_chunk = (48, 224, 320)
     # dims_pin = (0, 0, 0)
     # data_test = util.data.TestImgDataProvider(dataset, dims_chunk=dims_chunk, dims_pin=dims_pin)
-    fixed_dim = (16, 208, 208)
-    data_test = util.data.WholeImgDataProvider(dataset, 'pad_mirror')
+    
+    fixed_dim = (32, 224, 224)
+    data_test = util.data.WholeImgDataProvider(dataset, fixed_dim)
+    # data_test = util.data.WholeImgDataProvider(dataset, 'pad_mirror')
     
     # load model
     model = None
