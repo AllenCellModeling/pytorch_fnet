@@ -98,12 +98,14 @@ def main():
     print('DEBUG: data_set_module', data_set_module)
     print(dataset)
 
+    transforms = None
     data_train = data_provider_module.DataProvider(
         dataset,
         buffer_size=opts.buffer_size,
         n_iter=opts.n_iter,
         batch_size=opts.batch_size,
-        replace_interval=opts.replace_interval
+        replace_interval=opts.replace_interval,
+        transforms=transforms
     )
     
     train(model, data_train, logger)
