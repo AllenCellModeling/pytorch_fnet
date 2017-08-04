@@ -28,7 +28,7 @@ parser.add_argument('--replace_interval', type=int, default=-1, help='iterations
 parser.add_argument('--resume_path', help='path to saved model to resume training')
 parser.add_argument('--run_name', help='name of run')
 parser.add_argument('--save_dir', default='saved_models', help='save directory for trained model')
-parser.add_argument('--seed', type=int, default=0, help='random seed')
+parser.add_argument('--seed', type=int, default=666, help='random seed')
 opts = parser.parse_args()
 
 model_module = importlib.import_module('model_modules.' + opts.model_module)
@@ -45,7 +45,7 @@ def train(model, data, logger):
             loss,
             data.last_sources
         ))
-        if i % (opts.iter_checkpoint - 1) == 0 and i > 0:
+        if (i + 1) % opts.iter_checkpoint == 0:
             logger.save_csv()
             model.save_checkpoint(os.path.join(opts.save_dir, logger.logger_name + '.p'))
             # TODO add testing with current model
