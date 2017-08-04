@@ -51,7 +51,7 @@ class DataSet(object):
         self._active_set = natsorted(self._active_set)  # TODO: is this wanted?
         self._validate_dataset()
 
-    def get_state(self):
+    def _get_state(self):
         """Returns a dict representing the DataSet."""
         state = {
             '_file_tags': self._file_tags,
@@ -63,10 +63,15 @@ class DataSet(object):
         }
         return state
 
-    def set_state(self, state):
+    def _set_state(self, state):
         """Sets the DataSet state."""
         assert isinstance(state, dict)
         vars(self).update(state)
+
+    def get_name(self, i):
+        """Returns a name representing element i."""
+        name = os.path.basename(self._active_set[i])
+        return name
 
     def _build_new_sets(self):
         """Create test_set and train_set instance variables."""
@@ -108,7 +113,7 @@ class DataSet(object):
         dirname = os.path.dirname(self._path_save)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
-        package = self.get_state()
+        package = self._get_state()
         with open(self._path_save, 'wb') as fo:
             pickle.dump(package, fo)
             print('saved dataset to:', self._path_save)
@@ -117,7 +122,7 @@ class DataSet(object):
         with open(self._path_save, 'rb') as fin:
             package = pickle.load(fin)
         print('loaded dataset from:', self._path_save)
-        self.set_state(package)
+        self._set_state(package)
 
     def __str__(self):
         def get_str_transform(transforms):
@@ -136,6 +141,7 @@ class DataSet(object):
                 else:
                     all_transforms.append(str(transform))
             return (os.linesep + '            ').join(all_transforms)
+        n_unique = len(set(self._train_set) | set(self._test_set))
         str_active = 'train' if self._train_select else 'test'
         str_list = []
         str_list.append('{} from: {}'.format(self.__class__.__name__, self._path_save))
@@ -143,7 +149,7 @@ class DataSet(object):
         str_list.append('active_set: ' + str_active)
         str_list.append('train/test/total: {:d}/{:d}/{:d}'.format(len(self._train_set),
                                                                   len(self._test_set),
-                                                                  len(self._train_set) + len(self._test_set)))
+                                                                  n_unique))
         str_list.append('transforms: ' + get_str_transform(self._transforms))
         return os.linesep.join(str_list)
 
@@ -165,9 +171,11 @@ class DataSet(object):
             return None
         volumes = []
         for i, volume_pre in enumerate(volumes_pre):
-            volumes.append(get_vol_transformed(volume_pre, self._transforms[i]))
+            if self._transforms is None:
+                volumes.append(volume_pre)
+            else:
+                volumes.append(get_vol_transformed(volume_pre, self._transforms[i]))
         return tuple(volumes)
-    
 
 def _read_tifs(path_dir, file_tags):
     """Read TIFs in folder and return as tuple of numpy arrays.

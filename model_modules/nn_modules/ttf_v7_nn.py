@@ -1,7 +1,8 @@
 import torch
 import pdb
 
-# changed from v4: added batchnorm, relu at the end of stride=2 conv layer
+# parent: v5_nn.py
+# changed from v5: ksize of last layer changed to 1.
 
 class Net(torch.nn.Module):
     def __init__(self):
@@ -9,7 +10,7 @@ class Net(torch.nn.Module):
         mult_chan = 32
         depth = 4
         self.net_recurse = _Net_recurse(n_in_channels=1, mult_chan=mult_chan, depth=depth)
-        self.conv_out = torch.nn.Conv3d(mult_chan,  1, kernel_size=3, padding=1)
+        self.conv_out = torch.nn.Conv3d(mult_chan,  1, kernel_size=1)
         self.relu = torch.nn.ReLU()
 
     def forward(self, x):

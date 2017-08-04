@@ -1,8 +1,11 @@
 import numpy as np
+from util.misc import get_vol_transformed
 import pdb
 
 class MultiFileDataProvider(object):
-    def __init__(self, dataset, buffer_size, n_iter, batch_size, replace_interval, dims_chunk=(32, 64, 64), dims_pin=(None, None, None)):
+    def __init__(self, dataset, buffer_size, n_iter, batch_size, replace_interval,
+                 dims_chunk=(32, 64, 64), dims_pin=(None, None, None),
+                 transforms=None):
         """
         dataset - DataSet instance
         buffer_size - (int) number images to generate batches from
@@ -12,12 +15,15 @@ class MultiFileDataProvider(object):
         dims_chunk - (tuple) shape of extracted chunks
         dims_pin - (tuple) optionally pin the chunk extraction from this coordinate. Use None to indicate no pinning
                    for any particular dimension.
+        transforms - list of transforms to apply to each DataSet element
         """
+        assert transforms is None or isinstance(transforms, (list, tuple))
         self._dataset = dataset
         self._buffer_size = buffer_size
         self._n_iter = n_iter
         self._batch_size = batch_size
         self._replace_interval = replace_interval
+        self._transforms = transforms
 
         self.last_sources = ''  # str indicating indices of folders in buffer
 
@@ -31,8 +37,8 @@ class MultiFileDataProvider(object):
         self._idx_replace = 0  # next 
 
         self._fill_buffer()
-        
-        self._shape_batch = (self._batch_size, 1) + self._dims_chunk
+        self._shape_batch = [self._batch_size, 1] + list(self._dims_chunk)
+        self._dims_chunk_options = (self._dims_chunk, (self._dims_chunk[0]//2, *self._dims_chunk[1:]))
 
     def set_dims_pin(self, dims_pin):
         self._dims_pin = dims_pin
@@ -82,15 +88,27 @@ class MultiFileDataProvider(object):
         Returns:
         batch_x, batch_y - (2 numpy arrays) each array will have shape (n, 1) + dims_chunk.
         """
-        batch_x = np.zeros(self._shape_batch, dtype=np.float32)
-        batch_y = np.zeros(self._shape_batch, dtype=np.float32)
+        batch_x, batch_y = None, None
         coords = self._pick_random_chunk_coords()
         for i in range(len(coords)):
             coord = coords[i]
             chunks_tup = self._extract_chunk(coord)
             # print('  DEBUG: batch element', i, coord, chunks_tup[0].shape, chunks_tup[1].shape)
-            batch_x[i, 0, ...] = chunks_tup[0]
-            batch_y[i, 0, ...] = chunks_tup[1]
+            if self._transforms is not None:
+                chunks_transformed = []
+                for j, transform in enumerate(self._transforms):
+                    chunks_transformed.append(get_vol_transformed(chunks_tup[j], self._transforms[j]))
+            else:
+                chunks_transformed = chunks_tup
+            if batch_x is None or batch_y is None:
+                batch_x = np.zeros((self._batch_size, 1, ) + chunks_transformed[0].shape, dtype=np.float32)
+                batch_y = np.zeros((self._batch_size, 1, ) + chunks_transformed[1].shape, dtype=np.float32)
+            # pdb.set_trace()
+            batch_x[i, 0, ...] = chunks_transformed[0]
+            batch_y[i, 0, ...] = chunks_transformed[1]
+        
+        # self._dims_chunk = self._dims_chunk_options[np.random.randint(2)]  # randomly select chunk's z-dimension shape
+        # self._shape_batch[2:] = self._dims_chunk  # update shape_batch incase dims_chunk changed
         return (batch_x, batch_y)
     
     def _pick_random_chunk_coords(self):
@@ -123,7 +141,6 @@ class MultiFileDataProvider(object):
         slices = []
         for i in range(len(coord_img)):
             slices.append(slice(coord_img[i], coord_img[i] + self._dims_chunk[i]))
-        # pdb.set_trace()
         return self._buffer[idx_buf][1][slices], self._buffer[idx_buf][2][slices]
 
     def __len__(self):
