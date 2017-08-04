@@ -5,6 +5,7 @@ import pdb
 
 __all__ = [
     'find_z_of_max_slice',
+    'find_z_max_std',
     'get_vol_transformed',
     'pad_mirror',
     'print_array_stats',
@@ -12,8 +13,13 @@ __all__ = [
 ]
 
 def find_z_of_max_slice(ar):
-    """Given a ZYX numpy array, return the z value of the XY-slice with the most signal."""
+    """Given a ZYX numpy array, return the z value of the XY-slice the highest total pixel intensity."""
     z_max = np.argmax(np.sum(ar, axis=(1, 2)))
+    return int(z_max)
+
+def find_z_max_std(ar):
+    """Given a ZYX numpy array, return the z value of the XY-slice with the highest pixel intensity std."""
+    z_max = np.argmax(np.std(ar, axis=(1, 2)))
     return int(z_max)
 
 def get_vol_transformed(ar, transform):

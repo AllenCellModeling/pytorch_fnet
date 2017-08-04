@@ -129,6 +129,8 @@ def display_visual_eval_images(sources,
         # get z slice to display
         if isinstance(z_display, int):
             z_list = [z_display]
+        elif isinstance(z_display, (tuple, list)):
+            z_list = z_display
         elif z_display == 'sweep':
             z_list = range(sources[0].shape[2])
         elif 'strongest_' in z_display:
@@ -167,7 +169,7 @@ def display_visual_eval_images(sources,
                 else:
                     kwargs['vmax'] = vmaxs[i] if path_z_ani is None else np.amax(source_list[i])
             kwargs_list.append(kwargs)
-        print('plot kwargs:', kwargs_list)
+        # print('plot kwargs:', kwargs_list)
 
         for z in z_list:
             fig, ax = plt.subplots(ncols=n_subplots, figsize=(20, 15))

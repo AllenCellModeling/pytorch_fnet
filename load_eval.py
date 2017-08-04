@@ -1,11 +1,17 @@
 import argparse
 import importlib
 import util.data
+import util.data.transforms
 import util.display
 import numpy as np
 import os
 import torch
+import warnings
 import pdb
+
+warnings.filterwarnings('ignore', message='.*zoom().*')
+warnings.filterwarnings('ignore', message='.*end of stream*')
+warnings.filterwarnings('ignore', message='.*multiple of element size.*')
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_path', default='data', help='path to data directory')
@@ -32,8 +38,8 @@ def test_display(model, data):
             path_z_ani = 'presentation/' + ('test' if not opts.use_train_set else 'train') + '_{:02d}'.format(i)
         # z_selector = 'strongest_in_target'  # select z based on DNA channel
         sources = (x_test, y_true, y_pred)
-        z_display = 'strongest_1'
-        titles = ('bright-field', 'DNA', 'prediction')
+        z_display = util.find_z_of_max_slice(y_true[0, 0, ])
+        titles = ('signal', 'target', 'prediction')
         util.display.display_visual_eval_images(sources,
                                                 z_display=z_display,
                                                 titles=titles,
@@ -63,14 +69,19 @@ def main():
                                 train_select=train_select)
     print(dataset)
 
-    # dims_chunk = (32, 208, 208)
-    # dims_chunk = (48, 224, 320)
-    # dims_pin = (0, 0, 0)
-    # data_test = util.data.TestImgDataProvider(dataset, dims_chunk=dims_chunk, dims_pin=dims_pin)
+    if True:
+        fixed_dim = (32, 224, 224)
+        cropper = util.data.transforms.Cropper(fixed_dim, offsets=(24 - fixed_dim[0]//2, 0, 0))
+        transforms = (cropper, cropper)
+    else:  # for models with no padding
+        # fixed_dim = (28, 220, 220)
+        # fixed_dim = (36, 220, 220)
+        fixed_dim = (44, 220, 220)
+        cropper = util.data.transforms.Cropper(fixed_dim, offsets=(24 - fixed_dim[0]//2, 0, 0))
+        padder =  util.data.transforms.ReflectionPadder3d((28, 28, 28))
+        transforms = ((cropper, padder), (cropper))
     
-    fixed_dim = (32, 224, 224)
-    data_test = util.data.WholeImgDataProvider(dataset, fixed_dim)
-    # data_test = util.data.WholeImgDataProvider(dataset, 'pad_mirror')
+    data_test = util.data.WholeImgDataProvider(dataset, transforms)
     
     # load model
     model = None
