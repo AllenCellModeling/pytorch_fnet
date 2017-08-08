@@ -5,29 +5,31 @@ import pickle
 import time
 import importlib
 import pdb
+# from util.misc import save_img_np
 
 CUDA = True
 
 class Model(object):
-    def __init__(self, mult_chan=None, depth=None, load_path=None, lr=0.0001, nn_module='default_nn', init_weights=True):
+    def __init__(self, mult_chan=None, depth=None, load_path=None, lr=0.0001,
+                 nn_module='default_nn',
+                 init_weights=True,
+                 gpu_ids=0):
         
-        self.criterion = torch.nn.MSELoss()
+        self.criterion = torch.nn.MSELoss()  # TODO add overridable 
         
         if load_path is None:
             nn_name = nn_module
             nn_module = importlib.import_module('model_modules.nn_modules.' + nn_module)
-            self.net = nn_module.Net(mult_chan=mult_chan, depth=depth)
+            self.net = nn_module.Net()
             if CUDA:
                 self.net.cuda()
             if init_weights:
                 print("Initializing weights")
-                self.net.apply(weights_init)
+                self.net.apply(_weights_init)
             self.optimizer = torch.optim.Adam(self.net.parameters(), lr=lr, betas=(0.5, 0.999))
             self.meta = {
                 'nn': nn_name,
                 'count_iter': 0,
-                'mult_chan': mult_chan,
-                'depth': depth,
                 'lr': lr
             }
         else:
@@ -70,28 +72,6 @@ class Model(object):
         self.meta = training_state_dict['meta_dict']
         time_load = time.time() - time_start
         print('model load time: {:.1f} s'.format(time_load))
-        
-    def save(self, path):
-        dirname = os.path.dirname(path)
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
-        package = (self.net, self.meta)
-        with open(path, 'wb') as fo:
-            print('saving model to:', path)
-            pickle.dump(package, fo)
-            print('saved model to:', path)
-
-    def _load(self, path):
-        print('loading model:', path)
-        time_start = time.time()
-        new_name = os.path.basename(path).split('.')[0]
-        package = pickle.load(open(path, 'rb'))
-        assert len(package) == 2
-        self.net = package[0]
-        self.meta = package[1]
-        self.meta['name'] = new_name
-        time_load = time.time() - time_start
-        print('model load time: {:.1f} s'.format(time_load))
 
     def set_lr(self, lr):
         lr_old = self.optimizer.param_groups[0]['lr']
@@ -100,21 +80,27 @@ class Model(object):
 
     def do_train_iter(self, signal, target):
         self.net.train()
-        if self.signal_v is None:
-            if CUDA:
-                self.signal_v = torch.autograd.Variable(torch.Tensor(signal).cuda())
-                self.target_v = torch.autograd.Variable(torch.Tensor(target).cuda())
-            else:
-                self.signal_v = torch.autograd.Variable(torch.Tensor(signal))
-                self.target_v = torch.autograd.Variable(torch.Tensor(target))
+
+        if CUDA:
+            self.signal_v = torch.autograd.Variable(torch.Tensor(signal).cuda())
+            self.target_v = torch.autograd.Variable(torch.Tensor(target).cuda())
         else:
-            self.signal_v.data.copy_(torch.Tensor(signal))
-            self.target_v.data.copy_(torch.Tensor(target))
+            self.signal_v = torch.autograd.Variable(torch.Tensor(signal))
+            self.target_v = torch.autograd.Variable(torch.Tensor(target))
+        # if self.signal_v is None:
+        #     if CUDA:
+        #         self.signal_v = torch.autograd.Variable(torch.Tensor(signal).cuda())
+        #         self.target_v = torch.autograd.Variable(torch.Tensor(target).cuda())
+        #     else:
+        #         self.signal_v = torch.autograd.Variable(torch.Tensor(signal))
+        #         self.target_v = torch.autograd.Variable(torch.Tensor(target))
+        # else:
+        #     self.signal_v.data.copy_(torch.Tensor(signal))
+        #     self.target_v.data.copy_(torch.Tensor(target))
             
         self.optimizer.zero_grad()
         output = self.net(self.signal_v)
         loss = self.criterion(output, self.target_v)
-        
         loss.backward()
         self.optimizer.step()
         # print("iter: {:3d} | loss: {:4f}".format(self.meta['count_iter'], loss.data[0]))
@@ -128,12 +114,12 @@ class Model(object):
             signal_t = torch.Tensor(signal).cuda()
         else:
             signal_t = torch.Tensor(signal)
-        signal_v = torch.autograd.Variable(signal_t)
+        signal_v = torch.autograd.Variable(signal_t, volatile=True)
         pred_v = self.net(signal_v)
         pred_np = pred_v.data.cpu().numpy()
         return pred_np
 
-def weights_init(m):
+def _weights_init(m):
     classname = m.__class__.__name__
     if classname.startswith('Conv'):
         m.weight.data.normal_(0.0, 0.02)
