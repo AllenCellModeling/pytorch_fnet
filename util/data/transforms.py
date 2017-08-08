@@ -17,6 +17,11 @@ class Cropper(object):
     def __init__(self, shape, offsets=None):
         """Crop input array to given shape."""
         assert isinstance(shape, (list, tuple))
+        for i in shape:
+            if isinstance(i, int):
+                assert i >= 0
+            elif isinstance(i, str):
+                assert int(i[1:]) in [4, 8, 16, 32, 64]
         if offsets:
             assert len(offsets) == len(shape)
 
@@ -29,6 +34,13 @@ class Cropper(object):
             if self._shape[i] is None:
                 start = 0
                 end = x.shape[i]
+            elif isinstance(self._shape[i], str):  # e.g., '/16'
+                multiple_of = int(self._shape[i][1:])
+                start = 0
+                end = x.shape[i] & ~(multiple_of - 1)
+            elif self._shape[i] > x.shape[i]:
+                warnings.warn('Crop dimensions larger than image dimension ({} > {} for dim {}).'.format(self._shape[i], x.shape[i], i))
+                raise AttributeError
             else:
                 start = self._offsets[i]
                 if start + self._shape[i] > x.shape[i]:
@@ -45,8 +57,6 @@ class Cropper(object):
             params.append(str(self._offsets))
         str_out = 'Cropper{}'.format(', '.join(params))
         return str_out
-
-    
 
 class Resizer(object):
     def __init__(self, factors):
@@ -79,3 +89,19 @@ class ReflectionPadder3d(object):
 
     def __call__(self, ar):
         return pad_mirror(ar, self._padding)
+
+class Capper(object):
+    def __init__(self, std_low=None, std_hi=None):
+        self._std_low = std_low
+        self._std_hi = std_hi
+        
+    def __call__(self, ar):
+        result = ar.copy()
+        if self._std_hi is not None:
+            result[result > self._std_hi] = self._std_hi
+        if self._std_low is not None:
+            result[result < self._std_low] = self._std_low
+        return result
+
+    def __str__(self):
+        return 'Capper({} to {})'.format(self._std_low, self._std_hi)

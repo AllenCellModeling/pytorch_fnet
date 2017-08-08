@@ -14,9 +14,6 @@ class TestImgDataProvider(object):
         """
         self._dataset = dataset
         self._transforms = transforms
-        
-        self._count_iter = 0
-        self._n_iter = len(dataset)
 
     def _make_batch(self, volumes_tuple):
         """Change supplied 3d arrays into 5d batch array."""
@@ -28,16 +25,10 @@ class TestImgDataProvider(object):
         return tuple(data)
         
     def __len__(self):
-        return len(dataset)
+        return len(self._dataset)
 
-    def __iter__(self):
-        self._count_iter = 0
-        return self
-
-    def __next__(self):
-        if self._count_iter >= self._n_iter:
-            raise StopIteration
-        volumes_pre = self._dataset[self._count_iter]
+    def __getitem__(self, idx):
+        volumes_pre = self._dataset[idx]  # raises IndexError
         volumes = []
         for i, volume_pre in enumerate(volumes_pre):
             if self._transforms is None:
@@ -46,5 +37,4 @@ class TestImgDataProvider(object):
                 volumes.append(get_vol_transformed(volume_pre, self._transforms[i]))
             print('DEBUG: shape change', volume_pre.shape, volumes[-1].shape)
         data_tuple = self._make_batch(volumes)
-        self._count_iter += 1
         return data_tuple

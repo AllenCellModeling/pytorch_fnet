@@ -15,10 +15,11 @@ warnings.filterwarnings('ignore', message='.*multiple of element size.*')
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_path', default='data', help='path to data directory')
-parser.add_argument('--gpu_id', type=int, default=0, help='GPU ID')
+parser.add_argument('--gpu_ids', type=int, default=0, help='GPU ID')
 parser.add_argument('--load_path', help='path to trained model')
 parser.add_argument('--model_module', default='ttf_model', help='name of the model module')
 parser.add_argument('--n_images', type=int, help='max number of images to test')
+parser.add_argument('--img_sel', type=int, nargs='*', help='select images to test')
 parser.add_argument('--build_z_animation', action='store_true', default=False, help='save each z slice of test images')
 parser.add_argument('--save_images', action='store_true', default=False, help='save test image results')
 parser.add_argument('--use_train_set', action='store_true', default=False, help='view predictions on training set images')
@@ -28,7 +29,14 @@ opts = parser.parse_args()
 model_module = importlib.import_module('model_modules.'  + opts.model_module)
 
 def test_display(model, data):
-    for i, (x_test, y_true) in enumerate(data):
+    indices = range(len(data)) if opts.img_sel is None else opts.img_sel
+    for i in indices:
+        try:
+            x_test, y_true = data[i]
+        except AttributeError:
+            print('skipping....')
+            continue
+            
         if model is not None:
             y_pred = model.predict(x_test)
         else:
@@ -36,10 +44,11 @@ def test_display(model, data):
         path_z_ani = None
         if opts.build_z_animation:
             path_z_ani = 'presentation/' + ('test' if not opts.use_train_set else 'train') + '_{:02d}'.format(i)
-        # z_selector = 'strongest_in_target'  # select z based on DNA channel
         sources = (x_test, y_true, y_pred)
-        z_display = util.find_z_of_max_slice(y_true[0, 0, ])
+        # z_display = util.find_z_of_max_slice(y_true[0, 0, ])
+        z_display = util.find_z_max_std(x_test[0, 0, ]) - 10  # cells in focus (approximately) in bright-field image
         titles = ('signal', 'target', 'prediction')
+        print('test image: {:02d} | z: {}'.format(i, z_display))
         util.display.display_visual_eval_images(sources,
                                                 z_display=z_display,
                                                 titles=titles,
@@ -57,7 +66,7 @@ def test_display(model, data):
             break
     
 def main():
-    torch.cuda.set_device(opts.gpu_id)
+    torch.cuda.set_device(opts.gpu_ids)
     print('on GPU:', torch.cuda.current_device())
     
     if opts.use_train_set:
@@ -65,13 +74,14 @@ def main():
     train_select = opts.use_train_set
 
     # load test dataset
-    dataset = util.data.DataSet(path_load=opts.data_path,
-                                train_select=train_select)
+    dataset = util.data.DataSet2(path_load=opts.data_path,
+                                 train_select=train_select)
     print(dataset)
 
     if True:
-        fixed_dim = (32, 224, 224)
-        cropper = util.data.transforms.Cropper(fixed_dim, offsets=(24 - fixed_dim[0]//2, 0, 0))
+        # dims_cropped = (32, 224, 224)
+        dims_cropped = (32, '/16', '/16')
+        cropper = util.data.transforms.Cropper(dims_cropped, offsets=(24 - dims_cropped[0]//2, 0, 0))
         transforms = (cropper, cropper)
     else:  # for models with no padding
         # fixed_dim = (28, 220, 220)
@@ -81,7 +91,7 @@ def main():
         padder =  util.data.transforms.ReflectionPadder3d((28, 28, 28))
         transforms = ((cropper, padder), (cropper))
     
-    data_test = util.data.WholeImgDataProvider(dataset, transforms)
+    data_test = util.data.TestImgDataProvider(dataset, transforms)
     
     # load model
     model = None
