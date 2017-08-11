@@ -1,7 +1,8 @@
 import numpy as np
-import aicsimage.processing as proc
+import scipy
 from util.misc import pad_mirror
 import warnings
+import pdb
 
 def sub_mean_norm(img):
     """Subtract mean, set STD to 1.0"""
@@ -65,11 +66,10 @@ class Resizer(object):
         self._factors = factors
 
     def __call__(self, x):
-        return proc.resize(x, self._factors)
+        return scipy.ndimage.zoom(x, (self._factors), order=1, mode='nearest')
 
     def __str__(self):
-        str_out = 'Resizer | factors: ' + str(self._factors) 
-        return str_out
+        return 'Resizer({})'.format(str(self._factors)) 
 
 class ReflectionPadder3d(object):
     def __init__(self, padding):
