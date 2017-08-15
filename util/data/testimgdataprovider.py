@@ -15,6 +15,10 @@ class TestImgDataProvider(object):
         self._dataset = dataset
         self._transforms = transforms
 
+    def get_name(self, i):
+        """Returns a name representing element i."""
+        return self._dataset.get_name(i, 0)
+    
     def _make_batch(self, volumes_tuple):
         """Change supplied 3d arrays into 5d batch array."""
         data = []
