@@ -7,6 +7,7 @@ from natsort import natsorted
 from util import get_vol_transformed
 import pdb
 import warnings
+import random
 
 class DataSet(object):
     def __init__(self,
@@ -76,7 +77,7 @@ class DataSet(object):
     def _build_new_sets(self):
         """Create test_set and train_set instance variables."""
         all_set = [i.path for i in os.scandir(self._path_source) if i.is_dir()]  # order is arbitrary
-        # TODO: shuffle _all_set?
+        random.shuffle(all_set)
         if len(all_set) == 1:
             warnings.warn('DataSet has only one element. Training and test sets will be identical.')
             self._test_set = all_set
@@ -189,14 +190,13 @@ def _read_tifs(path_dir, file_tags):
     tuple of numpy arrays
     """
     assert isinstance(file_tags, (tuple, list))
-    print('reading TIFs from', path_dir)
     file_list = [i.path for i in os.scandir(path_dir) if i.is_file()]  # order is arbitrary
 
     paths_to_read = []
     for tag in file_tags:
         matches = [f for f in file_list if (tag in f)]
         if len(matches) != 1:
-            print('WARNING: incorrectect number of files found for pattern {} in {}'.format(bit, path_dir))
+            warnings.warn('incorrectect number of files found for pattern {} in {}'.format(bit, path_dir))
             return None
         paths_to_read.append(matches[0])
     
@@ -204,14 +204,15 @@ def _read_tifs(path_dir, file_tags):
     for path in paths_to_read:
         fin = omeTifReader.OmeTifReader(path)
         try:
+            print('reading:', path)
             fin = omeTifReader.OmeTifReader(path)
         except:
-            print('WARNING: could not read file:', path)
+            warnings.warn('could not read file: {}'.format(path))
             return None
         vol_list.append(fin.load().astype(np.float32)[0, ])  # Extract the sole channel
         fin.close()
     if len(vol_list) != len(file_tags):
-        print('WARNING: did not read in correct number of files')
+        warnings.warn('did not read in correct number of files')
         return None
     return tuple(vol_list)
     
