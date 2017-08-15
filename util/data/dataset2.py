@@ -205,15 +205,15 @@ class DataSet2(object):
         str_list.append('transforms: ' + get_str_transform(self._transforms))
         return os.linesep.join(str_list)
 
-    def get_item_sel(idx, sel):
+    def get_item_sel(self, idx, sel):
         """Get sel-th item from dataset element idx."""
-        path_pre = self._df_active.iloc[index, sel]
+        path_pre = self._df_active.iloc[idx, sel]
         base = os.path.dirname(self._path_csv)
         path = os.path.join(base, path_pre)
         try:
             print('reading:', path)
             fin = omeTifReader.OmeTifReader(path)
-            volumes_pre = fin.load().astype(np.float32)[0, ]  # Extract the sole channel
+            volume_pre = fin.load().astype(np.float32)[0, ]  # Extract the sole channel
             fin.close()
         except:
             warnings.warn('could not read file: {}'.format(path))

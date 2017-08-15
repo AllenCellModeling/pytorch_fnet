@@ -30,6 +30,15 @@ class TestImgDataProvider(object):
         
     def __len__(self):
         return len(self._dataset)
+    
+    def get_item_sel(self, idx, sel):
+        volume_pre = self._dataset.get_item_sel(idx, sel)
+        if self._transforms is None:
+            volume = volume_pre
+        else:
+            volume = get_vol_transformed(volume_pre, self._transforms[sel])
+        data_tuple = self._make_batch((volume,))
+        return data_tuple[0]
 
     def __getitem__(self, idx):
         volumes_pre = self._dataset[idx]  # raises IndexError
