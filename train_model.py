@@ -83,7 +83,7 @@ def main():
 
     # instatiate/load model
     if opts.resume_path is None:
-        model = model_module.Model(mult_chan=32, depth=4, lr=opts.lr, nn_module=opts.nn_module,
+        model = model_module.Model(lr=opts.lr, nn_module=opts.nn_module,
                                    init_weights=(not opts.dont_init_weights),
                                    gpu_ids=opts.gpu_ids
         )
