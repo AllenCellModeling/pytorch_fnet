@@ -5,15 +5,19 @@ import numpy as np
 import pandas as pd
 import shutil
 import subprocess
+import util
 import util.data
 import util.data.transforms
 import matplotlib.pyplot as plt
 import pdb
+from util.data.czireader import CziReader
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--chan', choices=['trans', 'dna', 'memb', 'struct'], default='trans', help='target channel for analysis')
+parser.add_argument('--element_num', default=0, choices=[0, 1, 2], type=int, help='index of dataset element to analyze')
 parser.add_argument('--n_max', type=int, help='maximum number of images to analyze')
-parser.add_argument('--path_source', help='path to data directory or list of file names')
+parser.add_argument('--path_dataset', help='path to data directory or list of file names')
+parser.add_argument('--path_source', help='path to data file/directory')
+parser.add_argument('--plot_sel', choices=['boxes', 'means'], default='means', help='path to data file/directory')
 opts = parser.parse_args()
 
 def archive():
@@ -64,32 +68,59 @@ def archive():
 
 def set_plot_style():
     plt.rc('figure', figsize=(18, 8))
+    plt.rc('figure.subplot', wspace=0.05)
     plt.rc('axes', labelsize='x-large', titlesize='x-large')
     plt.rc('xtick', labelsize='large')
     plt.rc('ytick', labelsize='large')
 
 def plot_mean_intensity_per_slice(dataset, slice_dim='z'):
+    def means_ok(means):
+        """"""
+        median_of_means = np.median(means)
+        # print('DEBUG: median_of_means', median_of_means)
+        # print(means)
+        if np.any(means < median_of_means*0.5):
+            return False
+        return True
+    
     idx_dim = 'zyx'.find(slice_dim)
     axes_other = tuple(i for i in range(3) if (i != idx_dim))
-    print(axes_other)
+    print('DEBUG: other axes', axes_other)
     assert idx_dim >= 0
-    for i, element in enumerate(dataset):
-        plot_kwargs = dict(
-            title=dataset.get_name(i),
-            xlabel=slice_dim,
-            ylabel='mean pixel intensity'
-        )
-        data = element[0]
-        n_means = data.shape[idx_dim]
+    
+    if opts.n_max is not None:
+        indices = np.round(np.linspace(0, len(dataset) - 1, opts.n_max)).astype(int)
+    else:
+        indices = range(len(dataset))
+    
+    report_str = []
+    report_str.append('***** REPORT *****')
+    for i, idx in enumerate(indices):
+        ar = dataset[idx][opts.element_num]
+        print('DEBUG: shape', ar.shape)
+        if ar.shape[0] < 32:
+            covfefe
+        n_means = ar.shape[idx_dim]
         slice_vals = range(n_means)
-        means = np.mean(data, axis=axes_other)
+        means = np.mean(ar, axis=axes_other)
         fig, ax = plt.subplots(1)
-        fig.set_size_inches((12, 8))
+        # fig.set_size_inches((12, 8))
         ax.scatter(slice_vals, means)
+        y_low = ax.get_ylim()[1]*0.1
+        if y_low > 0:
+            y_low *= -1
+        plot_kwargs = dict(
+            title=dataset.get_name(idx, opts.element_num),
+            xlabel=slice_dim,
+            ylabel='mean pixel intensity',
+            ylim=(y_low, ax.get_ylim()[1]*1.1)
+        )
         ax.set(**plot_kwargs)
-        if opts.n_max is not None and (i + 1) == opts.n_max:
-            break
+        status = '  pass  ' if means_ok(means) else '* FAIL *'
+        report_str.append('{} | {}'.format(status, dataset.get_name(idx, opts.element_num)))
     plt.show()
+    print(os.linesep.join(report_str))
+    
 
 def gen_bxp_dict(ar):
     """Generate dict for matplotlib bxp function."""
@@ -119,10 +150,10 @@ def plot_boxplots(dataset):
     legend_str = []
     legend_str.append('***** Legend *****')
     for i, idx in enumerate(indices):
-        ar = dataset[idx][0]
+        ar = dataset[idx][opts.element_num]
         bxp_dict = gen_bxp_dict(ar)
         boxes.append(bxp_dict)
-        legend_str.append('{:02d}: {:s} {:d}'.format(i + 1, dataset.get_name(idx), count_outliers(ar, bxp_dict)))
+        legend_str.append('{:02d}: {:s} {:d}'.format(i + 1, dataset.get_name(idx, opts.element_num), count_outliers(ar, bxp_dict)))
     fig, ax = plt.subplots(1)
     plot_kwargs = dict(
         title='per-image pixel intensity',
@@ -133,12 +164,6 @@ def plot_boxplots(dataset):
     plt.show()
     legend = os.linesep.join(legend_str)
     print(legend)
-    # flat_images = []
-    # for i, idx in enumerate(indices):
-    #     data = dataset[idx][0]
-    #     flat_image = data.flatten()
-    #     flat_images.append(data.flatten())
-    #     ax.boxplot([flat_image], positions=[i], showmeans=True, showfliers=False)
 
 def legacy_check_dataset(path):
     print('***** Checking dataset from:', path, '*****')
@@ -167,38 +192,73 @@ def legacy_check_dataset(path):
     print('mean of means_target:', np.mean(means_target))
     print('mean of stds_target:', np.mean(stds_target))
 
-def read_csv():
-    assert opts.path_source.endswith('.csv')
-    assert os.path.isfile(opts.path_source)
-    print('path_source:', opts.path_source)
-    df = pd.read_csv(opts.path_source)
-    pdb.set_trace()
-    
-            
-def main():
-    path_source_basename = os.path.basename(opts.path_source)
-    path_save = os.path.join('data', 'dataset_saves', 'TMP_{}_{}.ds'.format(opts.chan, path_source_basename))
-    file_tags = ('_{}.tif'.format(opts.chan), )
-    
-    train_select = True
-    percent_test = 0
-    transforms = None
-    transforms = ((util.data.transforms.sub_mean_norm, util.data.transforms.Capper(std_hi=10)),
+def test_read_csv():
+    path_test = 'data/dataset_saves/TMP_test.ds'
+    np.random.seed(666)
+    struct = 'Lamin B1'
+    dataset = util.data.DataSet2(
+        path_save=path_test,
+        path_csv=opts.path_source,
+        train_select=True,
+        task='ttf',
+        chan=struct,
+        train_set_size=15, percent_test=None,
+        transforms=None
     )
-    dataset = util.data.DataSet(path_save=path_save,
-                                path_source=opts.path_source,
-                                train_select=train_select,
-                                file_tags=file_tags,
-                                percent_test=percent_test,
-                                transforms=transforms)
-    print(dataset)
-    set_plot_style()
-    plot_boxplots(dataset)
-    # plot_mean_intensity_per_slice(dataset)
+    df_csv = dataset.get_df_csv()
+    mask = df_csv['structureProteinName'] == struct
+    mask = mask & (df_csv['inputFolder'].str.contains('aics/microscopy'))
+    df = df_csv[mask]
 
+    col_chans = []
+    for col in df_csv.columns:
+        if 'Channel' in col:
+            col_chans.append(col)
+    pdb.set_trace()
+
+def display_czi_channels(z_display=None):
+    path_pre = opts.path_source
+    if 'allen/aics' in path_pre:
+        path = os.path.join('/root/data', path_pre.split('allen/aics/')[-1])
+    else:
+        path = path_pre
+    assert os.path.isfile(path)
+    czi = CziReader(path)
+    if z_display is None:
+        size_z = czi.get_size('Z')
+        z_iter = tuple(int(i*size_z) for i in [0.25, 0.5, 0.75])
+    elif isinstance(z_display, int):
+        z_iter = (z_display, )
+    else:
+        z_iter = tuple(z_display)
+    for chan in range(czi.get_size('C')):
+    # for chan in [0, 1]:
+        fig, ax = plt.subplots(ncols=len(z_iter))
+        vol = czi.get_volume(chan)
+        for idx_ax, z in enumerate(z_iter):
+            ax[idx_ax].imshow(vol[z, :, :], cmap='gray', interpolation='bilinear')
+            plot_kwargs = dict(
+                title='chan: {} | z: {}'.format(chan, z)
+            )
+            ax[idx_ax].set(**plot_kwargs)
+            ax[idx_ax].axis('off')
+    plt.show()
+
+def main():
+    dataset = util.data.DataSet2(
+        path_load=opts.path_dataset,
+        train_select=True
+    )
+    print(dataset)
+    if opts.plot_sel == 'boxes':
+        plot_boxplots(dataset)
+    if opts.plot_sel == 'means':
+        plot_mean_intensity_per_slice(dataset, slice_dim='z')
 
 if __name__ == '__main__':
-    # main()
-    read_csv()
+    set_plot_style()
+    main()
+    # display_czi_channels()
+    # test_read_csv()
     # test()
     

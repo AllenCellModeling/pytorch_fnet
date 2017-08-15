@@ -4,4 +4,5 @@ __pycache__
 test_images/
 test_output/
 logs/
+data/
 *.pyc
