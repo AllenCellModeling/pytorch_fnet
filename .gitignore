@@ -1,8 +1,9 @@
 aicsimage
 .ipynb_checkpoints
 __pycache__
-test_images/
-test_output/
-logs/
-data/
+test_output/**
+logs/**
+data/**
+saved_models/**
+presentation/**
 *.pyc
