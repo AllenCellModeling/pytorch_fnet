@@ -9,16 +9,23 @@ import pdb
 CUDA = True
 
 class Model(object):
-    def __init__(self, mult_chan=None, depth=None, load_path=None, lr=0.0001, nn_module=None, init_weights=True):
+    def __init__(self, mult_chan=None, depth=None, load_path=None, lr=0.0001, nn_module=None, init_weights=True, gpu_ids=0):
 
         # give zero weight to "unknown" class
         weights = torch.FloatTensor([0.5, 0.5, 0.0]).cuda()
+        if isinstance(gpu_ids, int):
+            self._device_ids = [gpu_ids]
+        else:
+            assert isinstance(gpu_ids, (tuple, list))
+            self._device_ids = gpu_ids
         self.criterion = torch.nn.CrossEntropyLoss(weight=weights)
         
         if load_path is None:
             nn_name = nn_module
             nn_module = importlib.import_module('model_modules.nn_modules.' + nn_module)
-            self.net = nn_module.Net(mult_chan=mult_chan, depth=depth)
+            # self.net = nn_module.Net(mult_chan=mult_chan, depth=depth)
+            self.net = torch.nn.DataParallel(nn_module.Net(mult_chan=mult_chan, depth=depth),
+                                               device_ids=self._device_ids)
             if CUDA:
                 self.net.cuda()
             if init_weights:
@@ -71,6 +78,14 @@ class Model(object):
         self.meta = training_state_dict['meta_dict']
         time_load = time.time() - time_start
         print('model load time: {:.1f} s'.format(time_load))
+
+        # Move network/optmizer tensors to new primary GPU
+        self.optimizer.state = _set_gpu_recursive(self.optimizer.state, self._device_ids[0])
+        self.net.cuda(self._device_ids[0])
+        # self.net might not be a DataParallel, so only assign instance variable device_ids if exists
+        if 'device_ids' in vars(self.net):
+            self.net.device_ids = self._device_ids
+            self.net.output_device = self._device_ids[0]
         
     def set_lr(self, lr):
         lr_old = self.optimizer.param_groups[0]['lr']
@@ -124,3 +139,26 @@ def _weights_init(m):
     elif classname.find('BatchNorm') != -1:
         m.weight.data.normal_(1.0, 0.02)
         m.bias.data.fill_(0) 
+
+# modified from pytorch_integrated_cell
+def _set_gpu_recursive(var, gpu_id):
+    """Moves Tensors nested in dict var to gpu_id.
+
+    Parameters:
+    var - (dict) keys are either Tensors or dicts
+    gpu_id - (int) GPU onto which to move the Tensors
+    """
+    for key in var:
+        if isinstance(var[key], dict):
+            var[key] = _set_gpu_recursive(var[key], gpu_id)
+        else:
+            try:
+                if gpu_id != -1:
+                    var[key] = var[key].cuda(gpu_id)
+                else:
+                    var[key] = var[key].cpu()
+            except:
+                pass
+    return var  
+
+
