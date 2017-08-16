@@ -1,11 +1,13 @@
 import argparse
 import tifffile
 import numpy as np
-import util
-import util.data
-import util.data.transforms
+# import util
+# import util.data
+# import util.data.transforms
 import model_modules.ttf_model
 import os
+import pdb
+import matplotlib
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu_ids', type=int, default=0, help='GPU ID(s)')
@@ -19,13 +21,53 @@ paths_models = (
     'saved_models/ttf_tom20_latest.p',
 )
 
+def convert_ar_grayscale_to_rgb(ar, hue):
+    """Converts grayscale image to RGB uint8 image."""
+    # shift and scale input array
+    ar_float = ar.astype(np.float) - np.min(ar).astype(np.float)  # TODO: can possibly overflow
+    ar_float /= np.max(ar_float)
+    ar_hsv = np.zeros(ar.shape + (3, ), dtype=np.float)
+    ar_hsv[..., 0] = hue
+    ar_hsv[..., 1] = 1.0
+    ar_hsv[..., 2] = ar_float
+    ar_rgb = matplotlib.colors.hsv_to_rgb(ar_hsv)
+    ar_rgb *= 256.0
+    ar_rgb[ar_rgb == 256.0] = 255.0
+    return ar_rgb.astype(np.uint8)
+
+def blend_ar(ars, weights):
+    shape_exp = ars[0].shape
+    ar_all = np.zeros(ars[0].shape, dtype=np.float)
+    for i in range(len(ars)):
+        assert weights[i] >= 0.0
+        assert ars[i].shape == shape_exp
+        ar_all += weights[i]*ars[i]
+    ar_all /= np.max(ar_all)
+    ar_all *= 256.0
+    ar_all[ar_all == 256.0] = 255.0
+    return ar_all.astype(np.uint8)
+
 def make_example_tiff():
-    img = np.zeros((51, 100, 200, 3), dtype=np.uint8)
-    for z in range(img.shape[0]):
-        color = z % 3
-        print(z, color)
-        img[z, :, :, color] = np.arange(200)
-    tifffile.imsave('tmp_nometa.tif', img, photometric='rgb', metadata={'axes': 'ZYXC'})
+    hues = np.random.rand(3)
+    img_r_pre = np.zeros((51, 100, 200), dtype=np.uint8)
+    img_g_pre = np.zeros((51, 100, 200), dtype=np.uint8)
+    img_b_pre = np.zeros((51, 100, 200), dtype=np.uint8)
+    for z in range(img_r_pre.shape[0]):
+        img_r_pre[z, :20, :50] = 255 - 2*z
+        img_g_pre[z, 40:60, 50:100] = 100 + 2*z
+        img_b_pre[z, 65:85, 150:200] = 150 + 2*z
+    path_base = 'test_output'
+    # img_r = convert_ar_grayscale_to_rgb(img_r_pre, 0)
+    # img_g = convert_ar_grayscale_to_rgb(img_g_pre, 1/3)
+    # img_b = convert_ar_grayscale_to_rgb(img_b_pre, 2/3)
+    img_r = convert_ar_grayscale_to_rgb(img_r_pre, hues[0])
+    img_g = convert_ar_grayscale_to_rgb(img_g_pre, hues[1])
+    img_b = convert_ar_grayscale_to_rgb(img_b_pre, hues[2])
+    tifffile.imsave(os.path.join(path_base, 'r.tif'), img_r, photometric='rgb', metadata={'axes': 'ZYXC'})
+    tifffile.imsave(os.path.join(path_base, 'g.tif'), img_g, photometric='rgb', metadata={'axes': 'ZYXC'})
+    tifffile.imsave(os.path.join(path_base, 'b.tif'), img_b, photometric='rgb', metadata={'axes': 'ZYXC'})
+    img_all = blend_ar((img_r, img_g, img_b), (1/3, 1/3, 1/3))
+    tifffile.imsave(os.path.join(path_base, 'all.tif'), img_all, photometric='rgb', metadata={'axes': 'ZYXC'})
 
 class GhettoIntegratedCells(object):
     def __init__(self, paths_models):
@@ -76,4 +118,5 @@ def main():
         util.save_img_np(img, path_img)
 
 if __name__ == '__main__':
-    main()
+    make_example_tiff()
+    # main()
