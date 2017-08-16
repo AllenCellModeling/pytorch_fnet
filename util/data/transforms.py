@@ -39,11 +39,14 @@ class Cropper(object):
                 multiple_of = int(self._shape[i][1:])
                 start = 0
                 end = x.shape[i] & ~(multiple_of - 1)
-            elif self._shape[i] > x.shape[i]:
+            elif self._shape[i] > x.shape[i]:  # input array dim smaller than crop dim
                 warnings.warn('Crop dimensions larger than image dimension ({} > {} for dim {}).'.format(self._shape[i], x.shape[i], i))
                 raise AttributeError
             else:
-                start = self._offsets[i]
+                if self._offsets[i] == 'mid':  # take crop from middle of input array dim
+                    start = (x.shape[i] - self._shape[i])//2
+                else:
+                    start = self._offsets[i]
                 if start + self._shape[i] > x.shape[i]:
                     warnings.warn('Cannot crop outsize image dimensions ({}:{} for dim {}). Starting crop from 0 instead.'.format(start, start + self._shape[i], i))
                     start = 0
