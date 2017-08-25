@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from util import find_z_of_max_slice
 from util import print_array_stats
+import collections
 import os
 import pdb
 
@@ -100,107 +101,77 @@ def display_batch(vol_light_np, vol_nuc_np, batch):
         ax.imshow(img_chunk_tar, cmap='gray', interpolation='bilinear')
         plt.show()
 
-def display_visual_eval_images(sources,
-                               z_display=None,
-                               titles=('signal', 'target', 'predicted'),
-                               vmins=None,
-                               vmaxs=None,
-                               verbose=False,
-                               path_z_ani=None,
-                               path_save_pre=None):
+def display_eval_images(
+        sources,
+        z_display=None,
+        titles=('signal', 'target', 'predicted'),
+        vmins=None,
+        vmaxs=None,
+        path_save_dir=None,
+        z_save=None,
+):
     """Display row of images.
 
     Parameters:
-    sources - list/tuple of image sources, each being a 5d numpy array
-    z_selector - (int, 'sweep')
-    path_z_ani - path to directory 
-    path_save_pre - partial path to directory to save generated figures.
-                    Filename tags will be added to the end of path_save_pre for each saved image.
-    ...
+    sources - list/tuple of image sources, each being a 3d numpy array
+    z_display - (int or iterable of ints) z-slice(s) to display
+    titles - (iterable of strings) subplot titles
+    vmins - (iterable) subplot vmins
+    vmaxs - (iterable) subplot vmaxs
+    path_save_dir - path to directory for z-stack animations
+    z_save - (int or iterable of ints) z-slice(s) to save. If None, set to z_display.
     """
+    scroll_bar = False
     assert isinstance(sources, (list, tuple))
     assert len(sources) == len(titles)
     if vmins is not None: assert len(vmins) == len(sources)
     if vmaxs is not None: assert len(vmaxs) == len(sources)
-    
-    n_examples = sources[0].shape[0]
-            
-    for ex in range(n_examples):
-        # get z slice to display
-        if isinstance(z_display, int):
-            z_list = [z_display]
-        elif isinstance(z_display, (tuple, list)):
-            z_list = z_display
-        elif z_display == 'sweep':
-            z_list = range(sources[0].shape[2])
-        elif 'strongest_' in z_display:
-            idx_source = int(z_display.split('_')[1])
-            z_list = [find_z_of_max_slice(sources[idx_source][0, 0, ])]
-        else:
-            # assumes z_display is an iterable
-            z_list = z_display
-        print('z displayed:', z_list)
 
-        n_subplots = len(sources)
-        if path_z_ani is not None:
-            raise NotImplementedError
-            n_z_slices = signal.shape[2]
-            z_list = range(n_z_slices)
-            n_subplots = len(sources) + 1  # +1 for the scrolling bar
-            if not os.path.exists(path_z_ani):
-                os.makedirs(path_z_ani)
-
-        # determine vmins and vmaxs for subplots
-        kwargs_list = []
+    z_display_list = [z_display] if isinstance(z_display, int) else z_display
+    if z_save is None:
+        z_render_list = z_display_list
+    else:
+        assert path_save_dir is not None, 'must specifiy path_save_dir if z_save is specified'
+        z_render_list = [z_save] if isinstance(z_save, int) else z_save
+    print('z displayed:', z_display_list)
+    n_subplots = len(sources)
+    if path_save_dir is not None:
+        if not os.path.exists(path_save_dir):
+            os.makedirs(path_save_dir)
+        if scroll_bar:
+            n_subplots += 1
+    kwargs_list = []
+    for i in range(len(sources)):
+        kwargs = {}
+        if vmins is not None:
+            kwargs['vmin'] = vmins[i]
+        if vmaxs is not None:
+            kwargs['vmax'] = vmaxs[i]
+        kwargs_list.append(kwargs)
+    for z in z_render_list:
+        fig, ax = plt.subplots(ncols=n_subplots)
+        fig.set_dpi(200)
+        fig.subplots_adjust(wspace=0.02, left=0.0, right=1.0)
         for i in range(len(sources)):
-            kwargs = {}
-            if vmins is not None:
-                if vmins[i] == 'std_based':
-                    vmin_val = np.mean(source_list[i]) - 9*np.std(source_list[i])
-                    print('DEBUG: {} using vmin {}'.format(titles[i], vmin_val))
-                    kwargs['vmin'] = vmin_val
-                else:
-                    kwargs['vmin'] = vmins[i] if path_z_ani is None else np.amin(source_list[i])
-            if vmaxs is not None:
-                if vmaxs[i] == 'std_based':
-                    vmax_val = np.mean(source_list[i]) + 9*np.std(source_list[i])
-                    print('DEBUG: {} using vmax {}'.format(titles[i], vmax_val))
-                    kwargs['vmax'] = vmax_val
-                else:
-                    kwargs['vmax'] = vmaxs[i] if path_z_ani is None else np.amax(source_list[i])
-            kwargs_list.append(kwargs)
-        # print('plot kwargs:', kwargs_list)
-
-        for z in z_list:
-            fig, ax = plt.subplots(ncols=n_subplots, figsize=(20, 15))
-            fig.subplots_adjust(wspace=0.05)
-            for i in range(len(sources)):
-                if verbose:
-                    print(titles[i] + ' stats:')
-                    print_array_stats(sources[i])
-                img = sources[i][ex, 0, z, ]
-                ax[i].set_title(titles[i], fontsize='xx-large')
-                ax[i].axis('off')
-                ax[i].imshow(img, cmap='gray', interpolation='bilinear', **kwargs_list[i])
-
-            # save generated figure
-            if path_save_pre:
-                path_save = path_save_pre + '_ex_{:02d}_z_{:02d}.png'.format(ex, z)
-                print('saving image to:', path_save)
-                fig.savefig(path_save)
-                plt.close(fig)
-            if path_z_ani:
-                raise NotImplementedError
-                path_save = os.path.join(path_z_ani, 'img_{:02d}_z_{:02d}'.format(ex, z))
-                print(path_save)
+            img = sources[i][z, ]
+            ax[i].set_title(titles[i], fontsize='small', loc='left')
+            ax[i].set_frame_on(False)
+            ax[i].set_yticks([])
+            ax[i].set_xticks([])
+            ax[i].imshow(img, cmap='gray', interpolation='bilinear', **kwargs_list[i])
+        if path_save_dir is not None:
+            if scroll_bar:
                 img_bar = np.ones((n_z_slices*2, n_z_slices*2), dtype=np.uint8)*255
                 z_start = (n_z_slices - z - 1)*2
                 img_bar[z_start: z_start + 2, :2] = 0
                 ax[3].imshow(img_bar, cmap='gray')
                 ax[3].axis('off')
-                fig.savefig(path_save)
-                plt.close(fig)
-    plt.show()
+            path_save = os.path.join(path_save_dir, 'z_{:02d}'.format(z))
+            print('saving:', path_save)
+            fig.savefig(path_save)
+        if z in z_display_list:
+            plt.show()
+        plt.close(fig)
     
 if __name__ == '__main__':
     print('util.display')
