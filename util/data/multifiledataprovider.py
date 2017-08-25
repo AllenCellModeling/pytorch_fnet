@@ -3,13 +3,12 @@ from util.misc import get_vol_transformed
 import pdb
 
 class MultiFileDataProvider(object):
-    def __init__(self, dataset, buffer_size, n_iter, batch_size, replace_interval,
+    def __init__(self, dataset, buffer_size, batch_size, replace_interval,
                  dims_chunk=(32, 64, 64), dims_pin=(None, None, None),
                  transforms=None):
         """
         dataset - DataSet instance
         buffer_size - (int) number images to generate batches from
-        n_iter - (int) number of batches that the data provider should supply
         ...
         replace_interval - (int) number of batches between buffer item replacements. Set to -1 for no replacement.
         dims_chunk - (tuple) shape of extracted chunks
@@ -20,7 +19,6 @@ class MultiFileDataProvider(object):
         assert transforms is None or isinstance(transforms, (list, tuple))
         self._dataset = dataset
         self._buffer_size = buffer_size
-        self._n_iter = n_iter
         self._batch_size = batch_size
         self._replace_interval = replace_interval
         self._transforms = transforms
@@ -37,6 +35,7 @@ class MultiFileDataProvider(object):
         self._idx_replace = 0  # next 
 
         self._fill_buffer()
+        self._update_last_sources()
         self._shape_batch = [self._batch_size, 1] + list(self._dims_chunk)
         self._dims_chunk_options = (self._dims_chunk, (self._dims_chunk[0]//2, *self._dims_chunk[1:]))
 
@@ -82,8 +81,8 @@ class MultiFileDataProvider(object):
         source_list = [str(package[0]) for package in self._buffer]
         self.last_sources = '|'.join(source_list)
 
-    def get_batch(self):
-        """Get a batch of examples from source data."
+    def _gen_batch(self):
+        """Generate a batch from sources in self._buffer
         
         Returns:
         batch_x, batch_y - (2 numpy arrays) each array will have shape (n, 1) + dims_chunk.
@@ -143,21 +142,20 @@ class MultiFileDataProvider(object):
             slices.append(slice(coord_img[i], coord_img[i] + self._dims_chunk[i]))
         return self._buffer[idx_buf][1][slices], self._buffer[idx_buf][2][slices]
 
-    def __len__(self):
-        return self._n_iter
-    
-    def __iter__(self):
-        return self
+    def get_state(self):
+        pass
 
-    def __next__(self):
-        if self._count_iter == self._n_iter:
-            raise StopIteration
+    def get_batch(self):
+        """Get a batch of examples from source data."
+        
+        Returns:
+        batch_x, batch_y - (2 numpy arrays) each array will have shape (n, 1) + dims_chunk.
+        """
         self._count_iter += 1
-        self._update_last_sources()
         if (self._replace_interval > 0) and (self._count_iter % self._replace_interval == 0):
             self._replace_buffer_item()
-        return self.get_batch()
-
+            self._update_last_sources()
+        return self._gen_batch()
 
 DataProvider = MultiFileDataProvider  # to fit with the train_model API
 
