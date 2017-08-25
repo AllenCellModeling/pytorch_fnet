@@ -6,9 +6,9 @@ import pdb
 
 def sub_mean_norm(img):
     """Subtract mean, set STD to 1.0"""
-    result = img.copy()
-    result -= np.mean(img)
-    result /= np.std(img)
+    result = img.astype(np.float64)
+    result -= np.mean(result)
+    result /= np.std(result)
     return result
 
 def do_nothing(img):
@@ -94,17 +94,17 @@ class ReflectionPadder3d(object):
         return pad_mirror(ar, self._padding)
 
 class Capper(object):
-    def __init__(self, std_low=None, std_hi=None):
-        self._std_low = std_low
-        self._std_hi = std_hi
+    def __init__(self, low=None, hi=None):
+        self._low = low
+        self._hi = hi
         
     def __call__(self, ar):
         result = ar.copy()
-        if self._std_hi is not None:
-            result[result > self._std_hi] = self._std_hi
-        if self._std_low is not None:
-            result[result < self._std_low] = self._std_low
+        if self._hi is not None:
+            result[result > self._hi] = self._hi
+        if self._low is not None:
+            result[result < self._low] = self._low
         return result
 
     def __str__(self):
-        return 'Capper({} to {})'.format(self._std_low, self._std_hi)
+        return 'Capper({} to {})'.format(self._low, self._hi)
