@@ -48,6 +48,27 @@ def _shuffle_split_df(df_all, train_split):
         df_test = df_all_shuf[idx_split:]
     return df_train, df_test
 
+def _get_shape_from_metadata(metadata):
+    """Return tuple of CZI's dimensions in order (Z, Y, X)."""
+    tag_list = 'Metadata.Information.Image'.split('.')
+    elements = get_metadata(metadata, tag_list)
+    if elements is None:
+        return None
+    ele_image = elements[0]
+    dim_tags = ('SizeZ', 'SizeY', 'SizeX')
+    shape = []
+    for dim_tag in dim_tags:
+        bad_dim = False
+        try:
+            ele_dim = get_metadata(ele_image, [dim_tag, 'text'])
+            shape_dim = int(ele_dim[0])
+        except:
+            bad_dim = True
+        if bad_dim:
+            return None
+        shape.append(shape_dim)
+    return tuple(shape)
+
 def create_dataset_from_dir(
         path_dir,
         name_signal,
@@ -76,6 +97,9 @@ def create_dataset_from_dir(
             elif channel_nickname == 'memb':
                 if name == 'CMDRP':
                     name_match = True
+            elif channel_nickname == 'struct':
+                if name == 'EGFP':
+                    name_match = True
             else:
                 raise NotImplementedError
             if name_match:
@@ -94,8 +118,17 @@ def create_dataset_from_dir(
     print(len(paths_pre), 'files found')
     paths, chans_target, chans_signal = [], [], []
     for i, path in enumerate(paths_pre):
+        print('reading:', path)
         czi = CziReader(path)
         meta = czi.metadata
+        
+        # check CZI dimensions
+        dims_min = (32, 64, 64)
+        shape = _get_shape_from_metadata(meta)
+        if any((shape[i] < dims_min[i]) for i in range(3)):
+            print('CZIs dims {} below minimum {}. skipping: {}'.format(shape, dims_min, path))
+            continue
+        
         tag_list = 'Metadata.DisplaySetting.Channels.Channel.attrib'.split('.')
         channel_info_dicts = get_metadata(meta, tag_list)
         chan_idx_signal = get_chan_idx(name_signal, channel_info_dicts)
@@ -104,6 +137,7 @@ def create_dataset_from_dir(
             paths.append(path)
             chans_signal.append(chan_idx_signal)
             chans_target.append(chan_idx_target)
+            
     assert len(paths) > 0
     assert len(paths) == len(chans_signal) == len(chans_target)
     df_all = pd.DataFrame(
