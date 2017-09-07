@@ -1,0 +1,14 @@
+trans_modality,target,path_model,path_dataset,n_test,l1_test,l2_test
+bf,dna,saved_models/ttf_bf_dna_nohotscombo_30.p,data/dataset_saves/ttf_bf_dna_nohotscombo.ds,15,0.8825,0.7518
+bf,beta actin,saved_models/ttf_beta_actin_latest.p,data/dataset_saves/ttf_beta_actin_latest.ds,15,0.8609,0.7271
+bf,desmoplakin,saved_models/ttf_desmoplakin_latest.p,data/dataset_saves/ttf_desmoplakin_latest.ds,15,0.9939,0.9883
+dic,membrane,saved_models/ttf_dic_memb.p,data/dataset_saves/ttf_dic_memb.ds,14,0.799,0.6751
+dic,lamin,saved_models/ttf_dic_struct.p,data/dataset_saves/ttf_dic_struct.ds,15,0.9417,0.8709
+bf,fibrillarin,saved_models/ttf_fibrillarin_latest.p,data/dataset_saves/ttf_fibrillarin_latest.ds,15,0.7321,0.3463
+bf,lamin,saved_models/ttf_lamin_b1_latest.p,data/dataset_saves/ttf_lamin_b1_latest.ds,15,0.7584,0.518
+bf,myosin iib,saved_models/ttf_myosin_iib_latest.p,data/dataset_saves/ttf_myosin_iib_latest.ds,15,0.9231,0.8513
+bf,sec61,saved_models/ttf_sec61_beta_latest.p,data/dataset_saves/ttf_sec61_beta_latest.ds,15,0.7953,0.6358
+bf,tom20,saved_models/ttf_tom20_latest.p,data/dataset_saves/ttf_tom20.ds,15,0.9265,0.8096
+bf,tubulin,saved_models/ttf_tub_combo_nocap.p,data/dataset_saves/ttf_tub_nocap.ds,15,0.8826,0.7644
+bf,zo1,saved_models/ttf_zo1_latest.p,data/dataset_saves/ttf_zo1_latest.ds,15,0.9739,0.9208
+bf,membrane,saved_models/ttf_memb_no_hots_00.p,data/dataset_saves/ttf_memb_no_hots.ds,3,0.8554,0.7440000000000001
