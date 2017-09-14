@@ -15,7 +15,7 @@ class DataSet3(object):
                  transforms=None):
         """Create dataset from train/test DataFrames.
         
-        df_train - pandas.DataFrame with columns ('path_czi', 'channel_signal', 'channel_target')
+        df_train - pandas.DataFrame, where each row is a DataSet element
         df_test - pandas.DataFrame, same columns as above
         transforms - list/tuple of transforms, where each element is a transform or transform list to be applied
                      to a component of a DataSet element
@@ -25,6 +25,8 @@ class DataSet3(object):
         self._transforms = transforms
         self._train_select = True
         self._df_active = self._df_train
+        self._czi = None
+        self._last_loaded = None
 
     def use_train_set(self):
         self._train_select = True
@@ -34,6 +36,9 @@ class DataSet3(object):
         self._train_select = False
         self._df_active = self._df_test
 
+    def is_timelapse(self):
+        return 'time_slice' in self._df_active.columns
+
     def __len__(self):
         return len(self._df_active)
 
@@ -42,6 +47,8 @@ class DataSet3(object):
 
     def get_item_sel(self, idx, sel, apply_transforms=True):
         """Get item(s) from dataset element idx.
+
+        DataFrames should have columns ('path_czi', 'channel_signal', 'channel_target') and optionally 'time_slice'.
 
         idx - (int) dataset element index
         sel - (int or iterable) 0 for 'signal', 1 for 'target'
@@ -54,19 +61,25 @@ class DataSet3(object):
         else:
             raise AttributeError
         path = self._df_active['path_czi'].iloc[idx]
-        try:
+        if ('_last_loaded' not in vars(self)) or self._last_loaded != path:
             print('reading:', path)
-            czi = CziReader(path)
-        except:
-            warnings.warn('could not read file: {}'.format(path))
-            return None
+            try:
+                self._czi = CziReader(path)
+                self._last_loaded = path
+            except:
+                warnings.warn('could not read file: {}'.format(path))
+                return None
+        time_slice = None
+        if 'time_slice' in self._df_active.columns:
+            time_slice = self._df_active['time_slice'].iloc[idx]
+            print('DEBUG: got time_slice', time_slice)
         volumes = []
         for i in range(len(sels)):
             if sels[i] == 0:
                 chan = self._df_active['channel_signal'].iloc[idx]
             else:
                 chan = self._df_active['channel_target'].iloc[idx]
-            volume_pre = czi.get_volume(chan)
+            volume_pre = self._czi.get_volume(chan, time_slice=time_slice)
             if self._transforms is None or not apply_transforms:
                 volumes.append(volume_pre)
             else:

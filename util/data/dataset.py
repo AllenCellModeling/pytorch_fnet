@@ -3,7 +3,6 @@ import pickle
 import glob
 from aicsimage.io import omeTifReader
 import numpy as np
-from natsort import natsorted
 from util import get_vol_transformed
 import pdb
 import warnings
@@ -49,7 +48,6 @@ class DataSet(object):
             self._active_set = self._train_set
         else:
             self._active_set = self._test_set
-        self._active_set = natsorted(self._active_set)  # TODO: is this wanted?
         self._validate_dataset()
 
     def _get_state(self):
@@ -69,7 +67,15 @@ class DataSet(object):
         assert isinstance(state, dict)
         vars(self).update(state)
 
-    def get_name(self, i):
+    def use_train_set(self):
+        self._train_select = True
+        self._active_set = self._train_set
+        
+    def use_test_set(self):
+        self._train_select = False
+        self._active_set = self._test_set
+
+    def get_name(self, i, *args, **kwargs):
         """Returns a name representing element i."""
         name = os.path.basename(self._active_set[i])
         return name

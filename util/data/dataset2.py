@@ -3,7 +3,6 @@ import pickle
 import glob
 from aicsimage.io import omeTifReader
 import numpy as np
-from natsort import natsorted
 from util import get_vol_transformed
 import pandas as pd
 import pdb
@@ -74,8 +73,15 @@ class DataSet2(object):
             self._df_active = self._df_train
         else:
             self._df_active = self._df_test
-        # self._df_active = natsorted(self._df_active)  # might be necessary for timelapse datasets
         self._validate_dataset()
+
+    def use_train_set(self):
+        self._train_select = True
+        self._df_active = self._df_train
+        
+    def use_test_set(self):
+        self._train_select = False
+        self._df_active = self._df_test
 
     def _get_state(self):
         """Returns a dict representing the DataSet."""
@@ -111,14 +117,17 @@ class DataSet2(object):
         if self._task == 'ttf':
             if self._chan in DataSet2.cell_lines:
                 columns = ('save_trans_path', 'save_struct_path')
-                mask = (df_csv['structureProteinName'] == self._chan)
+                mask = df_csv['structureProteinName'] == self._chan
                 # mask = mask & df_csv['inputFolder'].str.contains('aics/microscopy') # look at only images from microscopy team
                 for banned in BAN_LIST:
                     mask = mask & ~df_csv['inputFilename'].str.contains(banned)
                 df_all = df_csv.loc[mask, columns]
             elif self._chan in ('dna', 'memb'):
-                columns = ('save_trans_path', 'save_{}_path'.self._chan)
-                df_all = df_csv.loc[:, columns]
+                mask = df_csv['inputFolder'].str.contains('aics/microscopy')
+                warnings.warn('skipping bad plate: 3500000926')
+                mask = mask & ~df_csv['inputFilename'].str.contains('3500000926')  # bad plate
+                columns = ('save_trans_path', 'save_{}_path'.format(self._chan))
+                df_all = df_csv.loc[mask, columns]
             else:
                 raise AttributeError
         else:
@@ -205,7 +214,7 @@ class DataSet2(object):
         str_list.append('transforms: ' + get_str_transform(self._transforms))
         return os.linesep.join(str_list)
 
-    def get_item_sel(self, idx, sel):
+    def get_item_sel(self, idx, sel, apply_transforms=True):
         """Get sel-th item from dataset element idx."""
         path_pre = self._df_active.iloc[idx, sel]
         base = os.path.dirname(self._path_csv)
@@ -218,7 +227,7 @@ class DataSet2(object):
         except:
             warnings.warn('could not read file: {}'.format(path))
             return None
-        if self._transforms is None:
+        if self._transforms is None or not apply_transforms:
             volume = volume_pre
         else:
             volume = get_vol_transformed(volume_pre, self._transforms[sel])
