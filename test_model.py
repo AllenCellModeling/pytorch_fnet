@@ -29,20 +29,22 @@ def get_losses(prediction, target):
     l2_loss_float = float(l2_loss(y_pred, y_targ).data.numpy())
     return l1_loss_float, l2_loss_float
 
-def test_model(model, data, opts):
-    indices = range(len(data)) if opts.img_sel is None else opts.img_sel
+def test_model(model, data, **kwargs):
+    indices = range(len(data)) if kwargs.get('img_sel') is None else kwargs.get('img_sel')
     l1_losses, l2_losses = [], []
     l1_norm_losses, l2_norm_losses = [], []
     test_or_train = 'train' if data.using_train_set() else 'test'
     titles = ('signal', 'target', 'prediction')
-    if opts.path_save is not None:
-        path_base = opts.path_save
-    elif os.path.isdir(opts.path_source):
-        path_base = os.path.join(opts.path_source, 'outputs')
-    elif opts.path_model is not None:
-        path_base = os.path.join('test_output', os.path.basename(opts.path_model).split('.')[0])
+    if kwargs.get('path_save') is not None:
+        path_base = kwargs.get('path_save')
+    elif kwargs.get('path_source') is not None and os.path.isdir(kwargs.get('path_source')):
+        path_base = os.path.join(kwargs.get('path_source'), 'outputs')
+    elif kwargs.get('path_model') is not None:
+        path_base = os.path.join('test_output', os.path.basename(kwargs.get('path_model')).split('.')[0])
+    elif kwargs.get('path_dataset') is not None:
+        path_base = os.path.join('test_output', os.path.basename(kwargs.get('path_dataset')).split('.')[0])
     else:
-        path_base = os.path.join('test_output', os.path.basename(opts.path_dataset).split('.')[0])
+        path_base = 'tmp'
 
     for i in indices:
         vmins, vmaxs = None, None
@@ -73,12 +75,12 @@ def test_model(model, data, opts):
             l2_norm_loss,
         ))
         path_img_pre = os.path.join(path_base, 'img_{:s}_{:02d}'.format(test_or_train, i))
-        if opts.save_images:
+        if kwargs.get('save_images'):
             for idx, source in enumerate(sources):
                 img = source.astype(np.float32)
                 path_img = path_img_pre + '_{:s}.tif'.format(titles[idx])
                 util.save_img_np(img, path_img)
-        if (opts.n_images is not None) and (i >= (opts.n_images - 1)):
+        if (kwargs.get('n_images') is not None) and (i >= (kwargs.get('n_images') - 1)):
             break
     l1_loss_mean = np.mean(l1_losses)
     l2_loss_mean = np.mean(l2_losses)
