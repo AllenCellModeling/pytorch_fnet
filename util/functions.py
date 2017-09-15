@@ -8,8 +8,7 @@ __all__ = [
     'find_z_max_std',
     'get_vol_transformed',
     'pad_mirror',
-    'print_array_stats',
-    'save_img_np'
+    'save_img_np',
 ]
 
 def find_z_of_max_slice(ar):
@@ -57,16 +56,6 @@ def pad_mirror(ar, padding):
     result[:, :, padding[2] + ar.shape[2]:] = np.flip(result[:, :, ar.shape[2]:ar.shape[2] + padding[2]], axis=2)
     return result
 
-def print_array_stats(ar):
-    print('shape:', ar.shape, '|', 'dtype:', ar.dtype)
-    stat_list = []
-    stat_list.append('min: {:.3f}'.format(ar.min()))
-    stat_list.append('max: {:.3f}'.format(ar.max()))
-    stat_list.append('median: {:.3f}'.format(np.median(ar)))
-    stat_list.append('mean: {:.3f}'.format(np.mean(ar)))
-    stat_list.append('std: {:.3f}'.format(np.std(ar)))
-    print(' | '.join(stat_list))
-    # print('min:', ar.min(), '| max:', ar.max(), '| median', np.median(ar))
 
 def save_img_np(img_np, path):
     """Save image (numpy array, ZYX) as a TIFF."""

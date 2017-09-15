@@ -1,3 +1,3 @@
-from util.misc import *
-del misc
-from util.SimpleLogger import SimpleLogger
+from util.functions import *
+del functions
+from util.simplelogger import SimpleLogger
