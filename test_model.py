@@ -13,10 +13,6 @@ import warnings
 import subprocess
 import pdb
 
-warnings.filterwarnings('ignore', message='.*zoom().*')
-warnings.filterwarnings('ignore', message='.*end of stream*')
-warnings.filterwarnings('ignore', message='.*multiple of element size.*')
-
 def get_losses_norm(prediction, target):
     l1_norm = np.sum(np.absolute(target))
     l2_norm = np.sum(np.square(target))
@@ -142,6 +138,10 @@ def get_df_models(opts):
     return df_models
 
 def main():
+    warnings.filterwarnings('ignore', message='.*zoom().*')
+    warnings.filterwarnings('ignore', message='.*end of stream*')
+    warnings.filterwarnings('ignore', message='.*multiple of element size.*')
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu_ids', type=int, default=0, help='GPU ID')
     parser.add_argument('--img_sel', type=int, nargs='*', help='select images to test')
@@ -155,6 +155,7 @@ def main():
     parser.add_argument('--save_images', action='store_true', default=False, help='save test image results')
     parser.add_argument('--use_train_set', action='store_true', default=False, help='view predictions on training set images')
     opts = parser.parse_args()
+    
     model_module = importlib.import_module('model_modules.'  + opts.model_module)
 
     df_models = get_df_models(opts)
