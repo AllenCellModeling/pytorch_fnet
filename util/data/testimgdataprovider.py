@@ -15,6 +15,15 @@ class TestImgDataProvider(object):
         self._dataset = dataset
         self._transforms = transforms
 
+    def using_train_set(self):
+        return self._dataset._train_select
+
+    def use_test_set(self):
+        self._dataset.use_test_set()
+        
+    def use_train_set(self):
+        self._dataset.use_train_set()
+
     def get_name(self, i):
         """Returns a name representing element i."""
         return self._dataset.get_name(i, 0)
@@ -27,6 +36,9 @@ class TestImgDataProvider(object):
             data.append(np.zeros(shape, dtype=vol.dtype))
             data[-1][0, 0, ] = vol
         return tuple(data)
+
+    def __repr__(self):
+        return 'DataProvider({:d} elements)'.format(len(self))
         
     def __len__(self):
         return len(self._dataset)
@@ -48,6 +60,5 @@ class TestImgDataProvider(object):
                 volumes.append(volume_pre)
             else:
                 volumes.append(get_vol_transformed(volume_pre, self._transforms[i]))
-            print('DEBUG: shape change', volume_pre.shape, volumes[-1].shape)
         data_tuple = self._make_batch(volumes)
         return data_tuple

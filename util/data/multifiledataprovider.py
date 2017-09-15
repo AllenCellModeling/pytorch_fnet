@@ -39,6 +39,12 @@ class MultiFileDataProvider(object):
         self._shape_batch = [self._batch_size, 1] + list(self._dims_chunk)
         self._dims_chunk_options = (self._dims_chunk, (self._dims_chunk[0]//2, *self._dims_chunk[1:]))
 
+    def use_test_set(self):
+        self._dataset.use_test_set()
+        
+    def use_train_set(self):
+        self._dataset.use_train_set()
+
     def set_dims_pin(self, dims_pin):
         self._dims_pin = dims_pin
 

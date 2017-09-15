@@ -72,7 +72,6 @@ class DataSet3(object):
         time_slice = None
         if 'time_slice' in self._df_active.columns:
             time_slice = self._df_active['time_slice'].iloc[idx]
-            print('DEBUG: got time_slice', time_slice)
         volumes = []
         for i in range(len(sels)):
             if sels[i] == 0:
@@ -85,6 +84,9 @@ class DataSet3(object):
             else:
                 volumes.append(get_vol_transformed(volume_pre, self._transforms[sels[i]]))
         return volumes[0] if isinstance(sel, int) else volumes
+
+    def __repr__(self):
+        return 'DataSet({:d} train elements, {:d} test elements)'.format(len(self._df_train), len(self._df_test))
 
     def __str__(self):
         def get_str_transform(transforms):
