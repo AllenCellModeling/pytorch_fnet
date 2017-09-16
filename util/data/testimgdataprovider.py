@@ -1,6 +1,5 @@
 import pdb
 import numpy as np
-from util.misc import pad_mirror
 from util import get_vol_transformed
 
 # For each element in a dataset, provides 1 "batch" of size 1.

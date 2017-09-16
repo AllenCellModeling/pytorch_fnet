@@ -1,12 +1,11 @@
-NN = v5_nn
-RUN_NAME = ttf_memb_no_hots_00
-DATA = data/dataset_saves/ttf_memb_no_hots.ds
+RUN_NAME = ttf_bf_dna_nohotscombo_0915
+DATA = data/dataset_saves/ttf_bf_dna_nohotscombo.ds
 
 long:
-	python train_model.py --n_iter 50000 --buffer_size 15 --replace_interval -1 \
-	--data_path $(DATA) \
-	--batch_size 64 \
-	--nn_module $(NN) \
+	python train_model.py --n_iter 500000 --buffer_size 30 --replace_interval -1 \
+	--path_data $(DATA) \
+	--batch_size 24 \
+	--nn_module ttf_v8_nn \
 	--run_name $(RUN_NAME)
 
 snm :
@@ -19,22 +18,35 @@ snm :
 	--gpu_ids 0 \
 	--run_name snm_v0_tmp
 
-long_nopad :
-	python train_model_2.py --n_iter 50000 --buffer_size 1 --replace_interval -1 \
-	--data_path $(DATA) \
-	--lr 0.001 \
-	--batch_size 6 \
-	--nn_module ttf_v6_nn \
-	--run_name ttf_dna_v6_no_hots
+gen_dataset_1 :
+	python gen_dataset.py \
+	--path_save data/dataset_saves/ttf_bf_dna_nohotscombo.ds \
+	--name_target dna \
+	--train_split 30 \
+	--path_source data/no_hots_combo
 
+	# --path_source data/dic_images
 gen_dataset :
 	python gen_dataset.py \
-	--project ttf \
-	--chan memb \
-	--path_source data/no_hots
+	--path_source data/timelapse_czis/20160621_S01_001.czi \
+	--name_signal bf \
+	--covfefe
+	--train_split 0 \
+	--path_save data/dataset_saves/ttf_timelapse_20160621_S01_001.ds \
+	--name_target struct
+gic :
+	python integrated_cells.py \
+	--path_source data/dataset_saves/ttf_timelapse_20160621_S01_001.ds \
 
-test_dataset :
-	python -m unittest -v tests.test_dataset
 
-test_whole :
-	python -m unittest -v tests.test_wholeimgdataprovider
+#	--path_model saved_models/ttf_bf_dna_nohotscombo_30.p
+# test_model :
+# 	python test_model.py \
+# 	--path_model saved_models/ttf_bf_dna_nohotscombo_30.p \
+# 	--path_dataset data/dataset_saves/ttf_bf_dna_nohotscombo.ds \
+# 	--n_images 2
+
+test_model :
+	python test_model.py \
+	--path_source saved_models/ttf_bf_dna_no_relu \
+	--n_images 4

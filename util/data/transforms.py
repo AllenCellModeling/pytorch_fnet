@@ -1,6 +1,6 @@
 import numpy as np
 import scipy
-from util.misc import pad_mirror
+from util import pad_mirror
 import warnings
 import pdb
 
@@ -52,7 +52,6 @@ class Cropper(object):
                     start = 0
                 end = (start + self._shape[i])
             slices.append(slice(start, end))
-        print('DEBUG: cropper', slices)
         return x[slices].copy()
 
     def __str__(self):

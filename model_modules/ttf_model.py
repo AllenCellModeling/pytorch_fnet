@@ -1,11 +1,7 @@
 import os
-import numpy as np
 import torch
-import pickle
-import time
 import importlib
 import pdb
-# from util.misc import save_img_np
 
 class Model(object):
     def __init__(self, load_path=None, lr=0.0001,
@@ -27,7 +23,6 @@ class Model(object):
             if self._device_ids[0] != -1:
                 self.net = torch.nn.DataParallel(self.net, device_ids=self._device_ids)
             if init_weights:
-                print("Initializing weights")
                 self.net.apply(_weights_init)
             self.optimizer = torch.optim.Adam(self.net.parameters(), lr=lr, betas=(0.5, 0.999))
             self.meta = {
@@ -41,7 +36,7 @@ class Model(object):
             
     def __str__(self):
         some_name = self.meta.get('nn')
-        if some_name is None:   # TODO: remove once support for older models no longer needed
+        if some_name is None:
             some_name = self.meta.get('name')
         out_str = '{:s} | iter: {:d}'.format(some_name,
                                              self.meta['count_iter'])
@@ -49,7 +44,6 @@ class Model(object):
 
     def save_checkpoint(self, save_path):
         """Save neural network and trainer states to disk."""
-        time_start = time.time()
         # self.net should be an instance of torch.nn.DataParallel
         module = self.net.module
         module.cpu()
@@ -64,12 +58,9 @@ class Model(object):
             os.makedirs(dirname)
         torch.save(training_state_dict, save_path)
         module.cuda(self._device_ids[0])
-        time_save = time.time() - time_start
-        print('model save time: {:.1f} s'.format(time_save))
 
     def load_checkpoint(self, load_path):
         """Load neural network and trainer states from disk."""
-        time_start = time.time()
         print('loading checkpoint from:', load_path)
         training_state_dict = torch.load(load_path)
         net_loaded = training_state_dict['nn']
@@ -80,8 +71,6 @@ class Model(object):
         else:
             self.net = torch.nn.DataParallel(net_loaded, device_ids=self._device_ids)
         self.optimizer.state = _set_gpu_recursive(self.optimizer.state, self._device_ids[0])
-        time_load = time.time() - time_start
-        print('model load time: {:.1f} s'.format(time_load))
 
     def set_lr(self, lr):
         lr_old = self.optimizer.param_groups[0]['lr']

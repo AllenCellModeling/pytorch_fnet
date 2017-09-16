@@ -1,19 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from util import find_z_of_max_slice
-from util import print_array_stats
-import collections
 import os
 import pdb
-
-def plot_logger_data():
-    x, y = logger.log['num_iter'], logger.log['loss']
-    fig = plt.figure(figsize=(10, 10))
-    ax = fig.add_axes((1, 1, 1, .3), label='training loss')
-    ax.plot(x, y)
-    ax.set_xlabel('training iteration')
-    ax.set_ylabel('MSE loss')
-    plt.show()
 
 def show_img(ar):
     import PIL
@@ -63,19 +52,6 @@ def display_batch(vol_light_np, vol_nuc_np, batch):
         coord = chunk_coord_list[i][1:]  # get yx coordinates
         draw_rect(img_light, coord, dims_rect, thickness=2, color=min_light)
         draw_rect(img_nuc, coord, dims_rect, thickness=2, color=min_nuc)
-
-    # display originals
-    # fig = plt.figure(figsize=(12, 6))
-    # fig.suptitle('slice at z: ' + str(z_max_big))
-    # ax = fig.add_subplot(121)
-    # ax.get_xaxis().set_visible(False)
-    # ax.get_yaxis().set_visible(False)
-    # ax.imshow(img_light, cmap='gray', interpolation='bilinear', vmin=-3, vmax=3)
-    # ax = fig.add_subplot(122)
-    # ax.get_xaxis().set_visible(False)
-    # ax.get_yaxis().set_visible(False)
-    # ax.imshow(img_nuc, cmap='gray', interpolation='bilinear', vmin=-3, vmax=3)
-    # plt.show()
 
     print('light volume slice | z =', z_max_big)
     show_img(img_light)

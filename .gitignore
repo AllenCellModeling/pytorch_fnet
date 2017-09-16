@@ -6,4 +6,7 @@ logs/**
 data/**
 saved_models/**
 presentation/**
+reports/**
+archive/**
+tests/**
 *.pyc
