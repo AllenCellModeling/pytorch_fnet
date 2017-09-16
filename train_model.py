@@ -1,22 +1,21 @@
-import datetime
-import pytz
 import os
 import argparse
 import importlib
 import util
 import util.data
-import util.data.functions
+import pandas as pd
 import numpy as np
 import torch
 import pdb
 import time
+import logging
+import sys
+import warnings
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--batch_size', type=int, default=24, help='size of each batch')
 parser.add_argument('--buffer_size', type=int, default=5, help='number of images to cache in memory')
 parser.add_argument('--path_data', default='data', help='path to data directory')
-parser.add_argument('--data_provider_module', default='multifiledataprovider', help='data provider class')
-parser.add_argument('--data_set_module', default='dataset', help='data set class')
 parser.add_argument('--gpu_ids', type=int, nargs='+', default=0, help='GPU ID')
 parser.add_argument('--iter_checkpoint', type=int, default=500, help='iterations between saving log/model checkpoints')
 parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
@@ -31,52 +30,80 @@ parser.add_argument('--seed', type=int, default=666, help='random seed')
 opts = parser.parse_args()
 
 model_module = importlib.import_module('model_modules.' + opts.model_module)
-data_provider_module = importlib.import_module('util.data.' + opts.data_provider_module)
-data_set_module = importlib.import_module('util.data.' + opts.data_set_module)
 
-def train_model(model, data):
+def train_model(**kwargs):
+    start = time.time()
+    model = kwargs.get('model')
+    data_provider = kwargs.get('data_provider')
+    logger = kwargs.get('logger')
+    path_run_dir = kwargs.get('path_run_dir')
+    n_iter = kwargs.get('n_iter')
+    iter_checkpoint = kwargs.get('iter_checkpoint', n_iter)
+    data_provider_nonchunk = kwargs.get('data_provider_nonchunk')
+
+    assert model is not None
+    assert data_provider is not None
+    assert path_run_dir is not None
+    assert n_iter is not None
+    print_fn = logger.info if logger is not None else print
+    
+    loss_log = util.SimpleLogger(('num_iter', 'loss', 'sources'),
+                               'num_iter: {:4d} | loss: {:.4f} | sources: {:s}')
+    df_checkpoints = pd.DataFrame()
+    path_checkpoint_dir = os.path.join(path_run_dir, 'checkpoint')
+    path_checkpoint_csv = os.path.join(path_checkpoint_dir, 'losses_checkpoint.csv')
+    for i in range(n_iter):
+        x, y = data_provider.get_batch()
+        loss = model.do_train_iter(x, y)
+        str_out = loss_log.add((
+            i,
+            loss,
+            data_provider.last_sources
+        ))
+        print_fn(str_out)
+        if ((i + 1) % iter_checkpoint == 0) or ((i + 1) == n_iter):
+            loss_log.save_csv(os.path.join(path_run_dir, 'loss_log.csv'))
+            model.save_checkpoint(os.path.join(path_run_dir, 'model.p'))
+            if data_provider_nonchunk is not None:
+                kwargs_checkpoint = dict(
+                    n_images = 4,
+                    save_images = True,
+                    path_save = path_checkpoint_dir,
+                )
+                data_provider_nonchunk.use_train_set()
+                losses_checkpoint = util.test_model(model, data_provider_nonchunk, **kwargs_checkpoint)
+                data_provider_nonchunk.use_test_set()
+                losses_checkpoint.update(util.test_model(model, data_provider_nonchunk, **kwargs_checkpoint))
+                losses_checkpoint['num_iter'] = i
+                df_checkpoints = pd.concat([df_checkpoints, pd.DataFrame([losses_checkpoint])], ignore_index=True)
+                df_checkpoints.to_csv(path_checkpoint_csv, index=False)
+    t_elapsed = time.time() - start
+    print_fn('total training time: {:.1f} s'.format(t_elapsed))
+    print(df_checkpoints)
+    
+def main():
     path_run_dir = os.path.join(opts.path_save_parent, opts.run_name)
     if not os.path.exists(path_run_dir):
         os.makedirs(path_run_dir)
+    path_run_log = os.path.join(path_run_dir, 'run.log')
+    
+    logger = logging.getLogger('model training')
+    logger.setLevel(logging.DEBUG)
+    fh = logging.FileHandler(path_run_log, mode='w')
+    sh = logging.StreamHandler(sys.stdout)
+    fh.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
+    logger.addHandler(fh)
+    logger.addHandler(sh)
+    warnings.showwarning = lambda *args, **kwargs : logger.warning(warnings.formatwarning(*args, **kwargs))
 
-    fo = open(os.path.join(path_run_dir, 'run.log'), 'w')
-    print(get_start_time(), file=fo)
-    print(vars(opts), file=fo)
-        
-    logger = util.SimpleLogger(('num_iter', 'loss', 'sources'),
-                               'num_iter: {:4d} | loss: {:.4f} | sources: {:s}')
-
-    start = time.time()
-    for i in range(opts.n_iter):
-        x, y = data.get_batch()
-        loss = model.do_train_iter(x, y)
-        str_out = logger.add((
-            i,
-            loss,
-            data.last_sources
-        ))
-        print(str_out, file=fo)
-        if ((i + 1) % opts.iter_checkpoint == 0) or ((i + 1) == opts.n_iter):
-            logger.save_csv(os.path.join(path_run_dir, 'log.csv'))
-            model.save_checkpoint(os.path.join(path_run_dir, 'model.p'))
-            
-    t_elapsed = time.time() - start
-    print('total training time: {:.1f} s'.format(t_elapsed), file=fo)
-    fo.close()
-
-def get_start_time():
-    now_dt = datetime.datetime.now(pytz.utc).astimezone(pytz.timezone('US/Pacific'))
-    return now_dt.strftime('%y-%m-%d %H:%M:%S')
-
-def main():
     np.random.seed(opts.seed)
     torch.manual_seed(opts.seed)
     torch.cuda.manual_seed(opts.seed)
 
     main_gpu_id = opts.gpu_ids if isinstance(opts.gpu_ids, int) else opts.gpu_ids[0]
     torch.cuda.set_device(main_gpu_id)
-    print('main GPU ID:', torch.cuda.current_device())
-
+    logger.info('main GPU ID: {:d}'.format(torch.cuda.current_device()))
+    
     if opts.resume_path is None:
         model = model_module.Model(lr=opts.lr, nn_module=opts.nn_module,
                                    gpu_ids=opts.gpu_ids
@@ -85,19 +112,34 @@ def main():
         model = model_module.Model(load_path=opts.resume_path,
                                    gpu_ids=opts.gpu_ids
         )
-    print(model)
+    logger.info(model)
+    dataset = util.data.load_dataset(opts.path_data)
+    logger.info(dataset)
     
-    dataset = util.data.functions.load_dataset(opts.path_data)
-    print(dataset)
-    
-    data_train = data_provider_module.DataProvider(
+    data_provider = util.data.ChunkDataProvider(
         dataset,
         buffer_size=opts.buffer_size,
         batch_size=opts.batch_size,
         replace_interval=opts.replace_interval,
     )
-    train_model(model, data_train)
-
+    
+    dims_cropped = (32, '/16', '/16')
+    cropper = util.data.transforms.Cropper(dims_cropped, offsets=('mid', 0, 0))
+    transforms_nonchunk = (cropper, cropper)
+    data_provider_nonchunk = util.data.TestImgDataProvider(
+        dataset,
+        transforms=transforms_nonchunk,
+    )
+    
+    kwargs = dict(
+        model = model,
+        data_provider = data_provider,
+        data_provider_nonchunk = data_provider_nonchunk,
+        logger = logger,
+        path_run_dir = path_run_dir,
+    )
+    kwargs.update(vars(opts))
+    train_model(**kwargs)
     
 if __name__ == '__main__':
     main()
