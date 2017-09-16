@@ -1,14 +1,22 @@
 import aicsimage.io as io
+import os
 
 class CziReader(object):
-    def __init__(self, file_path):
+    def __init__(self, path_czi):
         super().__init__()
         # Currently, expect to deal only with CZI files where 'B' and '0' dimensions are size 1
-        self.czi_reader = io.cziReader.CziReader(file_path)
+        self.czi_reader = io.cziReader.CziReader(path_czi)
         self.czi_np = self.czi_reader.czi.asarray()
         self._check_czi()
         self.axes = ''.join(map(chr, self.czi_reader.czi.axes))
-        print('CZI axes: {} | shape: {}'.format(self.axes, self.czi_np.shape))
+        path_basename = os.path.basename(path_czi)
+        # print('{} | axes: {} | shape: {} | dtype: {}'.format(
+        #     path_basename,
+        #     self.axes,
+        #     self.czi_np.shape,
+        #     self.czi_np.dtype)
+        # )
+        self.metadata = self.czi_reader.get_metadata()
 
     def get_size(self, dim_sel):
         dim = -1
@@ -26,17 +34,20 @@ class CziReader(object):
             if dim_label not in b'TCZYX':
                 assert self.czi_np.shape[i] == 1
 
-    def get_volume(self, chan):
+    def get_volume(self, chan, time_slice=None):
         """Returns the image volume for the specified channel."""
         if self.czi_reader.hasTimeDimension:
-            raise NotImplementedError  # TODO: handle case of CZI images with T dimension
+            assert time_slice is not None
         slices = []
         for i in range(len(self.czi_reader.czi.axes)):
             dim_label = self.czi_reader.czi.axes[i]
             if dim_label in b'C':
                 slices.append(chan)
+            elif dim_label in b'T':
+                slices.append(time_slice)
             elif dim_label in b'ZYX':
                 slices.append(slice(None))
             else:
                 slices.append(0)
         return self.czi_np[slices]
+    
