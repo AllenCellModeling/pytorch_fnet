@@ -1,8 +1,8 @@
 import numpy as np
-from util.misc import get_vol_transformed
+from util import get_vol_transformed
 import pdb
 
-class MultiFileDataProvider(object):
+class ChunkDataProvider(object):
     def __init__(self, dataset, buffer_size, batch_size, replace_interval,
                  dims_chunk=(32, 64, 64), dims_pin=(None, None, None),
                  transforms=None):
@@ -162,6 +162,3 @@ class MultiFileDataProvider(object):
             self._replace_buffer_item()
             self._update_last_sources()
         return self._gen_batch()
-
-DataProvider = MultiFileDataProvider  # to fit with the train_model API
-
