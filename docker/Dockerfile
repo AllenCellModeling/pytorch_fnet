@@ -1,4 +1,4 @@
-from pytorch-cudnnv6
+FROM pytorch-cudnnv6
 
 RUN apt update
 RUN apt install -y vim
@@ -13,12 +13,13 @@ RUN pip install torchvision
 RUN pip install pandas
 RUN pip install requests
 
+# additional aicsimage reqs
+RUN pip install scikit-image
+RUN pip install nose
+RUN pip install tifffile
+
 # Jupyter Notebook config
 COPY jupyter_notebook_config.py /root/.jupyter/
 EXPOSE 9998
-
-# Install aicsimage reqs
-# ADD ./aicsimage/requirements.txt /root/tmp/aicsimage_reqs.txt
-# RUN pip install -r /root/tmp/aicsimage_reqs.txt
 
 WORKDIR "/root/projects/ttf"
