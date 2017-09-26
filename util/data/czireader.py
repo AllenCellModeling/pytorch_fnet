@@ -36,15 +36,13 @@ class CziReader(object):
 
     def get_volume(self, chan, time_slice=None):
         """Returns the image volume for the specified channel."""
-        if self.czi_reader.hasTimeDimension:
-            assert time_slice is not None
         slices = []
         for i in range(len(self.czi_reader.czi.axes)):
             dim_label = self.czi_reader.czi.axes[i]
             if dim_label in b'C':
                 slices.append(chan)
             elif dim_label in b'T':
-                slices.append(time_slice)
+                slices.append(0)
             elif dim_label in b'ZYX':
                 slices.append(slice(None))
             else:
