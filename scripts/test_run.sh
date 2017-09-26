@@ -2,7 +2,7 @@
 
 N_ITER=10
 BUFFER_SIZE=1
-RUN_NAME=TMP
+RUN_NAME="TEST"
 PATH_DATA_TRAIN="data/lamin_b1_train.csv"
 PATH_DATA_TEST="data/lamin_b1_test.csv"
 
