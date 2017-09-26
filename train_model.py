@@ -3,6 +3,7 @@ import argparse
 import importlib
 import util
 import util.data
+import util.data.transforms
 import pandas as pd
 import numpy as np
 import torch
@@ -15,7 +16,8 @@ import warnings
 parser = argparse.ArgumentParser()
 parser.add_argument('--batch_size', type=int, default=24, help='size of each batch')
 parser.add_argument('--buffer_size', type=int, default=5, help='number of images to cache in memory')
-parser.add_argument('--path_data', default='data', help='path to data directory')
+parser.add_argument('--path_data_train', help='path to training set csv')
+parser.add_argument('--path_data_test', help='path to test set csv')
 parser.add_argument('--gpu_ids', type=int, nargs='+', default=0, help='GPU ID')
 parser.add_argument('--iter_checkpoint', type=int, default=500, help='iterations between saving log/model checkpoints')
 parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
@@ -23,9 +25,8 @@ parser.add_argument('--model_module', default='ttf_model', help='name of the mod
 parser.add_argument('--n_iter', type=int, default=500, help='number of training iterations')
 parser.add_argument('--nn_module', default='ttf_v8_nn', help='name of neural network module')
 parser.add_argument('--replace_interval', type=int, default=-1, help='iterations between replacements of images in cache')
-parser.add_argument('--resume_path', help='path to saved model to resume training')
 parser.add_argument('--run_name', required=True, help='name of run')
-parser.add_argument('--path_save_parent', default='saved_models', help='base directory for saved models')
+parser.add_argument('--path_save_dir', default='saved_models', help='base directory for saved models')
 parser.add_argument('--seed', type=int, default=666, help='random seed')
 opts = parser.parse_args()
 
@@ -82,7 +83,7 @@ def train_model(**kwargs):
     print(df_checkpoints)
     
 def main():
-    path_run_dir = os.path.join(opts.path_save_parent, opts.run_name)
+    path_run_dir = os.path.join(opts.path_save_dir, opts.run_name)
     if not os.path.exists(path_run_dir):
         os.makedirs(path_run_dir)
     path_run_log = os.path.join(path_run_dir, 'run.log')
@@ -104,16 +105,27 @@ def main():
     torch.cuda.set_device(main_gpu_id)
     logger.info('main GPU ID: {:d}'.format(torch.cuda.current_device()))
     
-    if opts.resume_path is None:
-        model = model_module.Model(lr=opts.lr, nn_module=opts.nn_module,
-                                   gpu_ids=opts.gpu_ids
-        )
-    else:
-        model = model_module.Model(load_path=opts.resume_path,
-                                   gpu_ids=opts.gpu_ids
-        )
+    model = model_module.Model(lr=opts.lr, nn_module=opts.nn_module,
+                               gpu_ids=opts.gpu_ids
+    )
+        
     logger.info(model)
-    dataset = util.data.load_dataset(opts.path_data)
+
+    # create dataset
+    df_train = pd.read_csv(opts.path_data_train)
+    df_test = pd.read_csv(opts.path_data_test)
+    z_fac = 0.97
+    xy_fac = 0.5
+    resize_factors = (z_fac, xy_fac, xy_fac)
+    resizer = util.data.transforms.Resizer(resize_factors)
+    signal_transforms = (resizer, util.data.transforms.sub_mean_norm)
+    target_transforms = (resizer, util.data.transforms.sub_mean_norm)
+    transforms = (signal_transforms, target_transforms)
+    dataset = util.data.DataSet(
+        df_train=df_train,
+        df_test=df_test,
+        transforms=transforms,  # TODO
+    )
     logger.info(dataset)
     
     data_provider = util.data.ChunkDataProvider(
