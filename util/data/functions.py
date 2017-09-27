@@ -1,9 +1,8 @@
 import pickle
 import os
 from util.data.czireader import CziReader
-from util.data.dataset1 import DataSet as DataSet1
-from util.data.dataset2 import DataSet2
 from util.data.dataset import DataSet
+import util.data.transforms
 import pdb
 import pandas as pd
 
@@ -275,19 +274,29 @@ def save_dataset(path_save, dataset):
         pickle.dump(package, fo)
         print('saved dataset to:', path_save)
 
-def load_dataset(path_load):
-    with open(path_load, 'rb') as fin:
-        package = pickle.load(fin)
-    if isinstance(package, DataSet):
-        dataset = package
-        print('loaded dataset from:', path_load)
-    elif isinstance(package, dict):
-        if '_df_test' in package:
-            dataset = DataSet2(path_load=path_load)
-            assert isinstance(dataset, DataSet2)
-        else:
-            dataset = DataSet1(path_load=path_load)
-            assert isinstance(dataset, DataSet1)
-    else:
-        raise NotImplementedError
+def load_dataset(
+        path_data_train,
+        path_data_test,
+        z_scale = 0.3,
+        xy_scale = 0.3,
+        name_signal_transform = 'sub_mean_norm',
+        name_target_transform = 'sub_mean_norm',
+):
+    from util.data.transforms import Resizer  # TODO
+    df_train = pd.read_csv(path_data_train)
+    df_test = pd.read_csv(path_data_test)
+    z_fac = 0.97  # TODO
+    xy_fac = 0.5
+    resize_factors = (z_fac, xy_fac, xy_fac)
+    resizer = Resizer(resize_factors)
+    signal_transforms = [resizer]  # TODO
+    target_transforms = [resizer]
+    signal_transforms.append(getattr(util.data.transforms, name_signal_transform))
+    target_transforms.append(getattr(util.data.transforms, name_target_transform))
+    transforms = (signal_transforms, target_transforms)
+    dataset = util.data.DataSet(
+        df_train=df_train,
+        df_test=df_test,
+        transforms=transforms,
+    )
     return dataset

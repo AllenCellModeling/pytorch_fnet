@@ -11,6 +11,7 @@ import pdb
 import time
 import logging
 import sys
+import shutil
 import warnings
 
 parser = argparse.ArgumentParser()
@@ -21,7 +22,7 @@ parser.add_argument('--path_data_test', help='path to test set csv')
 parser.add_argument('--gpu_ids', type=int, nargs='+', default=0, help='GPU ID')
 parser.add_argument('--iter_checkpoint', type=int, default=500, help='iterations between saving log/model checkpoints')
 parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
-parser.add_argument('--model_module', default='ttf_model', help='name of the model module')
+parser.add_argument('--model_module', default='fnet_model', help='name of the model module')
 parser.add_argument('--n_iter', type=int, default=500, help='number of training iterations')
 parser.add_argument('--nn_module', default='ttf_v8_nn', help='name of neural network module')
 parser.add_argument('--replace_interval', type=int, default=-1, help='iterations between replacements of images in cache')
@@ -64,7 +65,7 @@ def train_model(**kwargs):
         print_fn(str_out)
         if ((i + 1) % iter_checkpoint == 0) or ((i + 1) == n_iter):
             loss_log.save_csv(os.path.join(path_run_dir, 'loss_log.csv'))
-            model.save_checkpoint(os.path.join(path_run_dir, 'model.p'))
+            model.save_state(os.path.join(path_run_dir, 'model.p'))
             if data_provider_nonchunk is not None:
                 kwargs_checkpoint = dict(
                     n_images = 4,
@@ -127,6 +128,8 @@ def main():
         transforms=transforms,  # TODO
     )
     logger.info(dataset)
+    shutil.copyfile(opts.path_data_train, os.path.join(path_run_dir, os.path.basename(opts.path_data_train)))
+    shutil.copyfile(opts.path_data_test, os.path.join(path_run_dir, os.path.basename(opts.path_data_test)))
     
     data_provider = util.data.ChunkDataProvider(
         dataset,
