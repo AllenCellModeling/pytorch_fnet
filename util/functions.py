@@ -58,6 +58,19 @@ def save_img_np(img_np, path):
         fo.save(img_np)
         print('saved tif:', path)
 
+def save_run_state(path_save, loss_log):
+    dict_state = dict(
+        loss_log = loss_log
+    )
+    torch.save(dict_state, path_save)
+    print('run state saved to:', path_save)
+
+def load_run_state(path_load):
+    dict_state = torch.load(path_load)
+    loss_log = dict_state['loss_log']
+    print('run state loaded from:', path_load)
+    return loss_log
+
 def get_losses_norm(prediction, target):
     l1_norm = np.sum(np.absolute(target))
     l2_norm = np.sum(np.square(target))
