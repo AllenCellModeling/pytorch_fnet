@@ -1,5 +1,5 @@
 import numpy as np
-from util import get_vol_transformed
+from fnet import get_vol_transformed
 import pdb
 
 class ChunkDataProvider(object):

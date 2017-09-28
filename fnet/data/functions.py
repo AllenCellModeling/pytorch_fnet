@@ -1,8 +1,8 @@
 import pickle
 import os
-from util.data.czireader import CziReader
-from util.data.dataset import DataSet
-import util.data.transforms
+from fnet.data.czireader import CziReader
+from fnet.data.dataset import DataSet
+import fnet.data.transforms
 import pdb
 import pandas as pd
 
@@ -282,7 +282,7 @@ def load_dataset(
         name_signal_transform = 'sub_mean_norm',
         name_target_transform = 'sub_mean_norm',
 ):
-    from util.data.transforms import Resizer  # TODO
+    from fnet.data.transforms import Resizer  # TODO
     df_train = pd.read_csv(path_data_train)
     df_test = pd.read_csv(path_data_test)
     z_fac = 0.97  # TODO
@@ -291,10 +291,10 @@ def load_dataset(
     resizer = Resizer(resize_factors)
     signal_transforms = [resizer]  # TODO
     target_transforms = [resizer]
-    signal_transforms.append(getattr(util.data.transforms, name_signal_transform))
-    target_transforms.append(getattr(util.data.transforms, name_target_transform))
+    signal_transforms.append(getattr(fnet.data.transforms, name_signal_transform))
+    target_transforms.append(getattr(fnet.data.transforms, name_target_transform))
     transforms = (signal_transforms, target_transforms)
-    dataset = util.data.DataSet(
+    dataset = fnet.data.DataSet(
         df_train=df_train,
         df_test=df_test,
         transforms=transforms,

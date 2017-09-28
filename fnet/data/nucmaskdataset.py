@@ -1,5 +1,5 @@
 import pdb
-from util.data.dataset import DataSet as _DataSet
+from fnet.data.dataset import DataSet as _DataSet
 import numpy as np
 
 class NucMaskDataSet(_DataSet):

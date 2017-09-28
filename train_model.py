@@ -1,9 +1,9 @@
 import os
 import argparse
 import importlib
-import util
-import util.data
-import util.data.transforms
+import fnet
+import fnet.data
+import fnet.data.transforms
 import pandas as pd
 import numpy as np
 import torch
@@ -36,9 +36,9 @@ def train_model(**kwargs):
     path_existing_run_state = os.path.join(path_run_dir, 'run_state.p')
     if os.path.exists(path_existing_model) and os.path.exists(path_existing_run_state):
         model.load_state(path_existing_model)
-        loss_log = util.load_run_state(path_existing_run_state)
+        loss_log = fnet.load_run_state(path_existing_run_state)
     else:
-        loss_log = util.SimpleLogger(
+        loss_log = fnet.SimpleLogger(
             ('num_iter', 'loss', 'sources'),
             'num_iter: {:4d} | loss: {:.4f} | sources: {:s}',
         )
@@ -59,7 +59,7 @@ def train_model(**kwargs):
             path_checkpoint_dir = os.path.join(path_run_dir, 'output_{:05d}'.format(i + 1))
             loss_log.save_csv(os.path.join(path_run_dir, 'loss_log.csv'))
             model.save_state(os.path.join(path_run_dir, 'model.p'))
-            util.save_run_state(os.path.join(path_run_dir, 'run_state.p'), loss_log)
+            fnet.save_run_state(os.path.join(path_run_dir, 'run_state.p'), loss_log)
             if data_provider_nonchunk is not None:
                 kwargs_checkpoint = dict(
                     n_images = 4,
@@ -67,9 +67,9 @@ def train_model(**kwargs):
                     path_save = path_checkpoint_dir,
                 )
                 data_provider_nonchunk.use_train_set()
-                losses_checkpoint = util.test_model(model, data_provider_nonchunk, **kwargs_checkpoint)
+                losses_checkpoint = fnet.test_model(model, data_provider_nonchunk, **kwargs_checkpoint)
                 data_provider_nonchunk.use_test_set()
-                losses_checkpoint.update(util.test_model(model, data_provider_nonchunk, **kwargs_checkpoint))
+                losses_checkpoint.update(fnet.test_model(model, data_provider_nonchunk, **kwargs_checkpoint))
                 losses_checkpoint['num_iter'] = i
                 df_checkpoints = pd.concat([df_checkpoints, pd.DataFrame([losses_checkpoint])], ignore_index=True)
                 df_checkpoints.to_csv(os.path.join(path_checkpoint_dir, 'losses_checkpoint.csv'), index=False)
@@ -128,11 +128,11 @@ def main():
     z_fac = 0.97
     xy_fac = 0.5
     resize_factors = (z_fac, xy_fac, xy_fac)
-    resizer = util.data.transforms.Resizer(resize_factors)
-    signal_transforms = (resizer, util.data.transforms.sub_mean_norm)
-    target_transforms = (resizer, util.data.transforms.sub_mean_norm)
+    resizer = fnet.data.transforms.Resizer(resize_factors)
+    signal_transforms = (resizer, fnet.data.transforms.sub_mean_norm)
+    target_transforms = (resizer, fnet.data.transforms.sub_mean_norm)
     transforms = (signal_transforms, target_transforms)
-    dataset = util.data.DataSet(
+    dataset = fnet.data.DataSet(
         df_train=df_train,
         df_test=df_test,
         transforms=transforms,  # TODO
@@ -141,7 +141,7 @@ def main():
     shutil.copyfile(opts.path_data_train, os.path.join(opts.path_run_dir, os.path.basename(opts.path_data_train)))
     shutil.copyfile(opts.path_data_test, os.path.join(opts.path_run_dir, os.path.basename(opts.path_data_test)))
     
-    data_provider = util.data.ChunkDataProvider(
+    data_provider = fnet.data.ChunkDataProvider(
         dataset,
         buffer_size=opts.buffer_size,
         batch_size=opts.batch_size,
@@ -149,9 +149,9 @@ def main():
     )
     
     dims_cropped = (32, '/16', '/16')
-    cropper = util.data.transforms.Cropper(dims_cropped, offsets=('mid', 0, 0))
+    cropper = fnet.data.transforms.Cropper(dims_cropped, offsets=('mid', 0, 0))
     transforms_nonchunk = (cropper, cropper)
-    data_provider_nonchunk = util.data.TestImgDataProvider(
+    data_provider_nonchunk = fnet.data.TestImgDataProvider(
         dataset,
         transforms=transforms_nonchunk,
     )

@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from util import find_z_of_max_slice
+from fnet import find_z_of_max_slice
 import os
 import pdb
 
@@ -150,4 +150,4 @@ def display_eval_images(
         plt.close(fig)
     
 if __name__ == '__main__':
-    print('util.display')
+    print('fnet.display')

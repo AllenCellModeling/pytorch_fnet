@@ -1,6 +1,6 @@
 import numpy as np
 import scipy
-from util import pad_mirror
+from fnet import pad_mirror
 import warnings
 import pdb
 

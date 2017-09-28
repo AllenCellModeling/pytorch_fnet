@@ -1,8 +1,8 @@
 import argparse
 import importlib
-import util
-import util.data
-import util.display
+import fnet
+import fnet.data
+import fnet.display
 import numpy as np
 import os
 import torch
@@ -31,8 +31,8 @@ def test_display(model, data):
         if model is not None:
             y_pred[:] = model.predict(x_test)
         sources = (x_test, y_true, y_pred)
-        z_max = util.find_z_of_max_slice(x_test[0, 0, ])
-        util.display.display_visual_eval_images(sources,
+        z_max = fnet.find_z_of_max_slice(x_test[0, 0, ])
+        fnet.display.display_visual_eval_images(sources,
                                                 z_display=z_max,
                                                 titles=titles,
                                                 vmins=None,
@@ -45,10 +45,10 @@ def test_display(model, data):
                 img = source[0, 0, ].astype(np.float32)
                 path_img = os.path.join(path_base, 'img_{:02d}_{:s}.tif'.format(i, titles[idx]))
                 print('saving to:', path_img)
-                util.save_img_np(img, path_img)
+                fnet.save_img_np(img, path_img)
         if opts.save_each_slice:
             dir_save = 'presentation/' + ('test' if not opts.use_train_set else 'train') + '_{:02d}'.format(i)
-            util.display.save_image_stacks(dir_save, (x_test, y_true, y_pred))
+            fnet.display.save_image_stacks(dir_save, (x_test, y_true, y_pred))
         if (opts.n_images is not None) and (i == (opts.n_images - 1)):
             break
     
@@ -62,13 +62,13 @@ def main():
     train_select = opts.use_train_set
 
     # load test dataset
-    dataset = util.data.NucMaskDataSet(opts.data_path, train_select=train_select)
+    dataset = fnet.data.NucMaskDataSet(opts.data_path, train_select=train_select)
     print(dataset)
 
     # dims_chunk = (32, 224, 224)
     dims_chunk = (32, 208, 208)
     dims_pin = (0, 0, 0)
-    data_test = util.data.TestImgDataProvider(dataset, dims_chunk=dims_chunk, dims_pin=dims_pin)
+    data_test = fnet.data.TestImgDataProvider(dataset, dims_chunk=dims_chunk, dims_pin=dims_pin)
     
     # load model
     model = None

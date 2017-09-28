@@ -1,6 +1,6 @@
 import pdb
 import numpy as np
-from util import get_vol_transformed
+from fnet import get_vol_transformed
 
 # For each element in a dataset, provides 1 "batch" of size 1.
 class TestImgDataProvider(object):

@@ -1,7 +1,7 @@
 import argparse
 import importlib
-import util.data
-import util.display
+import fnet.data
+import fnet.display
 import numpy as np
 import os
 import torch
@@ -55,7 +55,7 @@ def test_display(model, data):
             path_dirname = os.path.dirname(path_save_pre)
             if not os.path.exists(path_dirname):
                 os.makedirs(path_dirname)
-            util.display.display_visual_eval_images(sources,
+            fnet.display.display_visual_eval_images(sources,
                                                     z_selector=z_selector,
                                                     titles=titles,
                                                     vmins=vmins,
@@ -73,9 +73,9 @@ def test_display(model, data):
             name_trans = name_pre + 'trans' + name_post
             name_dna = name_pre + 'dna' + name_post
             name_pred = name_pre + 'prediction' + name_post
-            util.save_img_np(img_trans, name_trans)
-            util.save_img_np(img_dna, name_dna)
-            util.save_img_np(img_pred, name_pred)
+            fnet.save_img_np(img_trans, name_trans)
+            fnet.save_img_np(img_dna, name_dna)
+            fnet.save_img_np(img_pred, name_pred)
 
         # means_bf.append(np.mean(x_test[0, 0, z_selector, ]))
         # means_pred.append(np.mean(y_pred[0, 0, z_selector, ]))
@@ -99,13 +99,13 @@ def main():
     train_select = opts.use_train_set
 
     # load test dataset
-    dataset = util.data.DataSet(opts.data_path, train_select=train_select)
+    dataset = fnet.data.DataSet(opts.data_path, train_select=train_select)
     print(dataset)
 
     dims_chunk = (32, 208, 208)
     # dims_chunk = (48, 224, 320)
     dims_pin = (0, 0, 0)
-    data_test = util.data.TestImgDataProvider(dataset, dims_chunk=dims_chunk, dims_pin=dims_pin)
+    data_test = fnet.data.TestImgDataProvider(dataset, dims_chunk=dims_chunk, dims_pin=dims_pin)
     
     # load model
     model = None

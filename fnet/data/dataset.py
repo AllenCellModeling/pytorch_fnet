@@ -1,12 +1,12 @@
 import os
 import pickle
 import numpy as np
-from util import get_vol_transformed
+from fnet import get_vol_transformed
 import pandas as pd
 import pdb
 import collections
 import warnings
-from util.data.czireader import CziReader
+from fnet.data.czireader import CziReader
 
 class DataSet(object):
     def __init__(self,

@@ -5,7 +5,6 @@ import pickle
 import time
 import importlib
 import pdb
-# from util.misc import save_img_np
 
 class Model(object):
     def __init__(self, load_path=None, lr=0.0001,

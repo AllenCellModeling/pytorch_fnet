@@ -1,10 +1,10 @@
 import argparse
 import tifffile
 import numpy as np
-import util
-import util.data
-import util.data.transforms
-import util.data.functions
+import fnet
+import fnet.data
+import fnet.data.transforms
+import fnet.data.functions
 import model_modules.ttf_model
 import os
 import subprocess
@@ -222,10 +222,10 @@ def get_dataset(path_source):
         z_fac = 0.97
         xy_fac = 0.217  # timelapse czis; original scale 0.065 um/px
         resize_factors = (z_fac, xy_fac, xy_fac)
-        resizer = util.data.transforms.Resizer(resize_factors)
-        transforms = ((resizer, util.data.transforms.sub_mean_norm),
-                      (resizer, util.data.transforms.sub_mean_norm))
-        dataset = util.data.functions.create_dataset(
+        resizer = fnet.data.transforms.Resizer(resize_factors)
+        transforms = ((resizer, fnet.data.transforms.sub_mean_norm),
+                      (resizer, fnet.data.transforms.sub_mean_norm))
+        dataset = fnet.data.functions.create_dataset(
             path_source=path_source,
             name_signal='bf',
             name_target='struct',
@@ -233,16 +233,16 @@ def get_dataset(path_source):
             transforms=transforms,
         )
     else:
-        dataset = util.data.functions.load_dataset(path_source)
+        dataset = fnet.data.functions.load_dataset(path_source)
     dataset.use_test_set()
     return dataset
 
     
 def predict_multi_model(dataset, indices, path_base_save='test_output/gic/tmp', save_rgb=False):
     dims_cropped = (32, '/16', '/16')
-    cropper = util.data.transforms.Cropper(dims_cropped, offsets=('mid', 0, 0))
+    cropper = fnet.data.transforms.Cropper(dims_cropped, offsets=('mid', 0, 0))
     transforms = (cropper, cropper)
-    data_test = util.data.TestImgDataProvider(dataset, transforms)
+    data_test = fnet.data.TestImgDataProvider(dataset, transforms)
     
     gic = GhettoIntegratedCells(paths_models)
     

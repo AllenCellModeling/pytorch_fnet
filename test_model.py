@@ -1,9 +1,9 @@
 import argparse
 import importlib
-import util
-import util.data
-import util.data.transforms
-import util.data
+import fnet
+import fnet.data
+import fnet.data.transforms
+import fnet.data
 import pandas as pd
 import os
 import warnings
@@ -27,7 +27,7 @@ def get_df_models(opts):
             assert os.path.isdir(opts.path_source)
             model_info = {}
             for entry in os.scandir(opts.path_source):
-                if entry.path.lower().endswith('.p'):
+                if entry.path.lower().endswith('model.p'):
                     model_info['path_model'] = [entry.path]
                 elif entry.path.lower().endswith('.csv'):
                     if 'train' in os.path.basename(entry.path):
@@ -64,15 +64,15 @@ def main():
     results_list = []
     for idx, model_info in df_models.iterrows():
         # load test dataset
-        dataset = util.data.functions.load_dataset(
+        dataset = fnet.data.functions.load_dataset(
             path_data_train = model_info['path_data_train'],
             path_data_test = model_info['path_data_test'],
         )
         print(dataset)
         dims_cropped = (32, '/16', '/16')
-        cropper = util.data.transforms.Cropper(dims_cropped, offsets=('mid', 0, 0))
+        cropper = fnet.data.transforms.Cropper(dims_cropped, offsets=('mid', 0, 0))
         transforms = (cropper, cropper)
-        dataprovider = util.data.TestImgDataProvider(dataset, transforms)
+        dataprovider = fnet.data.TestImgDataProvider(dataset, transforms)
 
         # load model
         model = None
@@ -82,9 +82,9 @@ def main():
         print('model:', model)
         dataprovider.use_test_set()
 
-        losses_test = pd.Series(util.test_model(model, dataprovider, **vars(opts)))
+        losses_test = pd.Series(fnet.test_model(model, dataprovider, **vars(opts)))
         dataprovider.use_train_set()
-        losses_train = pd.Series(util.test_model(model, dataprovider, **vars(opts)))
+        losses_train = pd.Series(fnet.test_model(model, dataprovider, **vars(opts)))
         
         results_entry = pd.concat([model_info, losses_test, losses_train])
         results_list.append(results_entry)
