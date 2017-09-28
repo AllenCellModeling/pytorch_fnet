@@ -12,6 +12,7 @@ import time
 import logging
 import sys
 import shutil
+import json
 import warnings
 
 parser = argparse.ArgumentParser()
@@ -26,8 +27,7 @@ parser.add_argument('--model_module', default='fnet_model', help='name of the mo
 parser.add_argument('--n_iter', type=int, default=500, help='number of training iterations')
 parser.add_argument('--nn_module', default='ttf_v8_nn', help='name of neural network module')
 parser.add_argument('--replace_interval', type=int, default=-1, help='iterations between replacements of images in cache')
-parser.add_argument('--run_name', required=True, help='name of run')
-parser.add_argument('--path_save_dir', default='saved_models', help='base directory for saved models')
+parser.add_argument('--path_run_dir', default='saved_models', help='base directory for saved models')
 parser.add_argument('--seed', type=int, default=666, help='random seed')
 opts = parser.parse_args()
 
@@ -84,14 +84,12 @@ def train_model(**kwargs):
     print(df_checkpoints)
     
 def main():
-    path_run_dir = os.path.join(opts.path_save_dir, opts.run_name)
-    if not os.path.exists(path_run_dir):
-        os.makedirs(path_run_dir)
-    path_run_log = os.path.join(path_run_dir, 'run.log')
+    if not os.path.exists(opts.path_run_dir):
+        os.makedirs(opts.path_run_dir)
     
     logger = logging.getLogger('model training')
     logger.setLevel(logging.DEBUG)
-    fh = logging.FileHandler(path_run_log, mode='w')
+    fh = logging.FileHandler(os.path.join(opts.path_run_dir, 'run.log'), mode='w')
     sh = logging.StreamHandler(sys.stdout)
     fh.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
     logger.addHandler(fh)
@@ -109,7 +107,6 @@ def main():
     model = model_module.Model(lr=opts.lr, nn_module=opts.nn_module,
                                gpu_ids=opts.gpu_ids
     )
-        
     logger.info(model)
 
     # create dataset
@@ -128,8 +125,8 @@ def main():
         transforms=transforms,  # TODO
     )
     logger.info(dataset)
-    shutil.copyfile(opts.path_data_train, os.path.join(path_run_dir, os.path.basename(opts.path_data_train)))
-    shutil.copyfile(opts.path_data_test, os.path.join(path_run_dir, os.path.basename(opts.path_data_test)))
+    shutil.copyfile(opts.path_data_train, os.path.join(opts.path_run_dir, os.path.basename(opts.path_data_train)))
+    shutil.copyfile(opts.path_data_test, os.path.join(opts.path_run_dir, os.path.basename(opts.path_data_test)))
     
     data_provider = util.data.ChunkDataProvider(
         dataset,
@@ -145,13 +142,16 @@ def main():
         dataset,
         transforms=transforms_nonchunk,
     )
-    
+
+    opts_dict = vars(opts)
+    with open(os.path.join(opts.path_run_dir, 'train_options.json'), 'w') as fo:
+        json.dump(opts_dict, fo, indent=4, sort_keys=True)
+
     kwargs = dict(
         model = model,
         data_provider = data_provider,
         data_provider_nonchunk = data_provider_nonchunk,
         logger = logger,
-        path_run_dir = path_run_dir,
     )
     kwargs.update(vars(opts))
     train_model(**kwargs)
