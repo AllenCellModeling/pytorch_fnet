@@ -125,17 +125,13 @@ def main():
     # create dataset
     df_train = pd.read_csv(opts.path_data_train)
     df_test = pd.read_csv(opts.path_data_test)
-    z_fac = 0.97
-    xy_fac = 0.5
-    resize_factors = (z_fac, xy_fac, xy_fac)
-    resizer = fnet.data.transforms.Resizer(resize_factors)
-    signal_transforms = (resizer, fnet.data.transforms.sub_mean_norm)
-    target_transforms = (resizer, fnet.data.transforms.sub_mean_norm)
+    signal_transforms = [fnet.data.transforms.sub_mean_norm]
+    target_transforms = [fnet.data.transforms.sub_mean_norm]
     transforms = (signal_transforms, target_transforms)
     dataset = fnet.data.DataSet(
         df_train=df_train,
         df_test=df_test,
-        transforms=transforms,  # TODO
+        transforms=transforms,
     )
     logger.info(dataset)
     shutil.copyfile(opts.path_data_train, os.path.join(opts.path_run_dir, os.path.basename(opts.path_data_train)))

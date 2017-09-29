@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -v
 
 N_ITER=20
 BUFFER_SIZE=1
@@ -8,6 +8,7 @@ PATH_DATA_TEST="data/lamin_b1_test.csv"
 
 cd $(cd "$(dirname ${BASH_SOURCE})" && pwd)/..
 
+rm -r $RUN_DIR
 python train_model.py \
        --n_iter ${N_ITER} \
        --buffer_size ${BUFFER_SIZE} \

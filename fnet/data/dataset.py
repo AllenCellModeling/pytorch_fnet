@@ -7,34 +7,42 @@ import pdb
 import collections
 import warnings
 from fnet.data.czireader import CziReader
+from fnet.data.transforms import Resizer
 
 class DataSet(object):
     def __init__(self,
                  df_train,
                  df_test,
+                 scale_z = 0.3,
+                 scale_xy = 0.3,
                  transforms=None):
         """Create dataset from train/test DataFrames.
         
+        Parameters:
         df_train - pandas.DataFrame, where each row is a DataSet element
         df_test - pandas.DataFrame, same columns as above
+        scale_z - desired um/px size for z-dimension
+        scale_xy - desired um/px size for x, y dimensions
         transforms - list/tuple of transforms, where each element is a transform or transform list to be applied
                      to a component of a DataSet element
         """
-        self._df_train = df_train
-        self._df_test = df_test
-        self._transforms = transforms
+        self.df_train = df_train
+        self.df_test = df_test
+        self.scale_z = scale_z
+        self.scale_xy = scale_xy
+        self.transforms = transforms
         self._train_select = True
-        self._df_active = self._df_train
+        self._df_active = self.df_train
         self._czi = None
         self._last_loaded = None
 
     def use_train_set(self):
         self._train_select = True
-        self._df_active = self._df_train
+        self._df_active = self.df_train
         
     def use_test_set(self):
         self._train_select = False
-        self._df_active = self._df_test
+        self._df_active = self.df_test
 
     def is_timelapse(self):
         return 'time_slice' in self._df_active.columns
@@ -66,12 +74,24 @@ class DataSet(object):
             try:
                 self._czi = CziReader(path)
                 self._last_loaded = path
-            except:
+            except Exception as e:
                 warnings.warn('could not read file: {}'.format(path))
+                warnings.warn(str(e))
                 return None
         time_slice = None
         if 'time_slice' in self._df_active.columns:
             time_slice = self._df_active['time_slice'].iloc[idx]
+        if self.scale_z is not None or self.scale_xy is not None:
+            dict_scales = self._czi.get_scales()
+            scales_orig = [dict_scales.get(dim) for dim in 'zyx']
+            if None in scales_orig:
+                warnings.warn('bad pixel scales in {:s} | scales: {:s}'.format(path, str(scales_orig)))
+                return None
+            scales_wanted = [self.scale_z, self.scale_xy, self.scale_xy]
+            factors_resize = list(map(lambda a, b : a/b if None not in (a, b) else 1.0, scales_orig, scales_wanted))
+            resizer = Resizer(factors_resize)
+        else:
+            resizer = None
         volumes = []
         for i in range(len(sels)):
             if sels[i] == 0:
@@ -79,14 +99,22 @@ class DataSet(object):
             else:
                 chan = self._df_active['channel_target'].iloc[idx]
             volume_pre = self._czi.get_volume(chan, time_slice=time_slice)
-            if self._transforms is None or not apply_transforms:
+            if not apply_transforms:
                 volumes.append(volume_pre)
             else:
-                volumes.append(get_vol_transformed(volume_pre, self._transforms[sels[i]]))
+                transforms = []
+                if resizer is not None:
+                    transforms.append(resizer)
+                if self.transforms is not None:
+                    if isinstance(self.transforms[sels[i]], collections.Iterable):
+                        transforms.extend(self.transforms[sels[i]])
+                    else:
+                        transforms.append(self.transforms[sels[i]])
+                volumes.append(get_vol_transformed(volume_pre, transforms))
         return volumes[0] if isinstance(sel, int) else volumes
 
     def __repr__(self):
-        return 'DataSet({:d} train elements, {:d} test elements)'.format(len(self._df_train), len(self._df_test))
+        return 'DataSet({:d} train elements, {:d} test elements)'.format(len(self.df_train), len(self.df_test))
 
     def __str__(self):
         def get_str_transform(transforms):
@@ -105,18 +133,18 @@ class DataSet(object):
                 else:
                     all_transforms.append(str(transform))
             return (os.linesep + '            ').join(all_transforms)
-        if id(self._df_train) == id(self._df_test):
-            n_unique = self._df_train.shape[0]
+        if id(self.df_train) == id(self.df_test):
+            n_unique = self.df_train.shape[0]
         else:
-            n_unique = self._df_train.shape[0] + self._df_test.shape[0]
+            n_unique = self.df_train.shape[0] + self.df_test.shape[0]
         str_active = 'train' if self._train_select else 'test'
         str_list = []
         str_list.append('{}:'.format(self.__class__.__name__))
         str_list.append('active_set: ' + str_active)
-        str_list.append('train/test/total: {:d}/{:d}/{:d}'.format(len(self._df_train),
-                                                                  len(self._df_test),
+        str_list.append('train/test/total: {:d}/{:d}/{:d}'.format(len(self.df_train),
+                                                                  len(self.df_test),
                                                                   n_unique))
-        str_list.append('transforms: ' + get_str_transform(self._transforms))
+        str_list.append('transforms: ' + get_str_transform(self.transforms))
         return os.linesep.join(str_list)
 
     def __getitem__(self, idx):
