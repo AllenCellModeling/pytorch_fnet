@@ -1,6 +1,6 @@
 import pickle
 import os
-from fnet.data.czireader import CziReader
+from fnet.data.czireader import CziReader, get_czi_metadata
 from fnet.data.dataset import DataSet
 import fnet.data.transforms
 import pdb
@@ -8,30 +8,6 @@ import pandas as pd
 
 CHANNEL_TYPES = ('bf', 'dic', 'dna', 'memb', 'struct')
 
-def get_czi_metadata(element, tag_list):
-    """
-    element - (xml.etree.ElementTree.Element)
-    tag_list - list of strings
-    """
-    if len(tag_list) == 0:
-        return None
-    if len(tag_list) == 1:
-        if tag_list[0] == 'attrib':
-            return [element.attrib]
-        if tag_list[0] == 'text':
-            return [element.text]
-    values = []
-    for sub_ele in element:
-        if sub_ele.tag == tag_list[0]:
-            if len(tag_list) == 1:
-                values.extend([sub_ele])
-            else:
-                retval = get_czi_metadata(sub_ele, tag_list[1:])
-                if retval is not None:
-                    values.extend(retval)
-    if len(values) == 0:
-        return None
-    return values
 
 def _shuffle_split_df(df_all, train_split, no_shuffle=False):
     if not no_shuffle:
@@ -277,26 +253,21 @@ def save_dataset(path_save, dataset):
 def load_dataset(
         path_data_train,
         path_data_test,
-        z_scale = 0.3,
-        xy_scale = 0.3,
-        name_signal_transform = 'sub_mean_norm',
-        name_target_transform = 'sub_mean_norm',
+        scale_z = 0.3,
+        scale_xy = 0.3,
+        names_signal_transforms = ['sub_mean_norm'],
+        names_target_transforms = ['sub_mean_norm'],
 ):
-    from fnet.data.transforms import Resizer  # TODO
     df_train = pd.read_csv(path_data_train)
     df_test = pd.read_csv(path_data_test)
-    z_fac = 0.97  # TODO
-    xy_fac = 0.5
-    resize_factors = (z_fac, xy_fac, xy_fac)
-    resizer = Resizer(resize_factors)
-    signal_transforms = [resizer]  # TODO
-    target_transforms = [resizer]
-    signal_transforms.append(getattr(fnet.data.transforms, name_signal_transform))
-    target_transforms.append(getattr(fnet.data.transforms, name_target_transform))
+    signal_transforms = [getattr(fnet.data.transforms, name) for name in names_signal_transforms]
+    target_transforms = [getattr(fnet.data.transforms, name) for name in names_target_transforms]
     transforms = (signal_transforms, target_transforms)
     dataset = fnet.data.DataSet(
         df_train=df_train,
         df_test=df_test,
+        scale_z = scale_z,
+        scale_xy = scale_xy,
         transforms=transforms,
     )
     return dataset
