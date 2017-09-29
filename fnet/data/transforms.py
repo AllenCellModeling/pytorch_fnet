@@ -65,13 +65,13 @@ class Resizer(object):
     def __init__(self, factors):
         """
         factors - tuple of resizing factors for each dimension of the input array"""
-        self._factors = factors
+        self.factors = factors
 
     def __call__(self, x):
-        return scipy.ndimage.zoom(x, (self._factors), order=1, mode='nearest')
+        return scipy.ndimage.zoom(x, (self.factors), mode='nearest')
 
-    def __str__(self):
-        return 'Resizer({})'.format(str(self._factors)) 
+    def __repr__(self):
+        return 'Resizer({:s})'.format(str(self.factors)) 
 
 class ReflectionPadder3d(object):
     def __init__(self, padding):
@@ -105,5 +105,5 @@ class Capper(object):
             result[result < self._low] = self._low
         return result
 
-    def __str__(self):
-        return 'Capper({} to {})'.format(self._low, self._hi)
+    def __repr__(self):
+        return 'Capper({}, {})'.format(self._low, self._hi)
