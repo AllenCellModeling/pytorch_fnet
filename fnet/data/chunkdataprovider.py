@@ -75,12 +75,16 @@ class ChunkDataProvider(object):
         Returns:
         package - 3-element tuple (idx_folder, vol_signal, vol_target)
         """
+        tries = 5
         volumes = None
-        while volumes is None:  # TODO: potential for infinite loop here; limit max number of tries?
+        while volumes is None and tries > 0:
             volumes = self._dataset[self._idx_folder]
             if volumes:
                 idx_folder = self._idx_folder
             self._incr_idx_folder()
+            tries -= 1
+        if tries <= 0:
+            raise
         return (idx_folder, volumes[0], volumes[1])
 
     def _update_last_sources(self):
@@ -147,9 +151,6 @@ class ChunkDataProvider(object):
         for i in range(len(coord_img)):
             slices.append(slice(coord_img[i], coord_img[i] + self._dims_chunk[i]))
         return self._buffer[idx_buf][1][slices], self._buffer[idx_buf][2][slices]
-
-    def get_state(self):
-        pass
 
     def get_batch(self):
         """Get a batch of examples from source data."
