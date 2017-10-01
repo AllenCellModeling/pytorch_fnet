@@ -13,8 +13,8 @@ python train_model.py \
        --n_iter ${N_ITER} \
        --buffer_size ${BUFFER_SIZE} \
        --replace_interval -1 \
-       --path_data_train ${PATH_DATA_TRAIN} \
-       --path_data_test ${PATH_DATA_TEST} \
+       --path_train_csv ${PATH_DATA_TRAIN} \
+       --path_test_csv ${PATH_DATA_TEST} \
        --batch_size 24 \
        --nn_module ttf_v8_nn \
        --path_run_dir ${RUN_DIR}
