@@ -81,13 +81,17 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', type=int, default=24, help='size of each batch')
     parser.add_argument('--buffer_size', type=int, default=5, help='number of images to cache in memory')
-    parser.add_argument('--path_data_train', help='path to training set csv')
-    parser.add_argument('--path_data_test', help='path to test set csv')
+    parser.add_argument('--path_train_csv', help='path to training set csv')
+    parser.add_argument('--path_test_csv', help='path to test set csv')
     parser.add_argument('--gpu_ids', type=int, nargs='+', default=0, help='GPU ID')
     parser.add_argument('--iter_checkpoint', type=int, default=500, help='iterations between saving log/model checkpoints')
     parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
     parser.add_argument('--model_module', default='fnet_model', help='name of the model module')
     parser.add_argument('--n_iter', type=int, default=500, help='number of training iterations')
+    parser.add_argument('--scale_z', type=float, default=0.3, help='desired um/px scale for z dimension')
+    parser.add_argument('--scale_xy', type=float, default=0.3, help='desired um/px scale for x, y dimensions')
+    parser.add_argument('--transforms_signal', nargs='+', default=['fnet.data.sub_mean_norm'], help='transform to be applied to signal images')
+    parser.add_argument('--transforms_target', nargs='+', default=['fnet.data.sub_mean_norm'], help='transform to be applied to target images')
     parser.add_argument('--nn_module', default='ttf_v8_nn', help='name of neural network module')
     parser.add_argument('--replace_interval', type=int, default=-1, help='iterations between replacements of images in cache')
     parser.add_argument('--path_run_dir', default='saved_models', help='base directory for saved models')
@@ -121,21 +125,22 @@ def main():
         lr=opts.lr,
         gpu_ids=opts.gpu_ids,
     )
-    
-    # create dataset
-    df_train = pd.read_csv(opts.path_data_train)
-    df_test = pd.read_csv(opts.path_data_test)
-    signal_transforms = [fnet.data.transforms.sub_mean_norm]
-    target_transforms = [fnet.data.transforms.sub_mean_norm]
-    transforms = (signal_transforms, target_transforms)
-    dataset = fnet.data.DataSet(
-        df_train=df_train,
-        df_test=df_test,
-        transforms=transforms,
+
+    path_ds = os.path.join(opts.path_run_dir, 'ds.json')
+    fnet.data.save_dataset_as_json(
+        path_train_csv = opts.path_train_csv,
+        path_test_csv = opts.path_test_csv,
+        scale_z = opts.scale_z,
+        scale_xy = opts.scale_xy,
+        transforms_signal = opts.transforms_signal,
+        transforms_target = opts.transforms_target,
+        path_save = path_ds,
     )
+    dataset = fnet.data.load_dataset_from_json(path_load = path_ds)
     logger.info(dataset)
-    shutil.copyfile(opts.path_data_train, os.path.join(opts.path_run_dir, os.path.basename(opts.path_data_train)))
-    shutil.copyfile(opts.path_data_test, os.path.join(opts.path_run_dir, os.path.basename(opts.path_data_test)))
+    
+    shutil.copyfile(opts.path_train_csv, os.path.join(opts.path_run_dir, os.path.basename(opts.path_train_csv)))
+    shutil.copyfile(opts.path_test_csv, os.path.join(opts.path_run_dir, os.path.basename(opts.path_test_csv)))
     
     data_provider = fnet.data.ChunkDataProvider(
         dataset,

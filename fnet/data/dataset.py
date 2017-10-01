@@ -15,7 +15,8 @@ class DataSet(object):
                  df_test,
                  scale_z = 0.3,
                  scale_xy = 0.3,
-                 transforms=None):
+                 transforms=None
+    ):
         """Create dataset from train/test DataFrames.
         
         Parameters:
@@ -141,6 +142,8 @@ class DataSet(object):
         str_list = []
         str_list.append('{}:'.format(self.__class__.__name__))
         str_list.append('active_set: ' + str_active)
+        str_list.append('scale_z: ' + str(self.scale_z) + ' um/px')
+        str_list.append('scale_xy: ' + str(self.scale_xy) + ' um/px')
         str_list.append('train/test/total: {:d}/{:d}/{:d}'.format(len(self.df_train),
                                                                   len(self.df_test),
                                                                   n_unique))

@@ -5,6 +5,8 @@ from fnet.data.dataset import DataSet
 import fnet.data.transforms
 import pdb
 import pandas as pd
+import sys
+import json
 
 CHANNEL_TYPES = ('bf', 'dic', 'dna', 'memb', 'struct')
 
@@ -240,15 +242,54 @@ def create_dataset_from_dir(
     )
     return ds
 
-def save_dataset(path_save, dataset):
-    assert isinstance(dataset, DataSet)
-    dirname = os.path.dirname(path_save)
-    if not os.path.exists(dirname):
-        os.makedirs(dirname)
-    package = dataset
-    with open(path_save, 'wb') as fo:
-        pickle.dump(package, fo)
-        print('saved dataset to:', path_save)
+def save_dataset_as_json(
+        path_train_csv,
+        path_test_csv,
+        scale_z,
+        scale_xy,
+        transforms_signal,
+        transforms_target,
+        path_save,
+):
+    dict_ds = dict(
+        path_train_csv = path_train_csv,
+        path_test_csv = path_test_csv,
+        scale_z = scale_z,
+        scale_xy = scale_xy,
+        transforms_signal = transforms_signal,
+        transforms_target = transforms_target,
+    )
+    with open(path_save, 'w') as fo:
+        json.dump(dict_ds, fo)
+
+def load_dataset_from_json(
+        path_load,
+):
+    def get_obj(a):
+        if a is None:
+            return None
+        a_list = a.split('.')
+        obj = getattr(sys.modules[__name__], a_list[0])
+        for i in range(1, len(a_list)):
+            obj = getattr(obj, a_list[i])
+        return obj
+
+    with open(path_load, 'r') as fi:
+        dict_ds = json.load(fi)
+    transforms_signal, transforms_target = None, None
+    if dict_ds.get('transforms_signal') is not None:
+        transforms_signal = [get_obj(i) for i in dict_ds.get('transforms_signal')]
+    if dict_ds.get('transforms_target') is not None:
+        transforms_target = [get_obj(i) for i in dict_ds.get('transforms_target')]
+    transforms = (transforms_signal, transforms_target)
+    dataset = fnet.data.DataSet(
+        df_train = pd.read_csv(dict_ds['path_train_csv']),
+        df_test = pd.read_csv(dict_ds['path_test_csv']),
+        scale_z = dict_ds['scale_z'],
+        scale_xy = dict_ds['scale_xy'],
+        transforms=transforms,
+    )
+    return dataset
 
 def load_dataset(
         path_data_train,
