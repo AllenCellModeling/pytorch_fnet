@@ -283,8 +283,8 @@ def load_dataset_from_json(
         transforms_target = [get_obj(i) for i in dict_ds.get('transforms_target')]
     transforms = (transforms_signal, transforms_target)
     dataset = fnet.data.DataSet(
-        df_train = pd.read_csv(dict_ds['path_train_csv']),
-        df_test = pd.read_csv(dict_ds['path_test_csv']),
+        path_train_csv = dict_ds['path_train_csv'],
+        path_test_csv = dict_ds['path_test_csv'],
         scale_z = dict_ds['scale_z'],
         scale_xy = dict_ds['scale_xy'],
         transforms=transforms,

@@ -56,7 +56,8 @@ def train_model(**kwargs):
         ))
         print_fn(str_out)
         if ((i + 1) % iter_checkpoint == 0) or ((i + 1) == n_iter):
-            path_checkpoint_dir = os.path.join(path_run_dir, 'output_{:05d}'.format(i + 1))
+            # path_checkpoint_dir = os.path.join(path_run_dir, 'output_{:05d}'.format(i + 1))
+            path_checkpoint_dir = os.path.join(path_run_dir, 'output')
             loss_log.save_csv(os.path.join(path_run_dir, 'loss_log.csv'))
             model.save_state(os.path.join(path_run_dir, 'model.p'))
             fnet.save_run_state(os.path.join(path_run_dir, 'run_state.p'), loss_log)
@@ -70,7 +71,7 @@ def train_model(**kwargs):
                 losses_checkpoint = fnet.test_model(model, data_provider_nonchunk, **kwargs_checkpoint)
                 data_provider_nonchunk.use_test_set()
                 losses_checkpoint.update(fnet.test_model(model, data_provider_nonchunk, **kwargs_checkpoint))
-                losses_checkpoint['num_iter'] = i
+                losses_checkpoint['num_iter'] = i + 1
                 df_checkpoints = pd.concat([df_checkpoints, pd.DataFrame([losses_checkpoint])], ignore_index=True)
                 df_checkpoints.to_csv(os.path.join(path_checkpoint_dir, 'losses_checkpoint.csv'), index=False)
     t_elapsed = time.time() - start
@@ -138,7 +139,7 @@ def main():
     )
     dataset = fnet.data.load_dataset_from_json(path_load = path_ds)
     logger.info(dataset)
-    
+
     shutil.copyfile(opts.path_train_csv, os.path.join(opts.path_run_dir, os.path.basename(opts.path_train_csv)))
     shutil.copyfile(opts.path_test_csv, os.path.join(opts.path_run_dir, os.path.basename(opts.path_test_csv)))
     

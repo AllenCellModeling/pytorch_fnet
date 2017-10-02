@@ -11,8 +11,8 @@ from fnet.data.transforms import Resizer
 
 class DataSet(object):
     def __init__(self,
-                 df_train,
-                 df_test,
+                 path_train_csv,
+                 path_test_csv,
                  scale_z = 0.3,
                  scale_xy = 0.3,
                  transforms=None
@@ -27,8 +27,8 @@ class DataSet(object):
         transforms - list/tuple of transforms, where each element is a transform or transform list to be applied
                      to a component of a DataSet element
         """
-        self.df_train = df_train
-        self.df_test = df_test
+        self.df_train = pd.read_csv(path_train_csv)
+        self.df_test = pd.read_csv(path_test_csv)
         self.scale_z = scale_z
         self.scale_xy = scale_xy
         self.transforms = transforms
