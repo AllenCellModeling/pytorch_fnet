@@ -15,70 +15,8 @@ import shutil
 import json
 import warnings
 
-def train_model(**kwargs):
-    start = time.time()
-    model = kwargs.get('model')
-    data_provider = kwargs.get('data_provider')
-    logger = kwargs.get('logger')
-    path_run_dir = kwargs.get('path_run_dir')
-    n_iter = kwargs.get('n_iter')
-    iter_checkpoint = kwargs.get('iter_checkpoint', n_iter)
-    data_provider_nonchunk = kwargs.get('data_provider_nonchunk')
-
-    assert model is not None
-    assert data_provider is not None
-    assert path_run_dir is not None
-    assert n_iter is not None
-    
-    print_fn = logger.info if logger is not None else print
-
-    path_existing_model = os.path.join(path_run_dir, 'model.p')
-    path_existing_run_state = os.path.join(path_run_dir, 'run_state.p')
-    if os.path.exists(path_existing_model) and os.path.exists(path_existing_run_state):
-        model.load_state(path_existing_model)
-        loss_log = fnet.load_run_state(path_existing_run_state)
-    else:
-        loss_log = fnet.SimpleLogger(
-            ('num_iter', 'loss', 'sources'),
-            'num_iter: {:4d} | loss: {:.4f} | sources: {:s}',
-        )
-    print_fn(model)
-    
-    df_checkpoints = pd.DataFrame()
-    start_iter = model.count_iter
-    for i in range(start_iter, n_iter):
-        x, y = data_provider.get_batch()
-        loss = model.do_train_iter(x, y)
-        str_out = loss_log.add((
-            i + 1,
-            loss,
-            data_provider.last_sources
-        ))
-        print_fn(str_out)
-        if ((i + 1) % iter_checkpoint == 0) or ((i + 1) == n_iter):
-            # path_checkpoint_dir = os.path.join(path_run_dir, 'output_{:05d}'.format(i + 1))
-            path_checkpoint_dir = os.path.join(path_run_dir, 'output')
-            loss_log.save_csv(os.path.join(path_run_dir, 'loss_log.csv'))
-            model.save_state(os.path.join(path_run_dir, 'model.p'))
-            fnet.save_run_state(os.path.join(path_run_dir, 'run_state.p'), loss_log)
-            if data_provider_nonchunk is not None:
-                kwargs_checkpoint = dict(
-                    n_images = 4,
-                    save_images = True,
-                    path_save = path_checkpoint_dir,
-                )
-                data_provider_nonchunk.use_train_set()
-                losses_checkpoint = fnet.test_model(model, data_provider_nonchunk, **kwargs_checkpoint)
-                data_provider_nonchunk.use_test_set()
-                losses_checkpoint.update(fnet.test_model(model, data_provider_nonchunk, **kwargs_checkpoint))
-                losses_checkpoint['num_iter'] = i + 1
-                df_checkpoints = pd.concat([df_checkpoints, pd.DataFrame([losses_checkpoint])], ignore_index=True)
-                df_checkpoints.to_csv(os.path.join(path_checkpoint_dir, 'losses_checkpoint.csv'), index=False)
-    t_elapsed = time.time() - start
-    print_fn('total training time: {:.1f} s'.format(t_elapsed))
-    print(df_checkpoints)
-    
 def main():
+    time_start = time.time()
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', type=int, default=24, help='size of each batch')
     parser.add_argument('--buffer_size', type=int, default=5, help='number of images to cache in memory')
@@ -102,7 +40,7 @@ def main():
     
     if not os.path.exists(opts.path_run_dir):
         os.makedirs(opts.path_run_dir)
-    
+
     logger = logging.getLogger('model training')
     logger.setLevel(logging.DEBUG)
     fh = logging.FileHandler(os.path.join(opts.path_run_dir, 'run.log'), mode='a')
@@ -126,22 +64,31 @@ def main():
         lr=opts.lr,
         gpu_ids=opts.gpu_ids,
     )
-
+    path_model = os.path.join(opts.path_run_dir, 'model.p')
+    if os.path.exists(path_model):
+        model.load_state(path_model)
+    logger.info(model)
+    
+    path_losses_csv = os.path.join(opts.path_run_dir, 'losses.csv')
+    df_losses = pd.DataFrame()
+    if os.path.exists(path_model):
+        df_losses = df_losses(path_losses_csv)
+        
     path_ds = os.path.join(opts.path_run_dir, 'ds.json')
-    fnet.data.save_dataset_as_json(
-        path_train_csv = opts.path_train_csv,
-        path_test_csv = opts.path_test_csv,
-        scale_z = opts.scale_z,
-        scale_xy = opts.scale_xy,
-        transforms_signal = opts.transforms_signal,
-        transforms_target = opts.transforms_target,
-        path_save = path_ds,
-    )
+    if not os.path.exists(path_ds):
+        fnet.data.save_dataset_as_json(
+            path_train_csv = opts.path_train_csv,
+            path_test_csv = opts.path_test_csv,
+            scale_z = opts.scale_z,
+            scale_xy = opts.scale_xy,
+            transforms_signal = opts.transforms_signal,
+            transforms_target = opts.transforms_target,
+            path_save = path_ds,
+        )
+        shutil.copyfile(opts.path_train_csv, os.path.join(opts.path_run_dir, os.path.basename(opts.path_train_csv)))
+        shutil.copyfile(opts.path_test_csv, os.path.join(opts.path_run_dir, os.path.basename(opts.path_test_csv)))
     dataset = fnet.data.load_dataset_from_json(path_load = path_ds)
     logger.info(dataset)
-
-    shutil.copyfile(opts.path_train_csv, os.path.join(opts.path_run_dir, os.path.basename(opts.path_train_csv)))
-    shutil.copyfile(opts.path_test_csv, os.path.join(opts.path_run_dir, os.path.basename(opts.path_test_csv)))
     
     data_provider = fnet.data.ChunkDataProvider(
         dataset,
@@ -157,19 +104,41 @@ def main():
         dataset,
         transforms=transforms_nonchunk,
     )
-
-    opts_dict = vars(opts)
+    
     with open(os.path.join(opts.path_run_dir, 'train_options.json'), 'w') as fo:
-        json.dump(opts_dict, fo, indent=4, sort_keys=True)
+        json.dump(vars(opts), fo, indent=4, sort_keys=True)
 
-    kwargs = dict(
-        model = model,
-        data_provider = data_provider,
-        data_provider_nonchunk = data_provider_nonchunk,
-        logger = logger,
-    )
-    kwargs.update(vars(opts))
-    train_model(**kwargs)
+    for i in range(model.count_iter, opts.n_iter):
+        x, y = data_provider.get_batch()
+        l2_batch = model.do_train_iter(x, y)
+        
+        logger.info('num_iter: {:4d} | l2_batch: {:.4f} | sources: {:s}'.format(i + 1, l2_batch, data_provider.last_sources))
+        dict_iter = dict(
+            num_iter = i + 1,
+            l2_batch = l2_batch,
+            sources = data_provider.last_sources,
+        )
+        df_losses_curr = pd.concat([df_losses, pd.DataFrame([dict_iter])], ignore_index=True)
+        if ((i + 1) % opts.iter_checkpoint == 0) or ((i + 1) == opts.n_iter):
+            model.save_state(os.path.join(opts.path_run_dir, 'model.p'))
+            if data_provider_nonchunk is not None:
+                # path_checkpoint_dir = os.path.join(path_run_dir, 'output_{:05d}'.format(i + 1))
+                path_checkpoint_dir = os.path.join(opts.path_run_dir, 'output')
+                kwargs_checkpoint = dict(
+                    n_images = 4,
+                    save_images = True,
+                    path_save = path_checkpoint_dir,
+                )
+                data_provider_nonchunk.use_train_set()
+                dict_iter.update(fnet.test_model(model, data_provider_nonchunk, **kwargs_checkpoint))
+                data_provider_nonchunk.use_test_set()
+                dict_iter.update(fnet.test_model(model, data_provider_nonchunk, **kwargs_checkpoint))
+                df_losses_curr = pd.concat([df_losses, pd.DataFrame([dict_iter])], ignore_index=True)
+            df_losses_curr.to_csv(path_losses_csv, index=False)
+        df_losses = df_losses_curr
+
+    logger.info('total training time: {:.1f} s'.format(time.time() - time_start))
+
     
 if __name__ == '__main__':
     main()
