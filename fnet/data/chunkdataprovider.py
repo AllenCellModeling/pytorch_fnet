@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 from fnet import get_vol_transformed
 import pdb
 
@@ -51,6 +52,9 @@ class ChunkDataProvider(object):
     def get_dims_chunk(self):
         return self._dims_chunk
 
+    def _vol_size_okay(self, vol):
+        return all(vol.shape[i] >= self._dims_chunk[i] for i in range(vol.ndim))
+
     def _replace_buffer_item(self):
         """Replace oldest package in buffer with another package."""
         package = self._create_package()
@@ -80,7 +84,11 @@ class ChunkDataProvider(object):
         while volumes is None and tries > 0:
             volumes = self._dataset[self._idx_folder]
             if volumes:
-                idx_folder = self._idx_folder
+                if self._vol_size_okay(volumes[0]):
+                    idx_folder = self._idx_folder
+                else:
+                    warnings.warn('bad size: {}. skipping....'.format(volumes[0].shape))
+                    volumes = None
             self._incr_idx_folder()
             tries -= 1
         if tries <= 0:
@@ -102,7 +110,6 @@ class ChunkDataProvider(object):
         for i in range(len(coords)):
             coord = coords[i]
             chunks_tup = self._extract_chunk(coord)
-            # print('  DEBUG: batch element', i, coord, chunks_tup[0].shape, chunks_tup[1].shape)
             if self._transforms is not None:
                 chunks_transformed = []
                 for j, transform in enumerate(self._transforms):
