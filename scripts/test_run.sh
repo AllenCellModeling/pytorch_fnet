@@ -12,6 +12,7 @@ rm -r $RUN_DIR
 python train_model.py \
        --n_iter ${N_ITER} \
        --buffer_size ${BUFFER_SIZE} \
+       --iter_checkpoint 10 \
        --replace_interval -1 \
        --path_train_csv ${PATH_DATA_TRAIN} \
        --path_test_csv ${PATH_DATA_TEST} \

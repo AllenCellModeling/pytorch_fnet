@@ -1,6 +1,6 @@
 #!/bin/bash -v
 
-RUN_DIR="saved_models/lamin_fibrillarin"
+RUN_DIR="saved_models/fibrillarin"
 N_ITER=50000
 BUFFER_SIZE=30
 PATH_DATA_TRAIN="data/fibrillarin_train.csv"
