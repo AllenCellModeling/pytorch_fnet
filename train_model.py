@@ -34,7 +34,7 @@ def main():
     parser.add_argument('--nn_module', default='ttf_v8_nn', help='name of neural network module')
     parser.add_argument('--replace_interval', type=int, default=-1, help='iterations between replacements of images in cache')
     parser.add_argument('--path_run_dir', default='saved_models', help='base directory for saved models')
-    parser.add_argument('--seed', type=int, default=666, help='random seed')
+    parser.add_argument('--seed', type=int, help='random seed')
     opts = parser.parse_args()
     model_module = importlib.import_module('model_modules.' + opts.model_module)
     
@@ -72,7 +72,7 @@ def main():
     path_losses_csv = os.path.join(opts.path_run_dir, 'losses.csv')
     df_losses = pd.DataFrame()
     if os.path.exists(path_model):
-        df_losses = df_losses(path_losses_csv)
+        df_losses = pd.read_csv(path_losses_csv)
         
     path_ds = os.path.join(opts.path_run_dir, 'ds.json')
     if not os.path.exists(path_ds):

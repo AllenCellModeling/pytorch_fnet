@@ -87,28 +87,26 @@ def get_losses(prediction, target):
     l2_loss_float = float(l2_loss(y_pred, y_targ).data.numpy())
     return l1_loss_float, l2_loss_float
 
-def test_model(model, data, **kwargs):
-    indices = range(len(data)) if kwargs.get('img_sel') is None else kwargs.get('img_sel')
+def test_model(
+        model,
+        dataset,
+        img_sel = None,
+        n_images = None,
+        path_save_dir = None,
+):
+    if img_sel is not None:
+        indices = [img_sel] if isinstance(img_sel, int) else img_sel
+    else:
+        indices = range(len(dataset))
     l1_losses, l2_losses = [], []
     l1_norm_losses, l2_norm_losses = [], []
-    test_or_train = 'train' if data.using_train_set() else 'test'
+    test_or_train = 'train' if dataset.using_train_set() else 'test'
     titles = ('signal', 'target', 'prediction')
-    if kwargs.get('path_save') is not None:
-        path_base = kwargs.get('path_save')
-    elif kwargs.get('path_source') is not None and os.path.isdir(kwargs.get('path_source')):
-        path_base = os.path.join(kwargs.get('path_source'), 'outputs')
-    elif kwargs.get('path_model') is not None:
-        path_base = os.path.join('test_output', os.path.basename(kwargs.get('path_model')).split('.')[0])
-    elif kwargs.get('path_dataset') is not None:
-        path_base = os.path.join('test_output', os.path.basename(kwargs.get('path_dataset')).split('.')[0])
-    else:
-        path_base = 'tmp'
     for i in indices:
-        vmins, vmaxs = None, None
         try:
-            x_test, y_true = data[i]
-        except AttributeError:
-            print('skipping....')
+            x_test, y_true = dataset[i]
+        except:
+            print('skipping example', i)
             continue
         if model is not None:
             y_pred = model.predict(x_test)
@@ -122,22 +120,19 @@ def test_model(model, data, **kwargs):
         l2_losses.append(l2_loss)
         l1_norm_losses.append(l1_norm_loss)
         l2_norm_losses.append(l2_norm_loss)
-        print('{:s} image: {:02d} | name: {} | l1: {:.4f} | l2: {:.4f} | l1_norm: {:.4f} | l2_norm: {:.4f}'.format(
+        print('{:s} image: {:02d} | name: {:s} | l2_norm: {:.4f}'.format(
             test_or_train,
             i,
-            data.get_name(i),
-            l1_loss,
-            l2_loss,
-            l1_norm_loss,
+            dataset.get_name(i),
             l2_norm_loss,
         ))
-        path_img_pre = os.path.join(path_base, 'img_{:s}_{:02d}'.format(test_or_train, i))
-        if kwargs.get('save_images'):
+        if path_save_dir is not None:
+            path_img_pre = os.path.join(path_save_dir, 'img_{:s}_{:02d}'.format(test_or_train, i))
             for idx, source in enumerate(sources):
                 img = source.astype(np.float32)
                 path_img = path_img_pre + '_{:s}.tif'.format(titles[idx])
                 save_img_np(img, path_img)
-        if (kwargs.get('n_images') is not None) and (i >= (kwargs.get('n_images') - 1)):
+        if n_images is not None and (i + 1) >= n_images:
             break
     l1_loss_mean = np.mean(l1_losses)
     l2_loss_mean = np.mean(l2_losses)
@@ -152,10 +147,6 @@ def test_model(model, data, **kwargs):
         l2_norm_loss_mean
     )
     )
-    # l2_norm_argsort = np.argsort(l2_norm_losses)
-    # print('Sorted by L2 norm loss')
-    # for i in l2_norm_argsort:
-    #     print('{:s} {:02d} | L2 loss: {:.4f}'.format(test_or_train, i, l2_norm_losses[i]))
     ret_dict = {
         'l1_' + test_or_train: l1_loss_mean,
         'l2_' + test_or_train: l2_loss_mean,
