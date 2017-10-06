@@ -76,17 +76,21 @@ def main():
         
     path_ds = os.path.join(opts.path_run_dir, 'ds.json')
     if not os.path.exists(path_ds):
+        path_train_csv_copy = os.path.join(opts.path_run_dir, os.path.basename(opts.path_train_csv))
+        path_test_csv_copy = os.path.join(opts.path_run_dir, os.path.basename(opts.path_test_csv))
+        if not os.path.exists(path_train_csv_copy):
+            shutil.copyfile(opts.path_train_csv, path_train_csv_copy)
+        if not os.path.exists(path_test_csv_copy):
+            shutil.copyfile(opts.path_test_csv, path_test_csv_copy)
         fnet.data.save_dataset_as_json(
-            path_train_csv = opts.path_train_csv,
-            path_test_csv = opts.path_test_csv,
+            path_train_csv = path_train_csv_copy,
+            path_test_csv = path_test_csv_copy,
             scale_z = opts.scale_z,
             scale_xy = opts.scale_xy,
             transforms_signal = opts.transforms_signal,
             transforms_target = opts.transforms_target,
             path_save = path_ds,
         )
-        shutil.copyfile(opts.path_train_csv, os.path.join(opts.path_run_dir, os.path.basename(opts.path_train_csv)))
-        shutil.copyfile(opts.path_test_csv, os.path.join(opts.path_run_dir, os.path.basename(opts.path_test_csv)))
     dataset = fnet.data.load_dataset_from_json(path_load = path_ds)
     logger.info(dataset)
     
@@ -124,15 +128,20 @@ def main():
             if data_provider_nonchunk is not None:
                 # path_checkpoint_dir = os.path.join(path_run_dir, 'output_{:05d}'.format(i + 1))
                 path_checkpoint_dir = os.path.join(opts.path_run_dir, 'output')
-                kwargs_checkpoint = dict(
-                    n_images = 4,
-                    save_images = True,
-                    path_save = path_checkpoint_dir,
-                )
                 data_provider_nonchunk.use_train_set()
-                dict_iter.update(fnet.test_model(model, data_provider_nonchunk, **kwargs_checkpoint))
+                dict_iter.update(fnet.test_model(
+                    model,
+                    data_provider_nonchunk,
+                    n_images = 4,
+                    path_save_dir = path_checkpoint_dir,
+                ))
                 data_provider_nonchunk.use_test_set()
-                dict_iter.update(fnet.test_model(model, data_provider_nonchunk, **kwargs_checkpoint))
+                dict_iter.update(fnet.test_model(
+                    model,
+                    data_provider_nonchunk,
+                    n_images = 4,
+                    path_save_dir = path_checkpoint_dir,
+                ))
                 df_losses_curr = pd.concat([df_losses, pd.DataFrame([dict_iter])], ignore_index=True)
             df_losses_curr.to_csv(path_losses_csv, index=False)
         df_losses = df_losses_curr
