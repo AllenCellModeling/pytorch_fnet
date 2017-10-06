@@ -156,21 +156,42 @@ def check_blank_slices(volume, slice_dim='z'):
         return False, msg
     return True, 'okay'
 
-def check_dataset_element(vols):
+def check_dataset_element(dataset, idx, path_save_dir=None):
+    """
+    Parameters:
+    dataset : DataSet
+    idx : int
+        DataSet index
+    (optional) path_save_dir : str
+        if not None, directory to save dataset element as image
+    """
+    path_czi = dataset._df_active['path_czi'].iloc[idx]
+    if not os.path.exists(path_czi):
+        return False, 'file does not exist'
+    # try n times to get element volume
+    tries = 3
+    vols = None
+    while vols is None and tries > 0:
+        vols = dataset[idx]
+        tries -= 1
     if vols is None:
         return False, 'could not create elements'
     titles = ('signal', 'target')
-    check_list = [
+    vol_check_list = [
         check_blank_slices,
     ]
     messages = []
     for i in range(2):
         vol = vols[i]
-        for check in check_list:
+        for check in vol_check_list:
             vol_passed, msg = check(vol)
             if not vol_passed:
                 messages.append(titles[i] + ' ' + msg)
-    return len(messages) == 0, ';'.join(messages)
+    element_passed = len(messages) == 0
+    if element_passed and path_save_dir is not None:
+        path_save = os.path.join(path_save_dir, 'img_{:02d}.png'.format(idx))
+        save_vol_slices(path_save, vols)
+    return element_passed, ';'.join(messages)
             
 def to_uint8(ar, val_min, val_max):
     ar_new = ar.copy()
@@ -211,6 +232,49 @@ def test_check_blank_slices():
     print(result)
     assert result[0] is False
 
+def save_vol_slices(path_save, vols):
+    # layout options
+    n_z_per_img = 3
+    padding_h = 5
+    padding_v = 5
+    val_range_signal = (-10, 10)
+    val_range_target = (-3, 7)
+    val_ranges = (val_range_signal, val_range_target)
+    if vols is not None:
+        print('shapes:', vols[0].shape, vols[1].shape)
+        shape = (vols[0].shape[1]*n_z_per_img + padding_v*(n_z_per_img - 1),
+                 vols[0].shape[2]*2 + padding_h)
+        z_indices = [int((i + 1)*(vols[0].shape[0]/(n_z_per_img + 1))) for i in range(n_z_per_img)]
+        img_ex = np.ones(shape, dtype=np.uint8)*255
+        for idx_z, z in enumerate(z_indices):
+            offset_y = idx_z*(vols[0].shape[1] + padding_v)
+            for idx_vol, vol in enumerate(vols):
+                offset_x = idx_vol*(vol.shape[2] + padding_h)
+                vol_uint8 = to_uint8(fnet.data.sub_mean_norm(vol), *val_ranges[idx_vol])
+                img_ex[offset_y:offset_y + vol.shape[1], offset_x:offset_x + vol.shape[2]] = vol_uint8[z, :, :]
+        scipy.misc.imsave(path_save, img_ex)
+        print('saved image to:', path_save)
+
+def remove_rejects_from_dataset_csv(path_dataset_csv, path_rejects_csv, path_dataset_csv_updated=None):
+    """
+    Parameters:
+    path_dataset_csv
+        training or test csv for datasets
+    path_rejects_csv
+        csv of rejected files
+    """
+    if path_dataset_csv_updated is None:
+        path_dataset_csv_updated = path_dataset_csv
+    paths_rejects = pd.read_csv(path_rejects_csv)['path_czi']
+    df_ds = pd.read_csv(path_dataset_csv)
+    mask_rejects = df_ds['path_czi'].isin(paths_rejects)
+    df_new = df_ds[~mask_rejects]
+    n_dropped = df_ds.shape[0] - df_new.shape[0]
+    if n_dropped > 0:
+        print('dropped {:d} rows from {:s}'.format(n_dropped, path_dataset_csv))
+        df_new.to_csv(path_dataset_csv_updated, index=False)
+        print('saved updated dataset csv to:', path_dataset_csv_updated)
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--path_train_csv', help='path to training set csv')
@@ -231,34 +295,14 @@ def main():
     if not os.path.exists(path_dir_output):
         os.makedirs(path_dir_output)
 
-    # layout options
-    n_z_per_img = 3
-    padding_h = 5
-    padding_v = 5
-    val_range_signal = (-10, 10)
-    val_range_target = (-3, 7)
-    val_ranges = (val_range_signal, val_range_target)
     pass_fails = []
     for i in range(len(dataset)):
-        print('checking element:', i)
-        vols = dataset[i]
-        if vols is not None:
-            print('shapes:', vols[0].shape, vols[1].shape)
-            shape = (vols[0].shape[1]*n_z_per_img + padding_v*(n_z_per_img - 1),
-                     vols[0].shape[2]*2 + padding_h)
-            z_indices = [int((i + 1)*(vols[0].shape[0]/(n_z_per_img + 1))) for i in range(n_z_per_img)]
-
-            img_ex = np.ones(shape, dtype=np.uint8)*255
-            for idx_z, z in enumerate(z_indices):
-                offset_y = idx_z*(vols[0].shape[1] + padding_v)
-                for idx_vol, vol in enumerate(vols):
-                    offset_x = idx_vol*(vol.shape[2] + padding_h)
-                    vol_uint8 = to_uint8(fnet.data.sub_mean_norm(vol), *val_ranges[idx_vol])
-                    img_ex[offset_y:offset_y + vol.shape[1], offset_x:offset_x + vol.shape[2]] = vol_uint8[z, :, :]
-            path_save = os.path.join(path_dir_output, 'img_{:02d}.png'.format(i))
-            scipy.misc.imsave(path_save, img_ex)
-            print('saved image to:', path_save)
-        element_passed, msg = check_dataset_element(vols)
+        element_passed, msg = check_dataset_element(
+            dataset,
+            i,
+            path_save_dir = path_dir_output,
+        )
+        print(i, ('PASSED' if element_passed else 'FAILED'))
         pass_fails.append({
             'path_czi': dataset._df_active['path_czi'].iloc[i],
             'pass': element_passed,
@@ -271,14 +315,16 @@ def main():
     df_pass_fails.to_csv(path_csv_out, index=False)
     print('saved results to:', path_csv_out)
     
-    path_csv_rejects = os.path.join(opts.path_output, 'czi_rejects.csv')
-    if os.path.exists(path_csv_rejects):
-        df_rejects = pd.read_csv(path_csv_rejects)
-        df_rejects = pd.concat(df_rejects, df_pass_fails[df_pass_fails['pass'] == False], ignore_index=True)
+    path_rejects_csv = os.path.join(opts.path_output, 'czi_rejects.csv')
+    if os.path.exists(path_rejects_csv):
+        df_rejects = pd.read_csv(path_rejects_csv)
+        df_rejects = pd.concat([df_rejects, df_pass_fails[df_pass_fails['pass'] == False]], ignore_index=True)
+        df_rejects.drop_duplicates(inplace=True)
     else:
         df_rejects = df_pass_fails[df_pass_fails['pass'] == False]
-    df_rejects.to_csv(path_csv_rejects, index=False)
-    print('saved results to:', path_csv_rejects)
+    df_rejects.to_csv(path_rejects_csv, index=False)
+    print('saved rejects to:', path_rejects_csv)
+    remove_rejects_from_dataset_csv(opts.path_train_csv, path_rejects_csv)
 
 if __name__ == '__main__':
     # test_check_blank_slices()
