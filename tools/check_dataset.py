@@ -7,6 +7,7 @@ import os
 import pandas as pd
 import pdb
 import scipy.misc
+import shutil
 
 def set_plot_style():
     plt.rc('figure', figsize=(18, 8))
@@ -271,9 +272,30 @@ def remove_rejects_from_dataset_csv(path_dataset_csv, path_rejects_csv, path_dat
     df_new = df_ds[~mask_rejects]
     n_dropped = df_ds.shape[0] - df_new.shape[0]
     if n_dropped > 0:
+        save_backup(path_dataset_csv_updated)
         print('dropped {:d} rows from {:s}'.format(n_dropped, path_dataset_csv))
         df_new.to_csv(path_dataset_csv_updated, index=False)
         print('saved updated dataset csv to:', path_dataset_csv_updated)
+
+def save_backup(path_file, n_backups=5):
+    if not os.path.exists(path_file):
+        return
+    path_dir, path_base = os.path.split(path_file)
+    path_backup_dir = os.path.join(path_dir, 'backups')
+    if not os.path.exists(path_backup_dir):
+        os.makedirs(path_backup_dir)
+    paths_existing_backups = [i.path for i in os.scandir(path_backup_dir)
+                              if (path_base in i.path and i.path.split('.')[-1].isdigit())]
+    paths_existing_backups.sort(key=lambda x: os.path.getmtime(x))
+    tag = 0
+    if len(paths_existing_backups) > 0:
+        tag = (int(paths_existing_backups[-1].split('.')[-1]) + 1) % 100
+    paths_delete = paths_existing_backups[:-(n_backups - 1)] if n_backups > 1 else paths_existing_backups
+    for path in paths_delete:
+        os.remove(path)
+    path_backup = os.path.join(path_backup_dir, path_base + '.{:02}'.format(tag))
+    shutil.copyfile(path_file, path_backup)
+    print('wrote to:', path_backup)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -302,7 +324,7 @@ def main():
             i,
             path_save_dir = path_dir_output,
         )
-        print(i, ('PASSED' if element_passed else 'FAILED'))
+        print(i, ('PASSED' if element_passed else ('FAILED: ' + msg)))
         pass_fails.append({
             'path_czi': dataset._df_active['path_czi'].iloc[i],
             'pass': element_passed,
@@ -322,10 +344,16 @@ def main():
         df_rejects.drop_duplicates(inplace=True)
     else:
         df_rejects = df_pass_fails[df_pass_fails['pass'] == False]
+    save_backup(path_rejects_csv)
     df_rejects.to_csv(path_rejects_csv, index=False)
     print('saved rejects to:', path_rejects_csv)
+    
     remove_rejects_from_dataset_csv(opts.path_train_csv, path_rejects_csv)
 
+def tester():
+    path_test = 'tmp/fakefile.log'
+    save_backup(path_test)
+    
 if __name__ == '__main__':
-    # test_check_blank_slices()
     main()
+    # tester()
