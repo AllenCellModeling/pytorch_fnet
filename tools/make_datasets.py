@@ -16,9 +16,37 @@ STRUCT_CHOICES = (
     'ZO1',
     'dna',
     'membrane',
-    #    'dic-lamin',
-    #    'dic-membrane',
+    'dic-lamin_b1',
+    'dic-membrane',
 )
+
+def get_dic_lamin_b1_dataset():
+    path_dir = '/allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/DICLAMINB/ZSD2/100X_zstack'
+    paths_czis = [i.path for i in os.scandir(path_dir) if i.path.lower().endswith('.czi')]
+    paths_czis.sort()
+    s_paths_czis = pd.Series(paths_czis)
+    mask = ~s_paths_czis.str.startswith('//')
+    s_paths_czis[mask] = '/' + s_paths_czis[mask]  # add starting double slash
+    df_all = pd.DataFrame({
+        'path_czi': s_paths_czis,
+        'channel_signal': 6,
+        'channel_target': 3,
+    })
+    return df_all
+
+def get_dic_membrane_dataset():
+    path_dir = '/allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/DICLAMINB/ZSD2/100X_zstack'
+    paths_czis = [i.path for i in os.scandir(path_dir) if i.path.lower().endswith('.czi')]
+    paths_czis.sort()
+    s_paths_czis = pd.Series(paths_czis)
+    mask = ~s_paths_czis.str.startswith('//')
+    s_paths_czis[mask] = '/' + s_paths_czis[mask]  # add starting double slash
+    df_all = pd.DataFrame({
+        'path_czi': s_paths_czis,
+        'channel_signal': 6,
+        'channel_target': 1,
+    })
+    return df_all
 
 def shuffle_split_df(df_all, train_split, no_shuffle=False):
     if not no_shuffle:
@@ -80,32 +108,40 @@ if __name__ == '__main__':
     name_target = opts.struct
     train_split = opts.train_split
 
-    tag = name_target.lower().replace(' ', '_')
-    path_master_csv = '../data/data_jobs_out.csv'
-
-    df = pd.read_csv(path_master_csv).drop_duplicates('inputFilename')
-    assert 'path_czi' not in df.columns
-    col_path_czi = df['inputFolder'] + os.path.sep + df['inputFilename']
-    df = df.assign(path_czi=col_path_czi.values)
-
-    df_target_all = filter_df(df, opts.struct, train_split)
-    if opts.struct == 'dna':
-        col_name_target = 'nucChannel'
-    elif opts.struct == 'membrane':
-        col_name_target = 'memChannel'
+    if name_target == 'dic-lamin_b1':
+        df_target_all = get_dic_lamin_b1_dataset()
+        tag = 'dic_lamin_b1'
+    elif name_target == 'dic-membrane':
+        df_target_all = get_dic_membrane_dataset()
+        tag = 'dic_membrane'
     else:
-        df_target_all = filter_df(df, train_split)
-        col_name_target = 'structureChannel'
-        
-    df_target_all = df_target_all.loc[:, ('path_czi', 'lightChannel', col_name_target)]
-    dict_rename = {
-        'lightChannel': 'channel_signal',
-        col_name_target: 'channel_target',
-    }
-    df_target_all = df_target_all.rename(columns=dict_rename)
-    # change channels to be zero-indexed
-    df_target_all['channel_signal'] = df_target_all['channel_signal'] - 1
-    df_target_all['channel_target'] = df_target_all['channel_target'] - 1
+        tag = name_target.lower().replace(' ', '_')
+        path_master_csv = '../data/data_jobs_out.csv'
+
+        df = pd.read_csv(path_master_csv).drop_duplicates('inputFilename')
+        assert 'path_czi' not in df.columns
+        col_path_czi = df['inputFolder'] + os.path.sep + df['inputFilename']
+        df = df.assign(path_czi=col_path_czi.values)
+
+        df_target_all = filter_df(df, opts.struct, train_split)
+
+        if opts.struct == 'dna':
+            col_name_target = 'nucChannel'
+        elif opts.struct == 'membrane':
+            col_name_target = 'memChannel'
+        else:
+            df_target_all = filter_df(df, train_split)
+            col_name_target = 'structureChannel'
+
+        df_target_all = df_target_all.loc[:, ('path_czi', 'lightChannel', col_name_target)]
+        dict_rename = {
+            'lightChannel': 'channel_signal',
+            col_name_target: 'channel_target',
+        }
+        df_target_all = df_target_all.rename(columns=dict_rename)
+        # change channels to be zero-indexed
+        df_target_all['channel_signal'] = df_target_all['channel_signal'] - 1
+        df_target_all['channel_target'] = df_target_all['channel_target'] - 1
     
     df_target_train, df_target_test = shuffle_split_df(
         df_target_all,
