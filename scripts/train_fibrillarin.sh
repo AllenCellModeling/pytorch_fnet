@@ -1,11 +1,12 @@
-#!/bin/bash -v
+#!/bin/bash -x
 
-RUN_DIR="saved_models/fibrillarin"
+TARGET=fibrillarin
+RUN_DIR="saved_models/${TARGET}"
 N_ITER=50000
-BUFFER_SIZE=30
-PATH_DATA_TRAIN="data/fibrillarin_train.csv"
-PATH_DATA_TEST="data/fibrillarin_test.csv"
-GPU_IDS=0
+BUFFER_SIZE=25
+PATH_DATA_TRAIN="data/${TARGET}_train.csv"
+PATH_DATA_TEST="data/${TARGET}_test.csv"
+GPU_IDS=${1:-0}
 
 cd $(cd "$(dirname ${BASH_SOURCE})" && pwd)/..
 
