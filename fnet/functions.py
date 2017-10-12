@@ -16,6 +16,8 @@ def find_z_max_std(ar):
 
 def get_vol_transformed(ar, transform):
     """Apply the transformation(s) to the supplied array and return the result."""
+    if ar is None:
+        return None
     result = ar
     if transform is None:
         pass
@@ -100,14 +102,16 @@ def test_model(
         indices = range(len(dataset))
     l1_losses, l2_losses = [], []
     l1_norm_losses, l2_norm_losses = [], []
+    paths_czis, idx_list = [], []
     test_or_train = 'train' if dataset.using_train_set() else 'test'
     titles = ('signal', 'target', 'prediction')
+    count = 0
     for i in indices:
-        try:
-            x_test, y_true = dataset[i]
-        except:
+        pair = dataset[i]
+        if pair is None:
             print('skipping example', i)
             continue
+        x_test, y_true = pair
         if model is not None:
             y_pred = model.predict(x_test)
         else:
@@ -120,19 +124,16 @@ def test_model(
         l2_losses.append(l2_loss)
         l1_norm_losses.append(l1_norm_loss)
         l2_norm_losses.append(l2_norm_loss)
-        print('{:s} image: {:02d} | name: {:s} | l2_norm: {:.4f}'.format(
-            test_or_train,
-            i,
-            dataset.get_name(i),
-            l2_norm_loss,
-        ))
         if path_save_dir is not None:
             path_img_pre = os.path.join(path_save_dir, 'img_{:s}_{:02d}'.format(test_or_train, i))
             for idx, source in enumerate(sources):
                 img = source.astype(np.float32)
                 path_img = path_img_pre + '_{:s}.tif'.format(titles[idx])
                 save_img_np(img, path_img)
-        if n_images is not None and (i + 1) >= n_images:
+        paths_czis.append(dataset.get_name(i))
+        idx_list.append(i)
+        count += 1
+        if n_images is not None and count >= n_images:
             break
     l1_loss_mean = np.mean(l1_losses)
     l2_loss_mean = np.mean(l2_losses)
@@ -154,4 +155,13 @@ def test_model(
         'l2_norm_' + test_or_train: l2_norm_loss_mean,
         'n_count_' + test_or_train: len(l1_losses),
     }
-    return ret_dict
+    ret_per_element = {
+        'path_czi': paths_czis,
+        'index': idx_list,
+        'test_or_train': test_or_train,
+        'l1': l1_losses,
+        'l2': l2_losses,
+        'l1_norm': l1_norm_losses,
+        'l2_norm': l2_norm_losses,
+    }
+    return ret_dict, ret_per_element

@@ -31,6 +31,7 @@ def main():
     parser.add_argument('--scale_xy', type=float, default=0.3, help='desired um/px scale for x, y dimensions')
     parser.add_argument('--transforms_signal', nargs='+', default=['fnet.data.sub_mean_norm'], help='transform to be applied to signal images')
     parser.add_argument('--transforms_target', nargs='+', default=['fnet.data.sub_mean_norm'], help='transform to be applied to target images')
+    parser.add_argument('--no_checkpoint_testing', action='store_true', help='set to disable testing at checkpoints')
     parser.add_argument('--nn_module', default='ttf_v8_nn', help='name of neural network module')
     parser.add_argument('--replace_interval', type=int, default=-1, help='iterations between replacements of images in cache')
     parser.add_argument('--path_run_dir', default='saved_models', help='base directory for saved models')
@@ -67,6 +68,7 @@ def main():
     path_model = os.path.join(opts.path_run_dir, 'model.p')
     if os.path.exists(path_model):
         model.load_state(path_model)
+        logger.info('model loaded from: {:s}'.format(path_model))
     logger.info(model)
     
     path_losses_csv = os.path.join(opts.path_run_dir, 'losses.csv')
@@ -85,8 +87,8 @@ def main():
         fnet.data.save_dataset_as_json(
             path_train_csv = path_train_csv_copy,
             path_test_csv = path_test_csv_copy,
-            scale_z = opts.scale_z,
-            scale_xy = opts.scale_xy,
+            scale_z = opts.scale_z if opts.scale_z > 0 else None,
+            scale_xy = opts.scale_xy if opts.scale_xy > 0 else None,
             transforms_signal = opts.transforms_signal,
             transforms_target = opts.transforms_target,
             path_save = path_ds,
@@ -100,14 +102,16 @@ def main():
         batch_size=opts.batch_size,
         replace_interval=opts.replace_interval,
     )
-    
-    dims_cropped = (32, '/16', '/16')
-    cropper = fnet.data.transforms.Cropper(dims_cropped, offsets=('mid', 0, 0))
-    transforms_nonchunk = (cropper, cropper)
-    data_provider_nonchunk = fnet.data.TestImgDataProvider(
-        dataset,
-        transforms=transforms_nonchunk,
-    )
+
+    data_provider_nonchunk = None
+    if not opts.no_checkpoint_testing:
+        dims_cropped = (32, '/16', '/16')
+        cropper = fnet.data.transforms.Cropper(dims_cropped, offsets=('mid', 0, 0))
+        transforms_nonchunk = (cropper, cropper)
+        data_provider_nonchunk = fnet.data.TestImgDataProvider(
+            dataset,
+            transforms=transforms_nonchunk,
+        )
     
     with open(os.path.join(opts.path_run_dir, 'train_options.json'), 'w') as fo:
         json.dump(vars(opts), fo, indent=4, sort_keys=True)
@@ -124,7 +128,6 @@ def main():
         )
         df_losses_curr = pd.concat([df_losses, pd.DataFrame([dict_iter])], ignore_index=True)
         if ((i + 1) % opts.iter_checkpoint == 0) or ((i + 1) == opts.n_iter):
-            model.save_state(os.path.join(opts.path_run_dir, 'model.p'))
             if data_provider_nonchunk is not None:
                 # path_checkpoint_dir = os.path.join(path_run_dir, 'output_{:05d}'.format(i + 1))
                 path_checkpoint_dir = os.path.join(opts.path_run_dir, 'output')
@@ -134,16 +137,19 @@ def main():
                     data_provider_nonchunk,
                     n_images = 4,
                     path_save_dir = path_checkpoint_dir,
-                ))
+                )[0])
                 data_provider_nonchunk.use_test_set()
                 dict_iter.update(fnet.test_model(
                     model,
                     data_provider_nonchunk,
                     n_images = 4,
                     path_save_dir = path_checkpoint_dir,
-                ))
+                )[0])
                 df_losses_curr = pd.concat([df_losses, pd.DataFrame([dict_iter])], ignore_index=True)
+            model.save_state(path_model)
             df_losses_curr.to_csv(path_losses_csv, index=False)
+            logger.info('model saved to: {:s}'.format(path_model))
+            logger.info('elapsed time: {:.1f} s'.format(time.time() - time_start))
         df_losses = df_losses_curr
 
     logger.info('total training time: {:.1f} s'.format(time.time() - time_start))
