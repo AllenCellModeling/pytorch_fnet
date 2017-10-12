@@ -52,12 +52,19 @@ class TestImgDataProvider(object):
         return data_tuple[0]
 
     def __getitem__(self, idx):
-        volumes_pre = self._dataset[idx]  # raises IndexError
+        volumes_pre = self._dataset[idx]
+        if volumes_pre is None:
+            return None
         volumes = []
         for i, volume_pre in enumerate(volumes_pre):
             if self._transforms is None:
+                if volume_pre is None:
+                    return None
                 volumes.append(volume_pre)
             else:
-                volumes.append(get_vol_transformed(volume_pre, self._transforms[i]))
+                vol_trans = get_vol_transformed(volume_pre, self._transforms[i])
+                if vol_trans is None:
+                    return None
+                volumes.append(vol_trans)
         data_tuple = self._make_batch(volumes)
         return data_tuple

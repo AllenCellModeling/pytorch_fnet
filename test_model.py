@@ -82,21 +82,29 @@ def main():
             tag,
         ))
         dataprovider.use_test_set()
-        losses_test = pd.Series(fnet.test_model(
+        losses_mean, losses_per = fnet.test_model(
             model,
             dataprovider,
             n_images = opts.n_images,
             path_save_dir = path_out,
-        ))
+        )
+        losses_test = pd.Series(losses_mean)
+        df_losses_per_test = pd.DataFrame(losses_per)
         dataprovider.use_train_set()
-        losses_train = pd.Series(fnet.test_model(
+        losses_mean, losses_per = fnet.test_model(
             model,
             dataprovider,
             n_images = opts.n_images,
             path_save_dir = path_out,
-        ))
+        )
+        losses_train = pd.Series(losses_mean)
+        df_losses_per_train = pd.DataFrame(losses_per)
         print('testing time: {:.1f}'.format(time.time() - time_start))
-        
+
+        pd.concat([df_losses_per_test, df_losses_per_train]).to_csv(
+            os.path.join(path_out, 'results_{:s}_per.csv'.format(name_model)),
+            index=False,
+        )
         results_entry = pd.concat([model_info, losses_test, losses_train])
         results_list.append(results_entry)
         df_results = pd.DataFrame(results_list)
