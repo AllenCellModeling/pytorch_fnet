@@ -61,11 +61,9 @@ class Model(object):
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         torch.save(self.get_state(), path_save)
-        print('model state saved to:', path_save)
 
     def load_state(self, path_load):
         state_dict = torch.load(path_load)
-        print('model state loaded from:', path_load)
         self.nn_module = state_dict['nn_module']
         self._init_model()
 
