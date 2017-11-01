@@ -27,13 +27,13 @@ tags_to_colors_map = {
 }
 
 tags_to_val_ranges_map = {
-    'dna': (-0.9, 5.0),
-    'fibrillarin': (0, 5.0),
-    'lamin_b1': (0, 5.0),
-    'sec61': (0, 5.0),
-    'tom20': (0, 5.0),
-    'signal': (-10, 10),
-    'target': (-6.0, 6.0),
+    'dna': (-0.7, 5.0),
+    'fibrillarin': (-0.45, 14.0),
+    'lamin_b1': (-0.85, 14.0),
+    'sec61': (-1.0, 5.0),
+    'tom20': (-0.67, 10.0),
+    'signal': (-8.5, 12),
+    'target': (-5.0, 13.0),
 }
 
 def convert_ar_float_to_uint8(ar, val_range=None):
@@ -80,52 +80,45 @@ def convert_ar_grayscale_to_rgb(ar, hue_sat, val_range=None):
     ar_hsv[..., 2] = ar_new
     ar_rgb = matplotlib.colors.hsv_to_rgb(ar_hsv)
     ar_rgb *= 256.0
-    ar_rgb[ar_rgb == 256.0] = 255.0
+    ar_rgb[ar_rgb >= 256.0] = 255.0
     return ar_rgb.astype(np.uint8)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('path_dir', help='path ')
-    parser.add_argument('--timelapse', action='store_true', help='set if images are part of a timelapse to use fixed contrast adjustment')
-    parser.add_argument('--keep_gray_tags', nargs='*', default=['signal', 'target'], help='path ')
+    parser.add_argument('--path_source_dir', help='path to directory of grayscale tifs')
+    parser.add_argument('--tags', nargs='+', help='path to directory of grayscale tifs')
     opts = parser.parse_args()
     
-    assert os.path.exists(opts.path_dir)
-    print('source directory:', opts.path_dir)
-    path_out_dir_rgb = os.path.join(opts.path_dir, 'rgb')
-    path_out_dir_gray_adjusted = os.path.join(opts.path_dir, 'gray_adjusted')
-    if not os.path.exists(path_out_dir_rgb):
-        os.makedirs(path_out_dir_rgb)
-    if not os.path.exists(path_out_dir_gray_adjusted):
-        os.makedirs(path_out_dir_gray_adjusted)
+    assert os.path.exists(opts.path_source_dir)
+    print('source directory:', opts.path_source_dir)
+    path_out_dir = os.path.join(opts.path_source_dir, 'colorize')
+    if not os.path.exists(path_out_dir):
+        os.makedirs(path_out_dir)
 
-    paths_sources = [os.path.join(opts.path_dir, i) for i in os.listdir(opts.path_dir) if i.lower().endswith('.tif')]
+    paths_sources = [os.path.join(opts.path_source_dir, i) for i in os.listdir(opts.path_source_dir) if i.lower().endswith('.tif')]
     paths_sources.sort()
 
     for path in paths_sources:
         path_source_basename = os.path.basename(path)
-        hue_sat = -1
+        if opts.tags is not None and not any(tag in path for tag in opts.tags):
+            continue
+        hue_sat = None
         for tag in tags_to_colors_map:
             if tag in path_source_basename:
                 hue_sat = tags_to_colors_map[tag]
-                if opts.timelapse:
-                    val_range = tags_to_val_ranges_map[tag]
-                else:
-                    val_range = None
-        assert hue_sat != -1
+                val_range = tags_to_val_ranges_map[tag]
         img_source = tifffile.imread(path)
-        # print(np.min(img_source), np.max(img_source), path)
+        print('DEBUG:', np.min(img_source), np.max(img_source), path)
 
         if hue_sat is None:
             path_out_basename = path_source_basename.split('.')[0] + '_adjusted.tif'
             img_new = convert_ar_float_to_uint8(img_source, val_range)
-            path_save = os.path.join(path_out_dir_gray_adjusted, path_out_basename)
         else:
             if 'gray' in path_source_basename:
                 path_out_basename = path_source_basename.replace('gray', 'rgb')
             else:
                 path_out_basename = path_source_basename.split('.')[0] + '_rgb.tif'
             img_new = convert_ar_grayscale_to_rgb(img_source, hue_sat, val_range)
-            path_save = os.path.join(path_out_dir_rgb, path_out_basename)
+        path_save = os.path.join(path_out_dir, path_out_basename)
         tifffile.imsave(path_save, img_new, photometric=('minisblack' if (hue_sat is None) else 'rgb'))
         print('saved:', path_save)
