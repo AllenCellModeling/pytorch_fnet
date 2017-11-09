@@ -1,7 +1,7 @@
 Pytorch Fluorescence Net
 ===============================
 
-![Model](doc/multi_pred_b.png?raw=true "Model Architecture")
+![Model](doc/PredictingStructures-1.jpg?raw=true "Model Architecture")
 
 ## Setup
 Build the Docker image:  
