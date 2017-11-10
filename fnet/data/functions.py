@@ -290,25 +290,3 @@ def load_dataset_from_json(
         transforms=transforms,
     )
     return dataset
-
-def load_dataset(
-        path_data_train,
-        path_data_test,
-        scale_z = 0.3,
-        scale_xy = 0.3,
-        names_signal_transforms = ['sub_mean_norm'],
-        names_target_transforms = ['sub_mean_norm'],
-):
-    df_train = pd.read_csv(path_data_train)
-    df_test = pd.read_csv(path_data_test)
-    signal_transforms = [getattr(fnet.data.transforms, name) for name in names_signal_transforms]
-    target_transforms = [getattr(fnet.data.transforms, name) for name in names_target_transforms]
-    transforms = (signal_transforms, target_transforms)
-    dataset = fnet.data.DataSet(
-        df_train=df_train,
-        df_test=df_test,
-        scale_z = scale_z,
-        scale_xy = scale_xy,
-        transforms=transforms,
-    )
-    return dataset
