@@ -30,13 +30,11 @@ def get_czi_metadata(element, tag_list):
 
 class CziReader(object):
     def __init__(self, path_czi):
-        super().__init__()
-        self.czi_reader = io.cziReader.CziReader(path_czi)
-        self.czi_np = self.czi_reader.czi.asarray()
-        self._check_czi()
-        self.axes = ''.join(map(chr, self.czi_reader.czi.axes))
-        path_basename = os.path.basename(path_czi)
-        self.metadata = self.czi_reader.get_metadata()
+        with io.cziReader.CziReader(path_czi) as reader:
+            # self.czi_reader = io.cziReader.CziReader(path_czi)
+            self.czi_np = reader.czi.asarray()
+            self.axes = ''.join(map(chr, reader.czi.axes))
+            self.metadata = reader.get_metadata()
 
     def get_size(self, dim_sel):
         dim = -1
@@ -63,25 +61,21 @@ class CziReader(object):
         return dict_scales
 
     def _check_czi(self):
-        # all dims not corresponding to TCZYX should be zero
-        for i in range(len(self.czi_reader.czi.axes)):
-            dim_label = self.czi_reader.czi.axes[i]
-            if dim_label not in b'TCZYX':
-                assert self.czi_np.shape[i] == 1
+        pass
 
     def get_volume(self, chan, time_slice=None):
         """Returns the image volume for the specified channel."""
         slices = []
-        for i in range(len(self.czi_reader.czi.axes)):
-            dim_label = self.czi_reader.czi.axes[i]
-            if dim_label in b'C':
+        for i in range(len(self.axes)):
+            dim_label = self.axes[i]
+            if dim_label in 'C':
                 slices.append(chan)
-            elif dim_label in b'T':
+            elif dim_label in 'T':
                 if time_slice is None:
                     slices.append(0)
                 else:
                     slices.append(time_slice)
-            elif dim_label in b'ZYX':
+            elif dim_label in 'ZYX':
                 slices.append(slice(None))
             else:
                 slices.append(0)

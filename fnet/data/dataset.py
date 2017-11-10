@@ -27,8 +27,8 @@ class DataSet(object):
         transforms - list/tuple of transforms, where each element is a transform or transform list to be applied
                      to a component of a DataSet element
         """
-        self.df_train = pd.read_csv(path_train_csv)
-        self.df_test = pd.read_csv(path_test_csv)
+        self.df_train = pd.read_csv(path_train_csv) if path_train_csv is not None else pd.DataFrame()
+        self.df_test = pd.read_csv(path_test_csv) if path_test_csv is not None else pd.DataFrame()
         self.scale_z = scale_z
         self.scale_xy = scale_xy
         self.transforms = transforms
@@ -52,7 +52,7 @@ class DataSet(object):
         return len(self._df_active)
 
     def get_name(self, idx, *args):
-        return os.path.basename(self._df_active['path_czi'].iloc[idx])
+        return self._df_active['path_czi'].iloc[idx]
 
     def get_item_sel(self, idx, sel, apply_transforms=True):
         """Get item(s) from dataset element idx.
@@ -82,14 +82,16 @@ class DataSet(object):
         time_slice = None
         if 'time_slice' in self._df_active.columns:
             time_slice = self._df_active['time_slice'].iloc[idx]
+        dict_scales = self._czi.get_scales()
+        scales_orig = [dict_scales.get(dim) for dim in 'zyx']
+        # print('pixel scales:', scales_orig)
         if self.scale_z is not None or self.scale_xy is not None:
-            dict_scales = self._czi.get_scales()
-            scales_orig = [dict_scales.get(dim) for dim in 'zyx']
             if None in scales_orig:
                 warnings.warn('bad pixel scales in {:s} | scales: {:s}'.format(path, str(scales_orig)))
                 return None
             scales_wanted = [self.scale_z, self.scale_xy, self.scale_xy]
             factors_resize = list(map(lambda a, b : a/b if None not in (a, b) else 1.0, scales_orig, scales_wanted))
+            # print('factors_resize:', factors_resize)
             resizer = Resizer(factors_resize)
         else:
             resizer = None

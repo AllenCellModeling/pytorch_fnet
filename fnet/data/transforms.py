@@ -15,7 +15,7 @@ def do_nothing(img):
     return img
 
 class Cropper(object):
-    def __init__(self, shape, offsets=None):
+    def __init__(self, shape, offsets=None, n_max_pixels=9732096, reduce_by=16):
         """Crop input array to given shape."""
         assert isinstance(shape, (list, tuple))
         for i in shape:
@@ -26,36 +26,65 @@ class Cropper(object):
         if offsets:
             assert len(offsets) == len(shape)
 
-        self._shape = tuple(shape)
-        self._offsets = tuple(offsets) if offsets is not None else (0, )*len(shape)
+        self.shape = tuple(shape)
+        self.offsets = tuple(offsets) if offsets is not None else (0, )*len(shape)
+        self.n_max_pixels = n_max_pixels
+        self.reduce_by = reduce_by
+        self._shape_adjustments = {}
+
+    def _adjust_shape_crop(self, shape_crop):
+        key = tuple(shape_crop)
+        if key in self._shape_adjustments:
+            return self._shape_adjustments[key]
+        shape_crop_new = list(shape_crop)
+        prod_shape = np.prod(shape_crop_new)
+        idx_dim_reduce = 0
+        if shape_crop[0] <= 64:
+            order_dim_reduce = [2, 1, 2, 1, 2, 1, 0]
+        else:
+            order_dim_reduce = [2, 1, 2, 1, 0]
+        while prod_shape > self.n_max_pixels:
+            dim = order_dim_reduce[idx_dim_reduce]
+            shape_crop_new[dim] -= self.reduce_by
+            prod_shape = np.prod(shape_crop_new)
+            idx_dim_reduce += 1
+            if idx_dim_reduce >= len(order_dim_reduce):
+                idx_dim_reduce = 0
+        value = tuple(shape_crop_new)
+        self._shape_adjustments[key] = value
+        return value
     
     def __call__(self, x):
-        slices = []
-        for i in range(len(self._shape)):
-            if self._shape[i] is None:
-                start = 0
-                end = x.shape[i]
-            elif isinstance(self._shape[i], str):  # e.g., '/16'
-                multiple_of = int(self._shape[i][1:])
-                start = 0
-                end = x.shape[i] & ~(multiple_of - 1)
-            elif self._shape[i] > x.shape[i]:  # input array dim smaller than crop dim
-                warnings.warn('Crop dimensions larger than image dimension ({} > {} for dim {}).'.format(self._shape[i], x.shape[i], i))
-                return None
+        shape_crop = []
+        for i in range(len(self.shape)):
+            if self.shape[i] is None:
+                shape_crop.append(len_dim)
+            elif isinstance(self.shape[i], int):
+                if self.shape[i] > x.shape[i]:
+                    warnings.warn('Crop dimensions larger than image dimension ({} > {} for dim {}).'.format(self.shape[i], x.shape[i], i))
+                    return None
+                shape_crop.append(self.shape[i])
+            elif isinstance(self.shape[i], str):  # e.g., '/16'
+                multiple_of = int(self.shape[i][1:])
+                shape_crop.append(x.shape[i] & ~(multiple_of - 1))
             else:
-                if self._offsets[i] == 'mid':  # take crop from middle of input array dim
-                    start = (x.shape[i] - self._shape[i])//2
-                else:
-                    start = self._offsets[i]
-                if start + self._shape[i] > x.shape[i]:
-                    warnings.warn('Cannot crop outsize image dimensions ({}:{} for dim {}). Starting crop from 0 instead.'.format(start, start + self._shape[i], i))
-                    start = 0
-                end = (start + self._shape[i])
-            slices.append(slice(start, end))
+                raise NotImplementedError
+        shape_crop = self._adjust_shape_crop(shape_crop)
+        slices = []
+        for i in range(len(self.shape)):
+            if self.offsets[i] == 'mid':  # take crop from middle of input array dim
+                offset = (x.shape[i] - shape_crop[i])//2
+            else:
+                offset = self.offsets[i]
+            if offset + shape_crop[i] > x.shape[i]:
+                warnings.warn('Cannot crop outsize image dimensions ({}:{} for dim {}). Starting crop from 0 instead.'.format(offset, offset + shape_crop[i], i))
+                offset = 0
+            slices.append(slice(offset, offset + shape_crop[i]))
+        # print('DEBUG: shape', x[slices].shape, '| pixels', x[slices].size)
         return x[slices].copy()
 
     def __str__(self):
-        params = [str(self._shape)]
+        params = [str(self.shape)]
         if self._offsets:
             params.append(str(self._offsets))
         str_out = 'Cropper{}'.format(', '.join(params))
