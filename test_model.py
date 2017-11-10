@@ -60,8 +60,8 @@ def main():
         # load test dataset
         dataset = fnet.data.load_dataset_from_json(model_info['path_dataset'])
         print(dataset)
-        dims_cropped = (32, '/16', '/16')
-        cropper = fnet.data.transforms.Cropper(dims_cropped, offsets=('mid', 0, 0))
+        dims_cropped = ('/16', '/16', '/16')
+        cropper = fnet.data.transforms.Cropper(dims_cropped, offsets=('mid', 'mid', 'mid'))
         transforms = (cropper, cropper)
         dataprovider = fnet.data.TestImgDataProvider(dataset, transforms)
 
@@ -110,7 +110,7 @@ def main():
         df_results = pd.DataFrame(results_list)
         path_out_csv = os.path.join(path_out, 'results_{:s}.csv'.format(name_model))
         pd.DataFrame([results_entry]).to_csv(path_out_csv, index=False)
-        path_out_csv_combined = os.path.join(opts.path_save_dir, 'results.csv')
+        path_out_csv_combined = os.path.join(opts.path_save_dir, 'results_all.csv')
         df_results.to_csv(path_out_csv_combined, index=False)
         
     

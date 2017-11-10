@@ -10,7 +10,7 @@ import json
 import pandas as pd
 import time
 
-map_tags_to_models = {
+MAP_TAGS_TO_MODELS = {
     'alpha_tubulin': 'saved_models/alpha_tubulin',
     'beta_actin': 'saved_models/beta_actin',
     'desmoplakin': 'saved_models/desmoplakin',
@@ -31,6 +31,9 @@ class GhettoIntegratedCells(object):
         self.paths_models = paths_models
         self.gpu_id = gpu_id
         self.process_models()  # self.paths_load, self.names, self.df_training_czis
+        print('***** models *****')
+        for path in paths_models:
+            print(path)
 
     def path_in_training_set_of(self, path_czi):
         """Return list of model names that used path_czi in their training set."""
@@ -112,6 +115,8 @@ def get_dataset_from_source(path_source):
         )
     elif os.path.isdir(path_source):
         raise NotImplementedError
+    elif path_source.lower().endswith('.czi'):
+        pass
     else:
         raise NotImplementedError
     ds.use_test_set()
@@ -139,8 +144,8 @@ def get_dataset_from_source(path_source):
 
 def predict_multi_model(paths_models, dataset, indices, n_images, path_save_dir, gpu_id):
     time_start = time.time()
-    dims_cropped = (32, '/16', '/16')
-    cropper = fnet.data.transforms.Cropper(dims_cropped, offsets=('mid', 0, 0))
+    dims_cropped = ('/16', '/16', '/16')
+    cropper = fnet.data.transforms.Cropper(dims_cropped, offsets=('mid', 'mid', 'mid'))
     transforms = (cropper, cropper)
     data_test = fnet.data.TestImgDataProvider(dataset, transforms)
     
@@ -180,7 +185,7 @@ def predict_multi_model(paths_models, dataset, indices, n_images, path_save_dir,
             print('elapsed time: {:.2f}'.format(time.time() - time_start))
         list_predicted.append({'id':count, 'path_czi':path_czi})
         count += 1
-        if count >= n_images:
+        if (n_images is not None) and (count >= n_images):
             break
     path_csv = os.path.join(path_save_dir, 'source_czis.csv')
     pd.DataFrame(list_predicted).to_csv(path_csv, index=False)
@@ -218,6 +223,11 @@ def make_gif(path_source,
         raise NotImplementedError
     subprocess.run(cmd_str, shell=True, check=True)
 
+def get_settings_from_json(path_json):
+    with open(path_json, 'r') as fi:
+        settings = json.load(fi)
+    return settings
+
 if __name__ == '__main__':
     """
     path_source - CZI, dataset, or CSV
@@ -229,12 +239,20 @@ if __name__ == '__main__':
     parser.add_argument('--img_sel', type=int, nargs='*', help='select images to test')
     parser.add_argument('--shuffle', action='store_true', help='set to shuffle input images')
     parser.add_argument('--n_images', type=int, help='maximum number of images to process')
+    parser.add_argument('--path_json', help='path to settings json ')
     parser.add_argument('--tags_models', nargs='+', default=['dna', 'fibrillarin', 'lamin_b1', 'sec61_beta', 'tom20'], help='maximum number of images to process')
     opts = parser.parse_args()
 
+    map_tags_to_models = MAP_TAGS_TO_MODELS
+    if opts.path_json is not None:
+        settings = get_settings_from_json(opts.path_json)
+        if 'map_tags_to_models' in settings:
+            map_tags_to_models = settings['map_tags_to_models']
+    
     paths_models = [map_tags_to_models[i] for i in opts.tags_models]
     dataset = get_dataset_from_source(opts.path_source)
     print(dataset)
+
     if not os.path.exists(opts.path_save_dir):
         os.makedirs(opts.path_save_dir)
     path_save_options = os.path.join(opts.path_save_dir, 'options.json')

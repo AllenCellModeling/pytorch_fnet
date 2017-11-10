@@ -1,11 +1,14 @@
+Makefile
 .ipynb_checkpoints
 __pycache__
 test_output/**
-logs/**
+results/**
 data/**
+notebooks/**
 saved_models/**
 presentation/**
 reports/**
 archive/**
-tests/**
 *.pyc
+tmp/**
+rnd/**
