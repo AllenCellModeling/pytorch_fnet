@@ -203,27 +203,6 @@ def to_uint8(ar, val_min, val_max):
     ar_new[ar_new >= 256.0] = 255.0
     return ar_new.astype(np.uint8)
 
-def check_dataset():
-    if os.path.isdir(opts.path_source):
-        paths = [i.path for i in os.scandir(opts.path_source) if i.is_file() and i.path.lower().endswith('.czi')]  # order is arbitrary
-        dataset = fnet.data.DataSet3(
-            czis=paths,
-            signal=-1,
-            target=2,
-            transforms=None
-        )
-    else:
-        dataset = fnet.data.functions.load_dataset(opts.path_source)
-        # dataset = fnet.data.DataSet2(
-        #     path_load=opts.path_source,
-        #     train_select=True
-        # )
-    print(dataset)
-    if opts.plot_sel == 'boxes':
-        plot_boxplots(dataset)
-    if opts.plot_sel == 'means':
-        plot_mean_intensity_per_slice(dataset, slice_dim='z')
-
 def test_check_blank_slices():
     rng = np.random.RandomState(666)
     ar_test = rng.randint(100, 256, size=(10, 8, 12))
@@ -297,26 +276,28 @@ def save_backup(path_file, n_backups=5):
     shutil.copyfile(path_file, path_backup)
     print('wrote to:', path_backup)
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--path_train_csv', help='path to training set csv')
-    parser.add_argument('--path_test_csv', help='path to test set csv')
-    parser.add_argument('--path_output', default='data/dataset_eval', help='path to directory for output images and results')
-    parser.add_argument('--n_elements', help='maximum number of dataset elements to evaluate')
-    opts = parser.parse_args()
-
+def check_dataset_csvs(
+        path_train_csv,
+        path_test_csv,
+        path_output_dir,
+        n_elements,
+        set_sel,
+):
     dataset = fnet.data.DataSet(
-        path_train_csv = opts.path_train_csv,
-        path_test_csv = opts.path_test_csv,
+        path_train_csv = path_train_csv,
+        path_test_csv = path_test_csv,
         scale_z = None,
         scale_xy = None,
         transforms = None,
     )
-    dataset.use_train_set()
-    path_dir_output = os.path.join(opts.path_output, os.path.basename(opts.path_train_csv).split('.')[0])
+    if set_sel == 'train':
+        dataset.use_train_set()
+        path_dir_output = os.path.join(path_output_dir, os.path.basename(path_train_csv).split('.')[0])
+    else:
+        dataset.use_test_set()
+        path_dir_output = os.path.join(path_output_dir, os.path.basename(path_test_csv).split('.')[0])
     if not os.path.exists(path_dir_output):
         os.makedirs(path_dir_output)
-
     pass_fails = []
     for i in range(len(dataset)):
         element_passed, msg = check_dataset_element(
@@ -330,25 +311,29 @@ def main():
             'pass': element_passed,
             'reason': msg,
         })
-        if opts.n_elements is not None and (i + 1) == opts.n_elements:
+        if n_elements is not None and (i + 1) == n_elements:
             break
     path_csv_out = os.path.join(path_dir_output, 'results.csv')
     df_pass_fails = pd.DataFrame(pass_fails)
     df_pass_fails.to_csv(path_csv_out, index=False)
     print('saved results to:', path_csv_out)
-    
-    path_rejects_csv = os.path.join(opts.path_output, 'czi_rejects.csv')
-    if os.path.exists(path_rejects_csv):
-        df_rejects = pd.read_csv(path_rejects_csv)
-        df_rejects = pd.concat([df_rejects, df_pass_fails[df_pass_fails['pass'] == False]], ignore_index=True)
-        df_rejects.drop_duplicates(inplace=True)
-    else:
-        df_rejects = df_pass_fails[df_pass_fails['pass'] == False]
-    save_backup(path_rejects_csv)
-    df_rejects.to_csv(path_rejects_csv, index=False)
-    print('saved rejects to:', path_rejects_csv)
-    
-    remove_rejects_from_dataset_csv(opts.path_train_csv, path_rejects_csv)
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--path_train_csv', help='path to training set csv')
+    parser.add_argument('--path_test_csv', help='path to test set csv')
+    parser.add_argument('--path_output_dir', default='data/dataset_eval', help='path to directory for output images and results')
+    parser.add_argument('--n_elements', type=int, default=20, help='maximum number of dataset elements to evaluate')
+    parser.add_argument('--set_sel', choices=['train', 'test'], default='train', help='maximum number of dataset elements to evaluate')
+    opts = parser.parse_args()
+
+    check_dataset_csvs(
+        path_train_csv = opts.path_train_csv,
+        path_test_csv = opts.path_test_csv,
+        path_output_dir = opts.path_output_dir,
+        n_elements = opts.n_elements,
+        set_sel = opts.set_sel,
+    )
 
 def tester():
     path_test = 'tmp/fakefile.log'

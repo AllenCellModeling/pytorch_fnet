@@ -26,6 +26,8 @@ tags_to_colors_map = {
     'target': None,
 }
 
+
+
 tags_to_val_ranges_map = {
     'dna': (-0.7, 5.0),
     'fibrillarin': (-0.45, 14.0),
@@ -83,10 +85,22 @@ def convert_ar_grayscale_to_rgb(ar, hue_sat, val_range=None):
     ar_rgb[ar_rgb >= 256.0] = 255.0
     return ar_rgb.astype(np.uint8)
 
+def get_paths_sources(path_start, depth=0):
+    # search for tifs; go up to 1 layer deeper to search
+    paths_sources = [i.path for i in os.scandir(path_start) if i.path.lower().endswith('.tif')]
+    if depth <= 1 and len(paths_sources) == 0:
+        for path_dir in [i.path for i in os.scandir(path_start) if i.is_dir()]:
+            if 'colorize' in os.path.basename(path_dir):
+                print('skipping', path_dir)
+                continue
+            paths_sources.extend(get_paths_sources(path_dir, depth=(depth + 1)))
+    paths_sources.sort()
+    return paths_sources
+    
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--path_source_dir', help='path to directory of grayscale tifs')
-    parser.add_argument('--tags', nargs='+', help='path to directory of grayscale tifs')
+    parser.add_argument('--tags', nargs='+', help='tags in files to colorize')
     opts = parser.parse_args()
     
     assert os.path.exists(opts.path_source_dir)
@@ -94,19 +108,24 @@ if __name__ == '__main__':
     path_out_dir = os.path.join(opts.path_source_dir, 'colorize')
     if not os.path.exists(path_out_dir):
         os.makedirs(path_out_dir)
-
-    paths_sources = [os.path.join(opts.path_source_dir, i) for i in os.listdir(opts.path_source_dir) if i.lower().endswith('.tif')]
-    paths_sources.sort()
+    paths_sources = get_paths_sources(opts.path_source_dir)
 
     for path in paths_sources:
+        last_pos = -1
         path_source_basename = os.path.basename(path)
-        if opts.tags is not None and not any(tag in path for tag in opts.tags):
-            continue
         hue_sat = None
-        for tag in tags_to_colors_map:
-            if tag in path_source_basename:
-                hue_sat = tags_to_colors_map[tag]
-                val_range = tags_to_val_ranges_map[tag]
+        val_range = None
+        for tag in (tags_to_colors_map if opts.tags is None else opts.tags):
+            pos = path_source_basename.find(tag)
+            if pos >= 0:
+                if pos > last_pos:
+                    last_pos = pos
+                    hue_sat = tags_to_colors_map[tag]
+                    val_range = tags_to_val_ranges_map[tag]
+        if val_range is None:
+            print('could not find tag for:', path)
+            print('  skipping....')
+            continue
         img_source = tifffile.imread(path)
         print('DEBUG:', np.min(img_source), np.max(img_source), path)
 
@@ -122,3 +141,4 @@ if __name__ == '__main__':
         path_save = os.path.join(path_out_dir, path_out_basename)
         tifffile.imsave(path_save, img_new, photometric=('minisblack' if (hue_sat is None) else 'rgb'))
         print('saved:', path_save)
+

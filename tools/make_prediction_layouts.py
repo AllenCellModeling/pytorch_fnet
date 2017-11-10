@@ -10,6 +10,13 @@ TAGS_SIGNAL = ['signal', 'bright']
 TAGS_TARGET = ['target', 'DNA']
 TAGS_PREDICTION = ['prediction']
 
+# tag to contrast adjustment map
+ADJUSTMENT_MAP = {
+    'fibrillarin': {
+        'target': (-0.5, 12),
+        'prediction': (-0.5, 12),
+    }
+}
 
 def to_uint8(ar, val_min, val_max):
     ar_new = ar.copy()
@@ -63,6 +70,7 @@ def make_layout_image(
         path_source_dir,
         path_save_dir,
         n_images = 10,
+        adjustment_map = {},
 ):
     # layout options
     n_z_per_img = 5
@@ -70,16 +78,16 @@ def make_layout_image(
     padding_v = 5
     shape_z = 32
 
-    val_range_signal = (-10, 10)
-    #val_range_target = (-3, 8)
-    #val_range_prediction = (-1, 5)
-    val_range_target = (-3, 7)
-    val_range_prediction = (-0.9, 6)
-
+    val_range_signal = adjustment_map.get('signal', (-10, 10))
+    val_range_target = adjustment_map.get('target', (-3, 7))
+    val_range_prediction = adjustment_map.get('prediction', (-0.9, 6))
+        
     paths_tifs = sorted([i.path for i in os.scandir(path_source_dir) if i.is_file() and i.path.lower().endswith('.tif')])
     pattern = re.compile(r'.+_test_(\d+)_')
 
-    z_indices = [int((i + 1)*(shape_z/(n_z_per_img + 1))) for i in range(n_z_per_img)]
+    # z_indices = [int((i + 1)*(shape_z/(n_z_per_img + 1))) for i in range(n_z_per_img)]
+    inc = int(shape_z/(n_z_per_img + 1))
+    z_indices = list(range(inc, shape_z, inc))[:n_z_per_img]
 
     z_indices = np.flip(z_indices, axis=0)
     print('z_indices:', z_indices)
@@ -104,15 +112,16 @@ def make_layout_image(
             val_min, val_max = val_range_prediction
         if idx_col is not None:
             ar_pre = tifffile.imread(path)
+            print('DEBUG: {:30s} {:6.2f} {:6.2f}'.format(path_basename, np.min(ar_pre), np.max(ar_pre)))
             ar = to_uint8(ar_pre, val_min, val_max)       
             if idx_img != idx_old:
                 n_cols_done = 0
                 idx_old = idx_img
                 shape = (ar.shape[1]*n_z_per_img + (n_z_per_img - 1)*padding_h, ar.shape[2]*3 + 2*padding_v)
                 ar_fig = np.ones(shape, dtype=np.uint8)*255
-            offset_x = idx_col*(ar.shape[2] + padding_v)
+            offset_x = idx_col*(ar.shape[2] + padding_h)
             for idx_row, z_index in enumerate(z_indices):
-                offset_y = idx_row*(ar.shape[1] + padding_h)
+                offset_y = idx_row*(ar.shape[1] + padding_v)
                 img = ar[z_index, ].copy()
                 if (idx_col, idx_row) == (0, 0):
                     add_scale_bar(img, 20, 0.3)
@@ -143,6 +152,13 @@ def make_layout_image(
         print('z_slices:', z_indices, file=fo)
         print('saved z_slices info to:', path_save_log)
 
+def get_adjustment_map(path):
+    path_basename = os.path.basename(path)
+    for k in ADJUSTMENT_MAP:
+        if k in path_basename:
+            return ADJUSTMENT_MAP.get(k)
+    return {}
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('path_source_dir', help='directory (or directory of directory) of prediction results')
@@ -151,9 +167,12 @@ if __name__ == '__main__':
     opts = parser.parse_args()
     
     for path_source_dir in find_source_dirs(opts.path_source_dir):
+        print(path_source_dir)
+        adjustment_map = get_adjustment_map(path_source_dir)
         make_layout_image(
             path_source_dir = path_source_dir,
             path_save_dir = opts.path_save_dir,
             n_images = opts.n_images,
+            adjustment_map = adjustment_map,
         )
 

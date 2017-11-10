@@ -7,23 +7,9 @@ import numpy as np
 import scipy.misc
 from fnet.data.czireader import CziReader
 import fnet.data
+import time
+import functions
 import pdb
-
-TARGET_CHOICES = (
-    'Alpha tubulin',
-    'Beta actin',
-    'Desmoplakin',
-    'Fibrillarin',
-    'Lamin B1',
-    'Myosin IIB',
-    'Sec61 beta',
-    'Tom20',
-    'ZO1',
-    'dna',
-    'membrane',
-    'dic-lamin_b1',
-    'dic-membrane',
-)
 
 def to_uint8(ar, val_min, val_max):
     ar_new = ar.copy()
@@ -35,13 +21,16 @@ def to_uint8(ar, val_min, val_max):
     return ar_new.astype(np.uint8)
 
 def save_vol_slices(path_save, vols):
+    if len(vols) > 2:
+        print('> 2 volumes not yet supported')
+        return
     # layout options
     n_z_per_img = 3
     padding_h = 5
     padding_v = 5
     val_range_signal = (-10, 10)
     val_range_target = (-3, 7)
-    val_ranges = (val_range_signal, val_range_target)
+    val_ranges = (val_range_signal, ) + (val_range_target, )*(len(vols) - 1)
     if vols is not None:
         # print('shapes:', vols[0].shape, vols[1].shape)
         shape = (vols[0].shape[1]*n_z_per_img + padding_v*(n_z_per_img - 1),
@@ -85,7 +74,7 @@ def eval_czi(path_czi, channels_sel, path_save=None):
     ]
     print('reading:', path_czi)
     czi = CziReader(path_czi)
-    if len(channels_sel) < 1:
+    if channels_sel == -1:
         channels_sel = range(czi.get_size('C'))
     messages = []
     vols = []
@@ -128,51 +117,62 @@ def get_column_names(target):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--n_files', type=int, default=60, help='maximum number of CZI files to evaluate')
-    parser.add_argument('--path_csv', default='data/all_microscopy_czis.csv' ,help='path to training set csv')
+    parser.add_argument('--check_all_channels', action='store_true',  help='set to check all channels of czi')
+    parser.add_argument('--n_files', type=int, help='maximum number of CZI files to evaluate')
+    parser.add_argument('--path_csv', help='path to csv with CZI paths')
     parser.add_argument('--path_output_dir', default='data/czi_eval', help='path to directory for output images and results')
-    parser.add_argument('--seed', type=int, default=666, help='random seed')
-    parser.add_argument('--target', choices=TARGET_CHOICES, help='target structure')
+    parser.add_argument('--save_layouts', action='store_true', help='save slice layoust for each element')
+    parser.add_argument('--shuffle', action='store_true', help='shuffle czis in csv')
     opts = parser.parse_args()
+    
+    time_start = time.time()
+    interval_checkpoint = 500
+    
     df_source = pd.read_csv(opts.path_csv)
     print('read csv:', opts.path_csv)
-    df_check = get_df_check(df_source, opts.target)
-    path_save_dir = os.path.join(
-        opts.path_output_dir,
-        opts.target.lower().replace(' ', '_').replace('-', '_') if opts.target is not None else
-        os.path.basename(opts.path_csv)
-    )
-    if not os.path.exists(path_save_dir):
-        os.makedirs(path_save_dir)
-    if opts.n_files > df_check.shape[0]:
-        n_files = df_check.shape[0]
-    rng = np.random.RandomState(opts.seed)
-    indices = rng.choice(np.arange(df_check.shape[0]), replace=False, size=df_check.shape[0])
-    column_sel = ['path_czi'] + get_column_names(opts.target)
+    basename = os.path.basename(opts.path_csv)
+
+    if not os.path.exists(opts.path_output_dir):
+        os.makedirs(opts.path_output_dir)
+
+    n_files = opts.n_files if opts.n_files is not None else df_source.shape[0]
+    if opts.shuffle:
+        rng = np.random.RandomState(opts.seed)
+        indices = rng.choice(np.arange(df_source.shape[0]), replace=False, size=n_files)
+    else:
+        indices = range(n_files)
+    check_all_channels = False
+    if (opts.check_all_channels or
+        'channel_signal' not in df_source.columns or
+        'channel_target' not in df_source.columns):
+        check_all_channels = True
     entries = []
+    path_save_csv = os.path.join(
+        opts.path_output_dir,
+        basename + '_check.csv'
+    )
     count = 0
     for idx in indices:
+        count += 1
+        print('checking: idx {:d} | count: {:d} of {:d}'.format(idx, count, len(indices)))
         channels_sel = []
         entry = {}
-        czi_row = df_check.iloc[idx][column_sel]
-        path_czi = czi_row.values[0]
-        if opts.target is not None:
-            channel_signal, channel_target = czi_row.values[1] - 1, czi_row.values[2] - 1
-            entry['channel_signal'] = channel_signal
-            entry['channel_target'] = channel_target
-            channels_sel.extend([channel_signal, channel_target])
-        path_save = os.path.join(path_save_dir, 'element_{:03d}.png'.format(idx)) if opts.target is not None else None
-        reason = eval_czi(path_czi, channels_sel, path_save)
-        entry['path_czi'] = path_czi
-        entry['pass'] = reason == ''
-        entry['reason'] = reason
-        entries.append(entry)
-        count += 1
-        if count >= opts.n_files:
-            break
-    path_results_csv = os.path.join(path_save_dir, 'results.csv')
-    pd.DataFrame(entries).to_csv(path_results_csv, index=False)
-    print('saved results csv to:', path_results_csv)
+        czi_row = df_source.iloc[idx].copy()
+        path_czi = czi_row['path_czi']
+        if check_all_channels:
+            channels_check = -1
+        else:
+            channels_check = [czi_row['channel_signal'], czi_row['channel_target']]
+        path_save = os.path.join(opts.path_output_dir, '{:s}_element_{:03d}.png'.format(basename, idx)) if opts.save_layouts else None
+        reason = eval_czi(path_czi, channels_check, path_save)
+        czi_row['pass'] = reason == ''
+        czi_row['reason'] = reason
+        entries.append(czi_row)
+        if (count % interval_checkpoint == 0) or (count >= len(indices)):
+            functions.save_backup(path_save_csv)
+            pd.DataFrame(entries).to_csv(path_save_csv, index=False)
+            print('saved results csv to:', path_save_csv)
+            print('time elapsed: {:.1f}'.format(time.time() - time_start))
 
 if __name__ == '__main__':
     main()
