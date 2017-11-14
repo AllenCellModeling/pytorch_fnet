@@ -30,7 +30,7 @@ def _shuffle_split_df(df_all, train_split, no_shuffle=False):
         df_test = df_all_shuf[idx_split:]
     return df_train, df_test
 
-def _get_shape_from_metadata(metadata):
+def get_shape_from_metadata(metadata):
     """Return tuple of CZI's dimensions in order (Z, Y, X)."""
     tag_list = 'Metadata.Information.Image'.split('.')
     elements = get_czi_metadata(metadata, tag_list)
@@ -120,7 +120,7 @@ def create_train_test_dataframe_from_timelapse_czi(
     
     # check CZI dimensions
     dims_min = (32, 64, 64)
-    shape = _get_shape_from_metadata(meta)
+    shape = get_shape_from_metadata(meta)
     assert all((shape[i] >= dims_min[i]) for i in range(3))
             
     tag_list = 'Metadata.DisplaySetting.Channels.Channel.attrib'.split('.')
@@ -158,7 +158,7 @@ def create_dataset_from_timelapse_czi(
     
     # check CZI dimensions
     dims_min = (32, 64, 64)
-    shape = _get_shape_from_metadata(meta)
+    shape = get_shape_from_metadata(meta)
     assert all((shape[i] >= dims_min[i]) for i in range(3))
             
     tag_list = 'Metadata.DisplaySetting.Channels.Channel.attrib'.split('.')
@@ -208,7 +208,7 @@ def create_dataset_from_dir(
         
         # check CZI dimensions
         dims_min = (32, 64, 64)
-        shape = _get_shape_from_metadata(meta)
+        shape = get_shape_from_metadata(meta)
         if any((shape[i] < dims_min[i]) for i in range(3)):
             print('CZIs dims {} below minimum {}. Skipping: {}'.format(shape, dims_min, path))
             continue

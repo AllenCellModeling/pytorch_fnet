@@ -1,10 +1,12 @@
-#!/bin/bash -v
+#!/bin/bash -x
 
+TARGET=dna
 N_ITER=20
 BUFFER_SIZE=1
 RUN_DIR="saved_models/TEST"
-PATH_DATA_TRAIN="data/lamin_b1_train.csv"
-PATH_DATA_TEST="data/lamin_b1_test.csv"
+PATH_DATA_TRAIN="data/csvs/${TARGET}_train.csv"
+PATH_DATA_TEST="data/csvs/${TARGET}_test.csv"
+GPU_IDS=${1:-0}
 
 cd $(cd "$(dirname ${BASH_SOURCE})" && pwd)/..
 
@@ -18,5 +20,7 @@ python train_model.py \
        --path_test_csv ${PATH_DATA_TEST} \
        --batch_size 24 \
        --nn_module ttf_v8_nn \
-       --path_run_dir ${RUN_DIR}
+       --no_checkpoint_testing \
+       --path_run_dir ${RUN_DIR} \
+       --gpu_ids ${GPU_IDS}
 
