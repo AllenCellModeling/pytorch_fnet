@@ -62,18 +62,28 @@ def check_blank_slices(volume, slice_dim='z'):
         return msg
     return ''
 
+def check_czi_dims(metadata):
+    dims_min = (34, None, None)
+    shape = fnet.data.get_shape_from_metadata(metadata)
+    for i in range(len(shape)):
+        if ((dims_min[i] is not None) and
+           (shape[i] < dims_min[i])):
+            return 'dim {:d} too small (got: {:d}; min: {:d})'.format(i, shape[i], dims_min[i])
+    return ''
+
 def eval_czi(path_czi, channels_sel, path_save=None):
     """
     path_czi : path to CZI file
     channels_sel : list of channels to check
     """
+    print('checking:', path_czi)
     if not os.path.exists(path_czi):
         return 'file does not exist'
-    vol_check_list = [
-        check_blank_slices,
-    ]
-    print('reading:', path_czi)
     czi = CziReader(path_czi)
+    msg = check_czi_dims(czi.metadata)
+    if msg != '':
+        return msg
+    
     if channels_sel == -1:
         channels_sel = range(czi.get_size('C'))
     messages = []
@@ -81,10 +91,9 @@ def eval_czi(path_czi, channels_sel, path_save=None):
     for chan in channels_sel:
         vol = czi.get_volume(chan)
         vols.append(vol)
-        for check in vol_check_list:
-            msg = check(vol)
-            if msg != '':
-                messages.append('chan {:d} {:s}'.format(chan, msg))
+        msg = check_blank_slices(vol)
+        if msg != '':
+            messages.append('chan {:d} {:s}'.format(chan, msg))
     if path_save is not None:
         save_vol_slices(path_save, vols)
     if len(messages) > 0:

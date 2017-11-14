@@ -1,5 +1,6 @@
 import argparse
 import numpy as np
+import pandas as pd
 import os
 import re
 import tifffile
@@ -85,13 +86,8 @@ def make_layout_image(
     paths_tifs = sorted([i.path for i in os.scandir(path_source_dir) if i.is_file() and i.path.lower().endswith('.tif')])
     pattern = re.compile(r'.+_test_(\d+)_')
 
-    # z_indices = [int((i + 1)*(shape_z/(n_z_per_img + 1))) for i in range(n_z_per_img)]
-    inc = int(shape_z/(n_z_per_img + 1))
-    z_indices = list(range(inc, shape_z, inc))[:n_z_per_img]
-
-    z_indices = np.flip(z_indices, axis=0)
-    print('z_indices:', z_indices)
-
+    entry_log = {}
+    entries_log = []
     idx_old = None
     count_images = 0
     for i, path in enumerate(paths_tifs):
@@ -104,12 +100,15 @@ def make_layout_image(
         if any(tag in path_basename for tag in TAGS_SIGNAL):
             idx_col = 0
             val_min, val_max = val_range_signal
+            entry_log['path_signal'] = path
         if any(tag in path_basename for tag in TAGS_TARGET):
             idx_col = 1
             val_min, val_max = val_range_target
+            entry_log['path_target'] = path
         if any(tag in path_basename for tag in TAGS_PREDICTION):
             idx_col = 2
             val_min, val_max = val_range_prediction
+            entry_log['path_prediction'] = path
         if idx_col is not None:
             ar_pre = tifffile.imread(path)
             print('DEBUG: {:30s} {:6.2f} {:6.2f}'.format(path_basename, np.min(ar_pre), np.max(ar_pre)))
@@ -119,6 +118,11 @@ def make_layout_image(
                 idx_old = idx_img
                 shape = (ar.shape[1]*n_z_per_img + (n_z_per_img - 1)*padding_h, ar.shape[2]*3 + 2*padding_v)
                 ar_fig = np.ones(shape, dtype=np.uint8)*255
+                
+                inc = int(ar.shape[0]/(n_z_per_img + 1))
+                z_indices = list(range(inc, ar.shape[0], inc))[:n_z_per_img]
+                z_indices = np.flip(z_indices, axis=0)
+                entry_log['z_indices'] = z_indices
             offset_x = idx_col*(ar.shape[2] + padding_h)
             for idx_row, z_index in enumerate(z_indices):
                 offset_y = idx_row*(ar.shape[1] + padding_v)
@@ -141,16 +145,17 @@ def make_layout_image(
                     os.makedirs(path_save_base)
                 scipy.misc.imsave(path_save_img, ar_fig)
                 print('saved image to:', path_save_img)
+                entry_log['path_layout'] = path_save_img
+                entries_log.append(entry_log)
+                entry_log = {}
                 count_images += 1
         if count_images >= n_images:
             break
     path_save_log = os.path.join(
         path_save_base,
-        'z_slices.txt',
+        'layouts_records.csv',
     )
-    with open(path_save_log, 'w') as fo:
-        print('z_slices:', z_indices, file=fo)
-        print('saved z_slices info to:', path_save_log)
+    pd.DataFrame(entries_log).to_csv(path_save_log, index=False)
 
 def get_adjustment_map(path):
     path_basename = os.path.basename(path)
@@ -161,17 +166,24 @@ def get_adjustment_map(path):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('path_source_dir', help='directory (or directory of directory) of prediction results')
-    parser.add_argument('--path_save_dir', default='fnet_paper/example_predictions', help='directory to save results')
+    parser.add_argument('--path_source_dir', help='directory (or directory of directory) of prediction results')
+    parser.add_argument('--path_save_dir', help='directory to save results')
     parser.add_argument('--n_images', type=int, default=8, help='number of examples to lay out')
     opts = parser.parse_args()
-    
+
+    path_save_dir = opts.path_save_dir
+    if path_save_dir is None:
+        path_save_dir = os.path.join(
+            opts.path_source_dir,
+            'layouts'
+        )
+
     for path_source_dir in find_source_dirs(opts.path_source_dir):
         print(path_source_dir)
         adjustment_map = get_adjustment_map(path_source_dir)
         make_layout_image(
             path_source_dir = path_source_dir,
-            path_save_dir = opts.path_save_dir,
+            path_save_dir = path_save_dir,
             n_images = opts.n_images,
             adjustment_map = adjustment_map,
         )

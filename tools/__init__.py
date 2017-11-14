@@ -1,3 +1,1 @@
-from functions import *
-
-dlkfdfk
+from .functions import *
