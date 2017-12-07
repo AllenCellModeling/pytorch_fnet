@@ -31,6 +31,7 @@ class Cropper(object):
         self.n_max_pixels = n_max_pixels
         self.reduce_by = reduce_by
         self._shape_adjustments = {}
+        self.crops = {}
 
     def _adjust_shape_crop(self, shape_crop):
         key = tuple(shape_crop)
@@ -39,22 +40,47 @@ class Cropper(object):
         shape_crop_new = list(shape_crop)
         prod_shape = np.prod(shape_crop_new)
         idx_dim_reduce = 0
-        if shape_crop[0] <= 64:
-            order_dim_reduce = [2, 1, 2, 1, 2, 1, 0]
-        else:
-            order_dim_reduce = [2, 1, 2, 1, 0]
+
+        order_dim_reduce = [2, 1, 2, 2, 1, 0]
+
         while prod_shape > self.n_max_pixels:
             dim = order_dim_reduce[idx_dim_reduce]
-            shape_crop_new[dim] -= self.reduce_by
-            prod_shape = np.prod(shape_crop_new)
+            if not (dim == 0 and shape_crop_new[dim] <= 64):
+                print('DEBUG: reducing dim', dim)
+                shape_crop_new[dim] -= self.reduce_by
+                prod_shape = np.prod(shape_crop_new)
             idx_dim_reduce += 1
             if idx_dim_reduce >= len(order_dim_reduce):
                 idx_dim_reduce = 0
         value = tuple(shape_crop_new)
         self._shape_adjustments[key] = value
+        print('DEBUG: cropper shape change', shape_crop, 'becomes', value)
         return value
-    
+
+    def _get_shape_crop(self, x):
+        shape_crop = []
+        for i in range(len(self.shape)):
+            if self.shape[i] is None:
+                raise NotImplementedError
+            elif isinstance(self.shape[i], int):
+                if self.shape[i] > x.shape[i]:
+                    warnings.warn('Crop dimensions larger than image dimension ({} > {} for dim {}).'.format(self.shape[i], x.shape[i], i))
+                    return None
+                shape_crop.append(self.shape[i])
+            elif isinstance(self.shape[i], str):  # e.g., '/16'
+                multiple_of = int(self.shape[i][1:])
+                shape_crop.append(x.shape[i] & ~(multiple_of - 1))
+            else:
+                raise NotImplementedError
+        shape_crop = self._adjust_shape_crop(shape_crop)
+        return shape_crop
+
     def __call__(self, x):
+        shape_input = x.shape
+        if shape_input in self.crops:
+            slices = self.crops[shape_input]['slices']
+            print('DEBUG: using stored calculation: {} -> {}'.format(shape_input, slices))
+            return x[slices].copy()
         shape_crop = []
         for i in range(len(self.shape)):
             if self.shape[i] is None:
@@ -71,6 +97,7 @@ class Cropper(object):
                 raise NotImplementedError
         shape_crop = self._adjust_shape_crop(shape_crop)
         slices = []
+        offsets_crop = []
         for i in range(len(self.shape)):
             if self.offsets[i] == 'mid':  # take crop from middle of input array dim
                 offset = (x.shape[i] - shape_crop[i])//2
@@ -80,7 +107,13 @@ class Cropper(object):
                 warnings.warn('Cannot crop outsize image dimensions ({}:{} for dim {}). Starting crop from 0 instead.'.format(offset, offset + shape_crop[i], i))
                 offset = 0
             slices.append(slice(offset, offset + shape_crop[i]))
+            offsets_crop.append(offset)
         # print('DEBUG: shape', x[slices].shape, '| pixels', x[slices].size)
+        self.crops[shape_input] = {
+            'shape_crop': shape_crop,
+            'offsets_crop': offsets_crop,
+            'slices': slices,
+        }
         return x[slices].copy()
 
     def __str__(self):
