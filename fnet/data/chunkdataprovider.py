@@ -6,7 +6,9 @@ import pdb
 class ChunkDataProvider(object):
     def __init__(self, dataset, buffer_size, batch_size, replace_interval,
                  dims_chunk=(32, 64, 64), dims_pin=(None, None, None),
-                 transforms=None):
+                 transforms=None,
+                 choices_augmentation = None,
+    ):
         """
         dataset - DataSet instance
         buffer_size - (int) number images to generate batches from
@@ -18,6 +20,9 @@ class ChunkDataProvider(object):
         transforms - list of transforms to apply to each DataSet element
         """
         assert transforms is None or isinstance(transforms, (list, tuple))
+        assert choices_augmentation is None or all(i in range(8) for i in choices_augmentation)
+        print('DEBUG: augmentation', choices_augmentation)
+        
         self._dataset = dataset
         self._buffer_size = buffer_size
         self._batch_size = batch_size
@@ -39,6 +44,8 @@ class ChunkDataProvider(object):
         self._update_last_sources()
         self._shape_batch = [self._batch_size, 1] + list(self._dims_chunk)
         self._dims_chunk_options = (self._dims_chunk, (self._dims_chunk[0]//2, *self._dims_chunk[1:]))
+        
+        self.choices_augmentation = choices_augmentation
 
     def use_test_set(self):
         self._dataset.use_test_set()
@@ -99,6 +106,24 @@ class ChunkDataProvider(object):
         source_list = [str(package[0]) for package in self._buffer]
         self.last_sources = '|'.join(source_list)
 
+    def _augment_chunks(self, chunks):
+        if self.choices_augmentation is None:
+            return chunks
+        chunks_new = []
+        choice = np.random.choice(self.choices_augmentation)
+        for chunk in chunks:
+            chunk_new = chunk
+            if choice in [1, 3, 5, 7]:
+                chunk_new = np.flip(chunk_new, axis=1)
+            if   choice in [2, 3]:
+                chunk_new = np.rot90(chunk_new, 1, axes=(1, 2))
+            elif choice in [4, 5]:
+                chunk_new = np.rot90(chunk_new, 2, axes=(1, 2))
+            elif choice in [6, 7]:
+                chunk_new = np.rot90(chunk_new, 3, axes=(1, 2))
+            chunks_new.append(chunk_new)
+        return chunks_new
+
     def _gen_batch(self):
         """Generate a batch from sources in self._buffer
         
@@ -120,12 +145,10 @@ class ChunkDataProvider(object):
                 batch_x = np.zeros((self._batch_size, 1, ) + chunks_transformed[0].shape, dtype=np.float32)
                 batch_y = np.zeros((self._batch_size, 1, ) + chunks_transformed[1].shape, dtype=np.float32)
             # pdb.set_trace()
-            batch_x[i, 0, ...] = chunks_transformed[0]
-            batch_y[i, 0, ...] = chunks_transformed[1]
-        
-        # self._dims_chunk = self._dims_chunk_options[np.random.randint(2)]  # randomly select chunk's z-dimension shape
-        # self._shape_batch[2:] = self._dims_chunk  # update shape_batch incase dims_chunk changed
-        return (batch_x, batch_y)
+            chunks_augmented = self._augment_chunks(chunks_transformed)
+            batch_x[i, 0, ...] = chunks_augmented[0]
+            batch_y[i, 0, ...] = chunks_augmented[1]
+        return batch_x, batch_y
     
     def _pick_random_chunk_coords(self):
         """Returns a random coordinate from random images in buffer.
