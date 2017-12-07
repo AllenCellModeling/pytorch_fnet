@@ -22,4 +22,4 @@ RUN pip install tifffile
 COPY jupyter_notebook_config.py /root/.jupyter/
 EXPOSE 9998
 
-WORKDIR "/root/projects/pytorch_fnet"
+WORKDIR "/root/projects"
