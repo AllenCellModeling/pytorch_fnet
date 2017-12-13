@@ -3,6 +3,8 @@ import numpy as np
 from aicsimage.io import omeTifWriter
 import pdb
 import torch
+import json
+import importlib
 
 def find_z_max_intensity(ar):
     """Given a ZYX numpy array, return the z value of the XY-slice the highest total pixel intensity."""
@@ -66,6 +68,19 @@ def save_run_state(path_save, loss_log):
     )
     torch.save(dict_state, path_save)
     print('run state saved to:', path_save)
+
+def load_model_from_dir(path_model_dir, gpu_ids=0):
+    assert os.path.isdir(path_model_dir)
+    path_model_state = os.path.join(path_model_dir, 'model.p')
+    path_train_options = os.path.join(path_model_dir, 'train_options.json')
+    with open(path_train_options, 'r') as fi:
+        train_options = json.load(fi)
+    model_module = importlib.import_module('model_modules.'  + train_options['model_module'])
+    model = model_module.Model(
+        gpu_ids=gpu_ids,
+    )
+    model.load_state(path_model_state)
+    return model
 
 def load_run_state(path_load):
     dict_state = torch.load(path_load)
