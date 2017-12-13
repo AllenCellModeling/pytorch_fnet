@@ -36,6 +36,8 @@ def main():
     parser.add_argument('--replace_interval', type=int, default=-1, help='iterations between replacements of images in cache')
     parser.add_argument('--path_run_dir', default='saved_models', help='base directory for saved models')
     parser.add_argument('--seed', type=int, help='random seed')
+    parser.add_argument('--name_dataset_module', default='fnet.data.dataset', help='name of dataset module with DataSet class')
+    parser.add_argument('--choices_augmentation', nargs='+', type=(lambda x: None if x == 'None' else int(x)), help='data augmentation setting')
     opts = parser.parse_args()
     model_module = importlib.import_module('model_modules.' + opts.model_module)
     
@@ -92,15 +94,19 @@ def main():
             transforms_signal = opts.transforms_signal,
             transforms_target = opts.transforms_target,
             path_save = path_ds,
+            name_dataset_module = opts.name_dataset_module,
         )
-    dataset = fnet.data.load_dataset_from_json(path_load = path_ds)
+    dataset = fnet.data.load_dataset_from_json(
+        path_load = path_ds,
+    )
     logger.info(dataset)
-    
+
     data_provider = fnet.data.ChunkDataProvider(
         dataset,
         buffer_size=opts.buffer_size,
         batch_size=opts.batch_size,
         replace_interval=opts.replace_interval,
+        choices_augmentation=opts.choices_augmentation,
     )
 
     data_provider_nonchunk = None
