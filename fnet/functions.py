@@ -1,3 +1,4 @@
+import sys
 import os
 import numpy as np
 from aicsimage.io import omeTifWriter
@@ -5,6 +6,7 @@ import pdb
 import torch
 import json
 import importlib
+import fnet.transforms
 
 def find_z_max_intensity(ar):
     """Given a ZYX numpy array, return the z value of the XY-slice the highest total pixel intensity."""
@@ -69,6 +71,42 @@ def save_run_state(path_save, loss_log):
     torch.save(dict_state, path_save)
     print('run state saved to:', path_save)
 
+def load_dataset_from_dir(path_model_dir, gpu_ids=0):
+    assert os.path.isdir(path_model_dir)
+    path_dataset = os.path.join(path_model_dir, 'ds.json')
+    dataset = load_dataset_from_json(path_dataset)
+    return dataset
+
+def load_dataset_from_json(path_load):
+    def get_obj(a):
+        a = a.replace('fnet.data', 'fnet.transforms') # hardcode for old naming
+        if a is None:
+            return None
+        a_list = a.split('.')
+        obj = getattr(sys.modules[__name__], a_list[0])
+        for i in range(1, len(a_list)):
+            obj = getattr(obj, a_list[i])
+        return obj
+
+    with open(path_load, 'r') as fi:
+        dict_ds = json.load(fi)
+    transforms_signal, transforms_target = None, None
+    if dict_ds.get('transforms_signal') is not None:
+        transforms_signal = [get_obj(i) for i in dict_ds.get('transforms_signal')]
+    if dict_ds.get('transforms_target') is not None:
+        transforms_target = [get_obj(i) for i in dict_ds.get('transforms_target')]
+    name_dataset_module = dict_ds.get('name_dataset_module', 'fnet.data.dataset')
+    transforms = (transforms_signal, transforms_target)
+    dataset_module = importlib.import_module(name_dataset_module)
+    dataset = dataset_module.DataSet(
+        path_train_csv = dict_ds['path_train_csv'],
+        path_test_csv = dict_ds['path_test_csv'],
+        scale_z = dict_ds['scale_z'],
+        scale_xy = dict_ds['scale_xy'],
+        transforms=transforms,
+    )
+    return dataset
+    
 def load_model_from_dir(path_model_dir, gpu_ids=0):
     assert os.path.isdir(path_model_dir)
     path_model_state = os.path.join(path_model_dir, 'model.p')

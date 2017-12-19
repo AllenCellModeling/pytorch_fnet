@@ -7,7 +7,7 @@ import pdb
 import collections
 import warnings
 from fnet.data.czireader import CziReader
-from fnet.data.transforms import Resizer
+from fnet.transforms import Resizer
 
 class DataSet(object):
     def __init__(self,
