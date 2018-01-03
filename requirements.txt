@@ -1,0 +1,10 @@
+jupyter
+natsort
+pillow
+matplotlib
+torchvision
+pandas
+requests
+scikit-image
+nose
+tifffile

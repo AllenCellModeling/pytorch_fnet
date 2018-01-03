@@ -3,7 +3,7 @@ import argparse
 import importlib
 import fnet
 import fnet.data
-import fnet.data.transforms
+import fnet.transforms
 import pandas as pd
 import numpy as np
 import torch
@@ -96,7 +96,7 @@ def main():
             path_save = path_ds,
             name_dataset_module = opts.name_dataset_module,
         )
-    dataset = fnet.data.load_dataset_from_json(
+    dataset = fnet.load_dataset_from_json(
         path_load = path_ds,
     )
     logger.info(dataset)
@@ -112,7 +112,7 @@ def main():
     data_provider_nonchunk = None
     if not opts.no_checkpoint_testing:
         dims_cropped = (32, '/16', '/16')
-        cropper = fnet.data.transforms.Cropper(dims_cropped, offsets=('mid', 0, 0))
+        cropper = fnet.transforms.Cropper(dims_cropped, offsets=('mid', 0, 0))
         transforms_nonchunk = (cropper, cropper)
         data_provider_nonchunk = fnet.data.TestImgDataProvider(
             dataset,
