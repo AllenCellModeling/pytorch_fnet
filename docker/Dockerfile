@@ -1,4 +1,4 @@
-FROM pytorch-cudnnv6
+FROM pytorch
 
 RUN apt update
 RUN apt install -y vim
