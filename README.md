@@ -4,16 +4,23 @@ Pytorch Fluorescence Net
 ![Model](doc/PredictingStructures-1.jpg?raw=true "Model Architecture")
 
 ## Setup
-Build the Docker image:  
+Installing on linux is recommended
+
+### Prerequisites
+Running on docker is recommended, though not required.
+ - install pytorch on docker / nvidia-docker as in e.g. this guide: https://github.com/pytorch/pytorch/tree/v0.3.1
+ - download the training images: **todo**
+
+### Build the Docker image:  
 ```
-cd docker
-./build_pytorch_ttf.sh
+docker build -t ${USER}/pytorch_fnet -f Dockerfile .
 ```
-Start Docker container:  
+Note: You may need to edit the Dockerfile to point to the correct pytorch image.
+### Start Docker container:  
 ```
 ./start_docker.sh
 ```
-## Start example training run
+### Start example training run
 ```
 ./scripts/test_run.sh
 ```
