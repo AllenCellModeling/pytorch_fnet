@@ -14,9 +14,9 @@ WORKDIR "/root/projects"
 COPY . /root/projects/pytorch_fnet
 WORKDIR "/root/projects/pytorch_fnet"
 
-RUN conda install -y jupyter=1.0.0 \
-    matplotlib=2.1.1 \
-    pandas=0.21.1 \
-    tifffile=0.12.1 \
+# RUN conda install -y jupyter=1.0.0 \
+#    matplotlib=2.1.1 \
+#    pandas=0.21.1 \
+#    tifffile=0.12.1 \
 
 RUN python setup.py develop
