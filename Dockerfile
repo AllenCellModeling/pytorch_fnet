@@ -17,3 +17,4 @@ RUN conda env create --name pytorch_fnet -f environment.yml
 ENV PATH /opt/conda/envs/pytorch_fnet/bin:$PATH
 ENV CONDA_DEFAULT_ENV pytorch_fnet
 ENV CONDA_PREFIX /opt/conda/envs/pytorch_fnet
+RUN python setup.py develop
