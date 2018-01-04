@@ -13,7 +13,6 @@ dependencies:
 - cloudpickle=0.5.2=py36h84cdd9c_0
 - cryptography=2.1.4=py36hd09be54_0
 - cudatoolkit=8.0=3
-- cudnn=7.0.5=cuda8.0_0
 - cycler=0.10.0=py36h93f1223_0
 - dask=0.16.0=py36h73d177f_0
 - dask-core=0.16.0=py36ha827fd6_0
