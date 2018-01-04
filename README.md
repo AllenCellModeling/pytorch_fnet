@@ -15,6 +15,7 @@ Running on docker is recommended, though not required.
 ```
 docker build -t ${USER}/pytorch_fnet -f Dockerfile .
 ```
+Note: You may need to edit the Dockerfile to point to the correct pytorch image
 ### Start Docker container:  
 ```
 ./start_docker.sh
