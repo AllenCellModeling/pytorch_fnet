@@ -13,8 +13,7 @@ Running on docker is recommended, though not required.
 
 ### Build the Docker image:  
 ```
-cd docker
-./build_pytorch_ttf.sh
+docker build -t ${USER}/pytorch_fnet -f Dockerfile .
 ```
 ### Start Docker container:  
 ```
