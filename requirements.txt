@@ -1,10 +1,4 @@
-jupyter
-natsort
-pillow
-matplotlib
-torchvision
-pandas
-requests
-scikit-image
-nose
-tifffile
+jupyter==1.0.0
+matplotlib==2.1.1
+pandas==0.21.1
+tifffile==0.12.1
