@@ -15,7 +15,8 @@ RUN conda config --add channels https://repo.continuum.io/pkgs/main
 RUN conda install -y jupyter=1.0.0 \
     matplotlib=2.1.1 \
     pandas=0.21.1 \
-    tifffile=0.12.1 \
+
+RUN pip install -y tifffile==0.12.1
 
 WORKDIR "/root/projects"
 COPY . /root/projects/pytorch_fnet
