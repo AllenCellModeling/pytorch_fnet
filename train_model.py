@@ -44,6 +44,7 @@ def main():
     if not os.path.exists(opts.path_run_dir):
         os.makedirs(opts.path_run_dir)
 
+    #Setup logging
     logger = logging.getLogger('model training')
     logger.setLevel(logging.DEBUG)
     fh = logging.FileHandler(os.path.join(opts.path_run_dir, 'run.log'), mode='a')
@@ -51,33 +52,42 @@ def main():
     fh.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
     logger.addHandler(fh)
     logger.addHandler(sh)
-    warnings.showwarning = lambda *args, **kwargs : logger.warning(warnings.formatwarning(*args, **kwargs))
+#     warnings.showwarning = lambda *args, **kwargs : logger.warning(warnings.formatwarning(*args, **kwargs))
 
+    #Set GPU
     main_gpu_id = opts.gpu_ids if isinstance(opts.gpu_ids, int) else opts.gpu_ids[0]
     torch.cuda.set_device(main_gpu_id)
     logger.info('main GPU ID: {:d}'.format(torch.cuda.current_device()))
 
+    #Set random seed
     if opts.seed is not None:
         np.random.seed(opts.seed)
         torch.manual_seed(opts.seed)
         torch.cuda.manual_seed_all(opts.seed)
 
+    #Instantiate Model
     model = model_module.Model(
         nn_module=opts.nn_module,
         lr=opts.lr,
         gpu_ids=opts.gpu_ids,
     )
+    logger.info('Model instianted from: {:s}'.format(opts.nn_module))
+    
+    #Load saved model if it already exists
     path_model = os.path.join(opts.path_run_dir, 'model.p')
     if os.path.exists(path_model):
         model.load_state(path_model)
         logger.info('model loaded from: {:s}'.format(path_model))
     logger.info(model)
     
+    #Load saved history if it already exists
     path_losses_csv = os.path.join(opts.path_run_dir, 'losses.csv')
     df_losses = pd.DataFrame()
     if os.path.exists(path_model):
         df_losses = pd.read_csv(path_losses_csv)
+        logger.info('History loaded from: {:s}'.format(path_losses_csv))
         
+    #Setup dataset
     path_ds = os.path.join(opts.path_run_dir, 'ds.json')
     if not os.path.exists(path_ds):
         path_train_csv_copy = os.path.join(opts.path_run_dir, os.path.basename(opts.path_train_csv))
@@ -100,6 +110,7 @@ def main():
         path_load = path_ds,
     )
     logger.info(dataset)
+
 
     data_provider = fnet.data.ChunkDataProvider(
         dataset,

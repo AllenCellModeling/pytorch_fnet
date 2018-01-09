@@ -90,11 +90,15 @@ def load_dataset_from_json(path_load):
 
     with open(path_load, 'r') as fi:
         dict_ds = json.load(fi)
+    
     transforms_signal, transforms_target = None, None
+    
     if dict_ds.get('transforms_signal') is not None:
         transforms_signal = [get_obj(i) for i in dict_ds.get('transforms_signal')]
+    
     if dict_ds.get('transforms_target') is not None:
         transforms_target = [get_obj(i) for i in dict_ds.get('transforms_target')]
+    
     name_dataset_module = dict_ds.get('name_dataset_module', 'fnet.data.dataset')
     transforms = (transforms_signal, transforms_target)
     dataset_module = importlib.import_module(name_dataset_module)
