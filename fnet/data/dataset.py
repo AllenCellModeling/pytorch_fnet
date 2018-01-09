@@ -69,8 +69,10 @@ class DataSet(object):
             sels = sel
         else:
             raise AttributeError
+        
         path = self._df_active['path_czi'].iloc[idx]
         if ('_last_loaded' not in vars(self)) or self._last_loaded != path:
+
             print('reading:', path)
             try:
                 self._czi = CziReader(path)
@@ -79,12 +81,14 @@ class DataSet(object):
                 warnings.warn('could not read file: {}'.format(path))
                 warnings.warn(str(e))
                 return None
+        
         time_slice = None
         if 'time_slice' in self._df_active.columns:
             time_slice = self._df_active['time_slice'].iloc[idx]
         dict_scales = self._czi.get_scales()
         scales_orig = [dict_scales.get(dim) for dim in 'zyx']
         # print('pixel scales:', scales_orig)
+        
         if self.scale_z is not None or self.scale_xy is not None:
             if None in scales_orig:
                 warnings.warn('bad pixel scales in {:s} | scales: {:s}'.format(path, str(scales_orig)))
@@ -95,6 +99,7 @@ class DataSet(object):
             resizer = Resizer(factors_resize)
         else:
             resizer = None
+        
         volumes = []
         for i in range(len(sels)):
             if sels[i] == 0:
@@ -113,6 +118,7 @@ class DataSet(object):
                         transforms.extend(self.transforms[sels[i]])
                     else:
                         transforms.append(self.transforms[sels[i]])
+                
                 volumes.append(get_vol_transformed(volume_pre, transforms))
         return volumes[0] if isinstance(sel, int) else volumes
 
