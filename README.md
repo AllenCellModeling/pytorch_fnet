@@ -1,4 +1,4 @@
-Pytorch Fluorescence Net
+Three dimensional cross-modal image inference: label-free methods for subcellular structure prediction
 ===============================
 
 ![Model](doc/PredictingStructures-1.jpg?raw=true "Model Architecture")
