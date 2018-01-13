@@ -15,7 +15,7 @@ def load_dataset(
         train: bool = True,
         train_size: float = 0.8,
         shuffle: bool = True,
-        random_seed: int = 666,
+        random_seed: int = 0,
 ):
     path_train_csv = os.path.join(path_store_split, 'train.csv')
     path_test_csv = os.path.join(path_store_split, 'test.csv')
