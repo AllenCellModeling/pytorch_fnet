@@ -19,10 +19,14 @@ class TiffDataset(FnetDataset):
         signal = TifReader(element['path_signal']).get_image()
         target = TifReader(element['path_target']).get_image()
         
-        return (
-            torch.from_numpy(signal).float(),
-            torch.from_numpy(target).float()
-        )
+        im_out = (signal, target)
+        
+        im_out = [torch.from_numpy(im).float() for im in im_out]
+        
+        #unsqueeze to make the first dimension be the channel dimension
+        im_out = [torch.unsqueeze(im, 0) for im in im_out]
+        
+        return im_out
     
     def __len__(self):
         return len(self.df)
