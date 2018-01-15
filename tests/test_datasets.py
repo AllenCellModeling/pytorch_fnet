@@ -33,6 +33,7 @@ class TestDataset(unittest.TestCase):
         
         self.data_format_verifier(datum)
         
+        self.assertEqual(len(datum[0].shape), 4)
         
     def test_tiffdataset(self):
         
@@ -45,6 +46,7 @@ class TestDataset(unittest.TestCase):
         
         self.data_format_verifier(datum)        
         
+        self.assertEqual(len(datum[0].shape), 3)
 
 if __name__ == '__main__':
     unittest.main()
