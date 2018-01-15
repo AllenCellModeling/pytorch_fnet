@@ -1,9 +1,9 @@
 import torch.utils.data
-from fnet.fnetdataset import FnetDataset
+from fnet.data.fnetdataset import FnetDataset
 from fnet.data.tifreader import TifReader
 import pandas as pd
 
-class TifDataset(FnetDataset):
+class TiffDataset(FnetDataset):
     """Dataset for Tif files."""
 
     def __init__(self, dataframe: pd.DataFrame = None, path_csv: str = None,):
@@ -15,12 +15,14 @@ class TifDataset(FnetDataset):
 
     def __getitem__(self, index):
         element = self.df.iloc[index, :]
-        tif_signal = TifReader(element['path_signal'])
-	tif_target = TifReader(element['path_target'])
+        
+        signal = TifReader(element['path_signal']).get_image()
+        target = TifReader(element['path_target']).get_image()
+        
         return (
-            tif_signal.get_image(element['path_signal']),
-            tif_target.get_image(element['path_target'])
+            torch.from_numpy(signal).float(),
+            torch.from_numpy(target).float()
         )
     
     def __len__(self):
-	return len(self.df)
+        return len(self.df)

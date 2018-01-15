@@ -13,5 +13,5 @@ class TifReader(object):
 
     def get_image(self):
         """Returns the image for the specified channel."""
-	"""Keeping it this way in order to extend it further for multi-channel tifs"""
-               return self.tif_np[0]
+        """Keeping it this way in order to extend it further for multi-channel tifs"""
+        return self.tif_np[0]
