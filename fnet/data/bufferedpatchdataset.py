@@ -7,28 +7,6 @@ from tqdm import tqdm
 import pdb
 
 
-
-class ChunkDatasetDummy(FnetDataset):
-    """Dummy ChunkDataset"""
-
-    def __init__(
-            self,
-            dataset: FnetDataset,
-            dims_chunk,
-            random_seed: int = 0,
-    ):
-        self.dims_chunk = dims_chunk
-        self._rng = np.random.RandomState(random_seed)
-        self._length = 1234
-        self._chunks_signal = 10*self._rng.randn(self._length, *dims_chunk)
-        self._chunks_target = 2*self._chunks_signal + 3*self._rng.randn(self._length, *dims_chunk)
-
-    def __getitem__(self, index):
-        return (self._chunks_signal[index], self._chunks_target[index])
-
-    def __len__(self):
-        return len(self._chunks_signal)
-
 class BufferedPatchDataset(FnetDataset):
     """Dataset that provides chunks/patchs from another dataset."""
 

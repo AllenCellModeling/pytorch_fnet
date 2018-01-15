@@ -28,7 +28,10 @@ class CziDataset(torch.utils.data.Dataset):
         
         im_out = (czi.get_volume(element['channel_signal']), czi.get_volume(element['channel_target']))
                   
-        im_out = [self.transform(im.astype(float)) for im in im_out]
+        im_out = [torch.from_numpy(im.astype(float)).float() for im in im_out]
+        
+        #unsqueeze to make the first dimension be the channel dimension
+        im_out = [torch.unsqueeze(im, 0) for im in im_out]
         
         return im_out
     
