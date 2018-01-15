@@ -3,7 +3,7 @@ from fnet.fnetdataset import FnetDataset
 from fnet.data.tifreader import TifReader
 import pandas as pd
 
-class TifDataset(FnetDataset):
+class TiffDataset(FnetDataset):
     """Dataset for Tif files."""
 
     def __init__(self, dataframe: pd.DataFrame = None, path_csv: str = None,):
