@@ -22,7 +22,6 @@ class BufferedPatchDataset(FnetDataset):
         self.counter = 0
         
         self.dataset = dataset
-        self.patch_size = patch_size
         self.transform = transform
         
         self.buffer_switch_frequency = buffer_switch_frequency
@@ -44,7 +43,14 @@ class BufferedPatchDataset(FnetDataset):
 
             datum_index = shuffed_data_order[i]
 
-            self.buffer.append(dataset[datum_index])
+            datum = dataset[datum_index]
+            
+            datum_size = datum[0].size()
+            
+            self.buffer.append(datum)
+            
+            
+        self.patch_size = [datum_size[0]] + patch_size
 
             
     def __len__(self):
@@ -77,9 +83,10 @@ class BufferedPatchDataset(FnetDataset):
         buffer_index = np.random.randint(len(self.buffer))
                                    
         datum = self.buffer[buffer_index]
-                                            
-        starts = np.array([np.random.randint(0, d-p) for d, p in zip(datum[0].size(), self.patch_size)])
-               
+        
+
+        starts = np.array([np.random.randint(0, d-p) if d-p > 0 else 0 for d, p in zip(datum[0].size(), self.patch_size)])
+
         ends = starts + np.array(self.patch_size)
         
         #thank you Rory for this weird trick
@@ -104,3 +111,4 @@ def _test():
     
 if __name__ == '__main__':
     _test()
+
