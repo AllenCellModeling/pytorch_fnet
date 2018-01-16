@@ -1,4 +1,5 @@
 from fnet.data.fnetdataset import FnetDataset
+import torch
 import numpy as np
 
 class DummyChunkDataset(FnetDataset):
@@ -17,7 +18,7 @@ class DummyChunkDataset(FnetDataset):
         self._chunks_target = 2*self._chunks_signal + 3*self._rng.randn(self._length, *dims_chunk)
 
     def __getitem__(self, index):
-        return (self._chunks_signal[index], self._chunks_target[index])
+        return [torch.Tensor(self._chunks_signal[index]), torch.Tensor(self._chunks_target[index])]
 
     def __len__(self):
         return len(self._chunks_signal)
