@@ -80,25 +80,19 @@ class Model(object):
         
         self.count_iter = state_dict['count_iter']
 
-    def set_lr(self, lr):
-        lr_old = self.optimizer.param_groups[0]['lr']
-        self.optimizer.param_groups[0]['lr'] = lr
-        print('learning rate: {} => {}'.format(lr_old, lr))
-
     def do_train_iter(self, signal, target):
         self.net.train()
         if self.gpu_ids[0] != -1:
-            signal_v = torch.autograd.Variable(torch.Tensor(signal).cuda(self.gpu_ids[0]))
-            target_v = torch.autograd.Variable(torch.Tensor(target).cuda(self.gpu_ids[0]))
+            signal_v = torch.autograd.Variable(signal.cuda(self.gpu_ids[0]))
+            target_v = torch.autograd.Variable(target.cuda(self.gpu_ids[0]))
         else:
-            signal_v = torch.autograd.Variable(torch.Tensor(signal))
-            target_v = torch.autograd.Variable(torch.Tensor(target))
+            signal_v = torch.autograd.Variable(signal)
+            target_v = torch.autograd.Variable(target)
         self.optimizer.zero_grad()
         output = self.net(signal_v)
         loss = self.criterion(output, target_v)
         loss.backward()
         self.optimizer.step()
-        # print("iter: {:3d} | loss: {:4f}".format(self.meta['count_iter'], loss.data[0]))
         self.count_iter += 1
         return loss.data[0]
     
