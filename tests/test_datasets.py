@@ -23,7 +23,7 @@ class TestDataset(unittest.TestCase):
 
     
     def test_czidataset(self):
-        df_czi = pd.DataFrame.from_dict({'path_czi': ['../data/3500000883_100X_20170509_F08_P29.czi'], 
+        df_czi = pd.DataFrame.from_dict({'path_czi': ['../data/3500000427_100X_20170120_F05_P27.czi'], 
                                     'channel_signal': [0], 
                                     'channel_target': [1]})
         
@@ -37,8 +37,8 @@ class TestDataset(unittest.TestCase):
         
     def test_tiffdataset(self):
         
-        df_tiff = pd.DataFrame.from_dict({'path_signal': ['../data/IF_to_EM_testdata/EM_low.tif'], 
-                                        'path_target': ['../data/IF_to_EM_testdata/MBP_low.tif']})
+        df_tiff = pd.DataFrame.from_dict({'path_signal': ['../data/EM_low.tif'], 
+                                        'path_target': ['../data/MBP_low.tif']})
         
         dataset = TiffDataset(df_tiff)
         
