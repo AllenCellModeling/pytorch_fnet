@@ -2,7 +2,8 @@ import os
 import pandas as pd
 import tifffile
 import numpy as np
-from fnet.czidataset import CziDataset
+from fnet.data.czidataset import CziDataset
+from fnet.data.dummychunkdataset import DummyChunkDataset
 import torch.utils.data
 import sys
 import pdb
@@ -65,6 +66,12 @@ def load_sec61_beta(**kwargs): return _load_structure(sys._getframe().f_code.co_
 def load_st6gal1(**kwargs): return _load_structure(sys._getframe().f_code.co_name.split('load_')[-1], **kwargs)
 def load_tom20(**kwargs): return _load_structure(sys._getframe().f_code.co_name.split('load_')[-1], **kwargs)
 def load_zo1(**kwargs): return _load_structure(sys._getframe().f_code.co_name.split('load_')[-1], **kwargs)
+
+def load_dummy_chunk(**kwargs):
+    ds = DummyChunkDataset(
+        dims_chunk = (1, 64, 128, 128),
+    )
+    return ds
 
 def _load_structure(structure, **kwargs):
     return load_dataset(
