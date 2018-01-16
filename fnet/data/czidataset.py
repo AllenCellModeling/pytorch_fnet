@@ -4,34 +4,47 @@ import pandas as pd
 
 import pdb
 
-import torchvision.transforms as transforms
+import fnet.transforms as transforms
 
 class CziDataset(torch.utils.data.Dataset):
     """Dataset for CZI files."""
 
-    def __init__(self, dataframe: pd.DataFrame = None, path_csv: str = None, transform = None):
+    def __init__(self, dataframe: pd.DataFrame = None, path_csv: str = None, 
+                    transform_source = [transforms.normalize],
+                    transform_target = None):
+        
+        
         if dataframe is not None:
             self.df = dataframe
         else:
             self.df = pd.read_csv(path_csv)
             
-        if transform is None:
-            transform = transforms.ToTensor()
+        self.transform_source = transform_source
+        self.transform_target = transform_target
         
-        self.transform = transform
-            
         assert all(i in self.df.columns for i in ['path_czi', 'channel_signal', 'channel_target'])
 
     def __getitem__(self, index):
         element = self.df.iloc[index, :]
         czi = CziReader(element['path_czi'])
+        im_out = [czi.get_volume(element['channel_signal']), czi.get_volume(element['channel_target'])]
         
-        im_out = (czi.get_volume(element['channel_signal']), czi.get_volume(element['channel_target']))
-                  
+        if self.transform_source is not None:
+            for t in self.transform_source: 
+                im_out[0] = t(im_out[0])
+
+        if self.transform_target is not None:
+            for t in self.transform_target: 
+                im_out[1] = t(im_out[1])
+
+                 
+                 
         im_out = [torch.from_numpy(im.astype(float)).float() for im in im_out]
         
         #unsqueeze to make the first dimension be the channel dimension
         im_out = [torch.unsqueeze(im, 0) for im in im_out]
+        
+
         
         return im_out
     
