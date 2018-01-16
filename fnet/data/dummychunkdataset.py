@@ -13,7 +13,7 @@ class DummyChunkDataset(FnetDataset):
         self.dims_chunk = dims_chunk
         self.random_seed = random_seed
         self._rng = np.random.RandomState(random_seed)
-        self._length = 1234
+        self._length = 10
         self._chunks_signal = 10*self._rng.randn(self._length, *dims_chunk)
         self._chunks_target = 2*self._chunks_signal + 3*self._rng.randn(self._length, *dims_chunk)
 
