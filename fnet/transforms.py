@@ -4,7 +4,7 @@ import pdb
 import warnings
 import pdb
 
-def sub_mean_norm(img):
+def normalize(img):
     """Subtract mean, set STD to 1.0"""
     result = img.astype(np.float64)
     result -= np.mean(result)
@@ -13,6 +13,7 @@ def sub_mean_norm(img):
 
 def do_nothing(img):
     return img
+
 
 class Cropper(object):
     def __init__(self, shape, offsets=None, n_max_pixels=9732096, reduce_by=16):
