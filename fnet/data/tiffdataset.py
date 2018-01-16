@@ -1,17 +1,28 @@
 import torch.utils.data
 from fnet.data.fnetdataset import FnetDataset
 from fnet.data.tifreader import TifReader
+
+import fnet.transforms as transforms
+
 import pandas as pd
+
+import pdb
 
 class TiffDataset(FnetDataset):
     """Dataset for Tif files."""
 
-    def __init__(self, dataframe: pd.DataFrame = None, path_csv: str = None,):
+    def __init__(self, dataframe: pd.DataFrame = None, path_csv: str = None, 
+                    transform_source = [transforms.normalize],
+                    transform_target = None):
+        
         if dataframe is not None:
             self.df = dataframe
         else:
             self.df = pd.read_csv(path_csv)
         assert all(i in self.df.columns for i in ['path_signal', 'path_target'])
+        
+        self.transform_source = transform_source
+        self.transform_target = transform_target
 
     def __getitem__(self, index):
         element = self.df.iloc[index, :]
@@ -19,7 +30,18 @@ class TiffDataset(FnetDataset):
         signal = TifReader(element['path_signal']).get_image()
         target = TifReader(element['path_target']).get_image()
         
-        im_out = (signal, target)
+        im_out = [signal, target]
+        
+        
+        if self.transform_source is not None:
+            for t in self.transform_source: 
+                im_out[0] = t(im_out[0])
+
+        if self.transform_target is not None:
+            for t in self.transform_target: 
+                im_out[1] = t(im_out[1])
+
+
         
         im_out = [torch.from_numpy(im).float() for im in im_out]
         
