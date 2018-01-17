@@ -82,7 +82,7 @@ def _load_structure(structure, **kwargs):
     )
 
 def _test():
-    rng = np.random.RandomState(666)
+    rng = np.random.RandomState(0)
     path_out_dir = 'outputs'
     if not os.path.exists(path_out_dir):
         os.makedirs(path_out_dir)

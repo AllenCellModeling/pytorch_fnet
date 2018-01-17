@@ -264,7 +264,7 @@ def main():
                 'index': idx,
                 'test_or_train': 'train' if dataprovider.using_train_set() else 'test',
                 'l2': 999,
-                'l2_norm': 666,
+                'l2_norm': 888,
             }
             print('DEBUG: entry', entry)
             # if False:
