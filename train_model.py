@@ -1,9 +1,9 @@
 import argparse
 import fnet.data
 import fnet.data.datasets
+import fnet.fnet_model
 import json
 import logging
-import model_modules.fnet_model
 import numpy as np
 import os
 import pandas as pd
@@ -56,7 +56,7 @@ def main():
         torch.cuda.manual_seed_all(opts.seed)
 
     #Instantiate Model
-    model = model_modules.fnet_model.Model(
+    model = fnet.fnet_model.Model(
         nn_module=opts.nn_module,
         lr=opts.lr,
         gpu_ids=opts.gpu_ids,

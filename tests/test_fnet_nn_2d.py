@@ -1,39 +1,19 @@
 import unittest
 import torch.utils.data
 import numpy as np
-import model_modules.nn_modules.fnet_nn_2d as nn_module
+import fnet.nn_modules.fnet_nn_2d as nn_module
+from fnet.data import DummyChunkDataset
 import pdb
-
-class ChunkDatasetDummy(torch.utils.data.Dataset):
-    """Dummy ChunkDataset"""
-
-    def __init__(
-            self,
-            dims_chunk,
-            random_seed: int = 0,
-    ):
-        self.dims_chunk = dims_chunk
-        self._rng = np.random.RandomState(random_seed)
-        self._length = 1234
-        self._chunks_signal = 10*self._rng.randn(self._length, *dims_chunk)
-        self._chunks_target = 2*self._chunks_signal + 3*self._rng.randn(self._length, *dims_chunk)
-
-    def __getitem__(self, index):
-        return (self._chunks_signal[index], self._chunks_target[index])
-
-    def __len__(self):
-        return len(self._chunks_signal)
-
 
 class Test2D(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(0)
         # torch.cuda.manual_seed(0)
         dims_chunk = (1, 16, 32)
-        self.ds = ChunkDatasetDummy(dims_chunk)
+        self.ds = DummyChunkDataset(dims_chunk)
         self.dl = torch.utils.data.DataLoader(
             self.ds,
-            batch_size = 5,
+            batch_size = 2,
         )
         self.net = nn_module.Net()
         # self.net.cuda(0)
@@ -57,7 +37,7 @@ class Test2D(unittest.TestCase):
             count += 1
             if count == 25:
                 break
-        self.assertAlmostEqual(326.6689147949219, loss.data[0])
+        self.assertAlmostEqual(396.2701721191406, loss.data[0])
 
 if __name__ == '__main__':
     unittest.main()
