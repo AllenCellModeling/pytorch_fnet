@@ -23,7 +23,7 @@ class Model(object):
         self._init_model()
 
     def _init_model(self):
-        self.net = importlib.import_module('model_modules.nn_modules.' + self.nn_module).Net()
+        self.net = importlib.import_module('fnet.nn_modules.' + self.nn_module).Net()
         if self.init_weights:
             self.net.apply(_weights_init)
         if self.gpu_ids[0] != -1:
