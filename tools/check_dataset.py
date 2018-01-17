@@ -204,7 +204,7 @@ def to_uint8(ar, val_min, val_max):
     return ar_new.astype(np.uint8)
 
 def test_check_blank_slices():
-    rng = np.random.RandomState(666)
+    rng = np.random.RandomState(0)
     ar_test = rng.randint(100, 256, size=(10, 8, 12))
     idx_bads = rng.randint(0, ar_test.shape[0], size=3)
     ar_test[idx_bads, :, :] = 0
