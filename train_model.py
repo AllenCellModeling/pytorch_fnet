@@ -17,6 +17,7 @@ import warnings
 def main():
     time_start = time.time()
     parser = argparse.ArgumentParser()
+    parser.add_argument('--args_dataset', type=json.loads, default='{}', help='size of each batch')
     parser.add_argument('--batch_size', type=int, default=24, help='size of each batch')
     parser.add_argument('--buffer_size', type=int, default=5, help='number of images to cache in memory')
     parser.add_argument('--buffer_switch_frequency', type=int, default=720, help='BufferedPatchDataset buffer switch frequency')
@@ -83,6 +84,7 @@ def main():
         patch_size = [32, 64, 64],
         buffer_size = opts.buffer_size,
         buffer_switch_frequency = opts.buffer_switch_frequency,
+        npatches = max(0, (opts.n_iter - model.count_iter)*opts.batch_size),
         verbose = True,
     )
     dataloader_train = torch.utils.data.DataLoader(
@@ -103,9 +105,7 @@ def main():
     with open(os.path.join(opts.path_run_dir, 'train_options.json'), 'w') as fo:
         json.dump(vars(opts), fo, indent=4, sort_keys=True)
 
-    iter_data = iter(dataloader_train)
-    for i in range(model.count_iter, opts.n_iter):
-        signal, target = next(iter_data)
+    for i, (signal, target) in enumerate(dataloader_train, model.count_iter):
         loss_batch = model.do_train_iter(signal, target)
         logger.info('num_iter: {:4d} | loss_batch: {:.4f}'.format(i + 1, loss_batch))
         dict_iter = dict(
