@@ -1,7 +1,6 @@
 #!/bin/bash -x
 
 DATASET=${1:-dna}
-# MODEL_DIR="saved_models/${DATASET}"
 PATH_DATASET_CSV="data/${DATASET}/test.csv"
 MODEL_DIR="saved_models/${DATASET}"
 GPU_IDS=${2:-0}
