@@ -4,5 +4,6 @@ __pycache__/
 results/
 data/*/
 !data/csvs/
+data/csvs/*/
 saved_models/
 tmp/
