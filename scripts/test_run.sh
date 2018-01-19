@@ -1,12 +1,10 @@
 #!/bin/bash -x
 
-TARGET=dna
-N_ITER=20
+DATASET=${1:-dummy_chunk}
 BUFFER_SIZE=1
+N_ITER=20
 RUN_DIR="saved_models/TEST"
-PATH_DATA_TRAIN="data/csvs/${TARGET}_train.csv"
-PATH_DATA_TEST="data/csvs/${TARGET}_test.csv"
-GPU_IDS=${1:-0}
+GPU_IDS=${2:-0}
 
 cd $(cd "$(dirname ${BASH_SOURCE})" && pwd)/..
 
@@ -15,12 +13,8 @@ python train_model.py \
        --n_iter ${N_ITER} \
        --buffer_size ${BUFFER_SIZE} \
        --iter_checkpoint 10 \
-       --replace_interval -1 \
-       --path_train_csv ${PATH_DATA_TRAIN} \
-       --path_test_csv ${PATH_DATA_TEST} \
-       --batch_size 24 \
        --nn_module ttf_v8_nn \
-       --no_checkpoint_testing \
        --path_run_dir ${RUN_DIR} \
+       --dataset ${DATASET} \
        --gpu_ids ${GPU_IDS}
 

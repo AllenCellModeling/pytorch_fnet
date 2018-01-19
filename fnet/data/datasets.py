@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import tifffile
 import numpy as np
+import fnet.transforms
 from fnet.data.czidataset import CziDataset
 from fnet.data.dummychunkdataset import DummyChunkDataset
 import torch.utils.data
@@ -17,6 +18,7 @@ def load_dataset(
         train_size: float = 0.8,
         shuffle: bool = True,
         random_seed: int = 0,
+        **kwargs
 ):
     path_train_csv = os.path.join(path_store_split, 'train.csv')
     path_test_csv = os.path.join(path_store_split, 'test.csv')
@@ -28,8 +30,6 @@ def load_dataset(
         df_all = pd.read_csv(path_csv)
         if shuffle:
             df_all = df_all.sample(frac=1.0, random_state=rng).reset_index(drop=True)
-
-            
         if train_size == 0:
             df_test = df_all
             df_train = df_all[0:0]  # empty DataFrame but with columns intact
@@ -51,7 +51,10 @@ def load_dataset(
         df_test = pd.read_csv(path_test_csv)
     print('DEBUG: train/test', len(df_train), len(df_test))
     df = df_train if train else df_test
-    ds = class_dataset(df)
+    ds = class_dataset(
+        df,
+        **kwargs,
+    )
     return ds
 
 def load_alpha_tubulin(**kwargs): return _load_structure(sys._getframe().f_code.co_name.split('load_')[-1], **kwargs)
@@ -74,6 +77,14 @@ def load_dummy_chunk(**kwargs):
     return ds
 
 def _load_structure(structure, **kwargs):
+    """For CZI-based, microscopy pipeline datasets."""
+    factor_yx = 0.37241  # 0.108 um/px -> 0.29 um/px
+    resizer = fnet.transforms.Resizer((1, factor_yx, factor_yx))
+    kwargs_czidataset = dict(
+        transform_source = [fnet.transforms.normalize, resizer],
+        transform_target = [fnet.transforms.normalize, resizer],
+    )
+    kwargs.update(kwargs_czidataset)
     return load_dataset(
         path_csv = 'data/csvs/{:s}_czis.csv'.format(structure),
         class_dataset = CziDataset,

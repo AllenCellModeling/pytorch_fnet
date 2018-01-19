@@ -7,8 +7,9 @@ class DummyChunkDataset(FnetDataset):
 
     def __init__(
             self,
-            dims_chunk,
+            dims_chunk: tuple = (1, 16, 32, 64),
             random_seed: int = 0,
+            **kwargs
     ):
         self.dims_chunk = dims_chunk
         self.random_seed = random_seed

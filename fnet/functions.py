@@ -5,8 +5,8 @@ from aicsimage.io import omeTifWriter
 import pdb
 import torch
 import json
-import importlib
 import fnet.transforms
+import fnet.fnet_model
 
 def find_z_max_intensity(ar):
     """Given a ZYX numpy array, return the z value of the XY-slice the highest total pixel intensity."""
@@ -114,11 +114,7 @@ def load_dataset_from_json(path_load):
 def load_model_from_dir(path_model_dir, gpu_ids=0):
     assert os.path.isdir(path_model_dir)
     path_model_state = os.path.join(path_model_dir, 'model.p')
-    path_train_options = os.path.join(path_model_dir, 'train_options.json')
-    with open(path_train_options, 'r') as fi:
-        train_options = json.load(fi)
-    model_module = importlib.import_module('model_modules.'  + train_options['model_module'])
-    model = model_module.Model(
+    model = fnet.fnet_model.Model(
         gpu_ids=gpu_ids,
     )
     model.load_state(path_model_state)
