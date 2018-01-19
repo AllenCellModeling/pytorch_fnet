@@ -100,13 +100,10 @@ class Model(object):
         self.net.eval()
         if self.gpu_ids[0] == -1:
             print('predicting on CPU')
-            signal_t = torch.Tensor(signal)
         else:
-            signal_t = torch.Tensor(signal).cuda()
-        signal_v = torch.autograd.Variable(signal_t, volatile=True)
-        pred_v = self.net(signal_v)
-        pred_np = pred_v.data.cpu().numpy()
-        return pred_np
+            signal = signal.cuda(self.gpu_ids[0])
+        signal_v = torch.autograd.Variable(signal, volatile=True)
+        return self.net(signal_v).data.cpu()
 
 def _weights_init(m):
     classname = m.__class__.__name__
