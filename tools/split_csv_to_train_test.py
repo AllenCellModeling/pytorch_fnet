@@ -6,7 +6,7 @@ import pdb
 
 def shuffle_split_df(df_all, train_split, no_shuffle=False):
     if not no_shuffle:
-        df_all_shuf = df_all.sample(frac=1, random_state=666).reset_index(drop=True)
+        df_all_shuf = df_all.sample(frac=1, random_state=0).reset_index(drop=True)
     else:
         df_all_shuf = df_all
     if train_split == 0:

@@ -102,7 +102,7 @@ def test_plot():
     make_plot(path_save, [ar_mean, ar_mean_2], ar_std)
 
 def test_get_chunks(n_chunks=5, shape=(32, 32, 32)):
-    rng = np.random.RandomState(666)
+    rng = np.random.RandomState(0)
     chunks = rng.randn(*((n_chunks,) + shape))
     return chunks
 
