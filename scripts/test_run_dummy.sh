@@ -1,6 +1,5 @@
 #!/bin/bash -x
 
-DATASET=dna
 BUFFER_SIZE=1
 N_ITER=20
 RUN_DIR="saved_models/TEST"
@@ -14,7 +13,5 @@ python train_model.py \
        --class_dataset DummyChunkDataset \
        --buffer_size ${BUFFER_SIZE} \
        --iter_checkpoint 10 \
-       --batch_size 24 \
-       --nn_module ttf_v8_nn \
        --path_run_dir ${RUN_DIR} \
        --gpu_ids ${GPU_IDS}

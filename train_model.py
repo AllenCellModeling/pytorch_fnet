@@ -35,10 +35,9 @@ def get_dataloader(opts):
     )
 
 def main():
+    parser = argparse.ArgumentParser()
     factor_yx = 0.37241  # 0.108 um/px -> 0.29 um/px
     default_resizer_str = 'fnet.transforms.Resizer((1, {:f}, {:f}))'.format(factor_yx, factor_yx)
-    
-    parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', type=int, default=24, help='size of each batch')
     parser.add_argument('--buffer_size', type=int, default=5, help='number of images to cache in memory')
     parser.add_argument('--buffer_switch_frequency', type=int, default=720, help='BufferedPatchDataset buffer switch frequency')
