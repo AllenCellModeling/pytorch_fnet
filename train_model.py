@@ -70,11 +70,6 @@ def main():
     logger.addHandler(fh)
     logger.addHandler(sh)
 
-    #Set GPU
-    main_gpu_id = opts.gpu_ids if isinstance(opts.gpu_ids, int) else opts.gpu_ids[0]
-    torch.cuda.set_device(main_gpu_id)
-    logger.info('main GPU ID: {:d}'.format(torch.cuda.current_device()))
-
     #Set random seed
     if opts.seed is not None:
         np.random.seed(opts.seed)
