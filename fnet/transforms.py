@@ -42,7 +42,10 @@ class Cropper(object):
         prod_shape = np.prod(shape_crop_new)
         idx_dim_reduce = 0
 
-        order_dim_reduce = [2, 1, 2, 2, 1, 0]
+        if len(shape_crop) == 3:
+            order_dim_reduce = [2, 1, 2, 2, 1, 0]
+        else:
+            order_dim_reduce = [0, 1]
 
         while prod_shape > self.n_max_pixels:
             dim = order_dim_reduce[idx_dim_reduce]
@@ -85,11 +88,11 @@ class Cropper(object):
         shape_crop = []
         for i in range(len(self.shape)):
             if self.shape[i] is None:
-                shape_crop.append(len_dim)
+                shape_crop.append(shape_input[i])
             elif isinstance(self.shape[i], int):
                 if self.shape[i] > x.shape[i]:
                     warnings.warn('Crop dimensions larger than image dimension ({} > {} for dim {}).'.format(self.shape[i], x.shape[i], i))
-                    return None
+                    raise AttributeError
                 shape_crop.append(self.shape[i])
             elif isinstance(self.shape[i], str):  # e.g., '/16'
                 multiple_of = int(self.shape[i][1:])

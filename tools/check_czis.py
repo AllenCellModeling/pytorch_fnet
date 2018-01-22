@@ -63,7 +63,7 @@ def check_blank_slices(volume, slice_dim='z'):
     return ''
 
 def check_czi_dims(metadata):
-    dims_min = (34, None, None)
+    dims_min = (32, None, None)
     shape = fnet.data.get_shape_from_metadata(metadata)
     for i in range(len(shape)):
         if ((dims_min[i] is not None) and
@@ -130,8 +130,7 @@ def main():
     parser.add_argument('--n_files', type=int, help='maximum number of CZI files to evaluate')
     parser.add_argument('--path_csv', help='path to csv with CZI paths')
     parser.add_argument('--path_output_dir', default='data/czi_eval', help='path to directory for output images and results')
-    parser.add_argument('--save_layouts', action='store_true', help='save slice layoust for each element')
-    parser.add_argument('--shuffle', action='store_true', help='shuffle czis in csv')
+    parser.add_argument('--save_layouts', action='store_true', help='save slice layouts for each element')
     opts = parser.parse_args()
     
     time_start = time.time()
@@ -145,11 +144,7 @@ def main():
         os.makedirs(opts.path_output_dir)
 
     n_files = opts.n_files if opts.n_files is not None else df_source.shape[0]
-    if opts.shuffle:
-        rng = np.random.RandomState(opts.seed)
-        indices = rng.choice(np.arange(df_source.shape[0]), replace=False, size=n_files)
-    else:
-        indices = range(n_files)
+    indices = range(n_files)
     check_all_channels = False
     if (opts.check_all_channels or
         'channel_signal' not in df_source.columns or
