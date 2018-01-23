@@ -72,9 +72,9 @@ def main():
         tifffile.imsave(path_tiff_p, prediction.numpy()[0, ])
         print('saved:', path_tiff_p)
         entries.append({
-            'path_signal': path_tiff_s,
-            'path_target': path_tiff_t,
-            'path_prediction': path_tiff_p,
+            'path_signal': os.path.relpath(path_tiff_s, opts.path_save_dir),
+            'path_target': os.path.relpath(path_tiff_t, opts.path_save_dir),
+            'path_prediction': os.path.relpath(path_tiff_p, opts.path_save_dir),
         })
         if i >= opts.n_images:
             break
