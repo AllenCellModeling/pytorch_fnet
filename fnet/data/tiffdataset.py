@@ -26,18 +26,16 @@ class TiffDataset(FnetDataset):
 
     def __getitem__(self, index):
         element = self.df.iloc[index, :]
-        
-        signal = TifReader(element['path_signal']).get_image()
-        target = TifReader(element['path_target']).get_image()
-        
-        im_out = [signal, target]
-        
+
+        im_out = [TifReader(element['path_signal']).get_image()]
+        if isinstance(element['path_target'], str):
+            im_out.append(TifReader(element['path_target']).get_image())
         
         if self.transform_source is not None:
             for t in self.transform_source: 
                 im_out[0] = t(im_out[0])
 
-        if self.transform_target is not None:
+        if self.transform_target is not None and (len(im_out) > 1):
             for t in self.transform_target: 
                 im_out[1] = t(im_out[1])
 
