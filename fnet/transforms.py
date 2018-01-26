@@ -14,6 +14,67 @@ def normalize(img):
 def do_nothing(img):
     return img
 
+class Propper(object):
+    def __init__(self, prop_width='+', by=16):
+        pass
+
+    def __call__(self, x_in):
+        pass
+
+class Padder(object):
+    def __init__(self, padding='+', by=16, mode='constant'):
+        """
+        padding: '+', int, sequence
+          '+': pad dimensions up to multiple of "by"
+          int: pad each dimension by this value
+          sequence: pad each dimensions by corresponding value in sequence
+        by: int
+          for use with '+' padding option
+        mode: str
+          passed to numpy.pad function
+        """
+        self.padding = padding
+        self.by = by
+        self.mode = mode
+        
+        self.pads = {}
+        self.last_pad = None
+
+    def __repr__(self):
+        return 'Padder{}'.format((self.padding, self.by, self.mode))
+
+    def _calc_pad_width(self, shape_in):
+        if isinstance(self.padding, (str, int)):
+            paddings = (self.padding, )*len(shape_in)
+        else:
+            paddings = self.padding
+        pad_width = []
+        for i in range(len(shape_in)):
+            if isinstance(paddings[i], int):
+                pad_width.append((paddings[i],)*2)
+            elif paddings[i] == '+':
+                padding_total = int(np.ceil(1.*shape_in[i]/self.by)*self.by) - shape_in[i]
+                pad_left = padding_total//2
+                pad_right = padding_total - pad_left
+                pad_width.append((pad_left, pad_right))
+        assert len(pad_width) == len(shape_in)
+        return pad_width
+
+    def undo_last(self, x_in):
+        """Crops input so its dimensions matches dimensions of last input to __call__."""
+        assert x_in.shape == self.last_pad['shape_out']
+        slices = [slice(a, -b) if (a, b) != (0, 0) else slice(None) for a, b in self.last_pad['pad_width']]
+        return x_in[slices].copy()
+
+    def __call__(self, x_in):
+        shape_in = x_in.shape
+        pad_width = self.pads.get(shape_in, self._calc_pad_width(shape_in))
+        x_out = np.pad(x_in, pad_width, mode=self.mode)
+        if shape_in not in self.pads:
+            self.pads[shape_in] = pad_width
+        self.last_pad = {'shape_in': shape_in, 'pad_width': pad_width, 'shape_out': x_out.shape}
+        return x_out
+    
 
 class Cropper(object):
     def __init__(self, shape, offsets=None, n_max_pixels=9732096, reduce_by=16):
