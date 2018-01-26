@@ -1,10 +1,12 @@
 import torch.utils.data
+import typing
+import pandas as pd
 
 class FnetDataset(torch.utils.data.Dataset):
     """Abstract class for fnet datasets."""
 
-    def name(self, index) -> str:
-        """Returns str to identify dataset element specified by index."""
+    def get_information(self, index) -> typing.Union[pd.DataFrame, dict, str]:
+        """Returns information to identify dataset element specified by index."""
         raise NotImplementedError
 
     def apply_transforms(self, pytorch_tensor):

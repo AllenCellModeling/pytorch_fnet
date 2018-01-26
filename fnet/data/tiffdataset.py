@@ -50,3 +50,6 @@ class TiffDataset(FnetDataset):
     
     def __len__(self):
         return len(self.df)
+
+    def get_information(self, index):
+        return self.df.iloc[index, :].copy()

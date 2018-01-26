@@ -58,7 +58,8 @@ def main():
     entries = []
     count = 0
     for i, data_pre in enumerate(dataset):
-        entry = {}
+        info_data = dataset.get_information(i)
+        entry = {'information': info_data} if isinstance(info_data, str) else info_data
         data = [torch.unsqueeze(d, 0) for d in data_pre]  # make batch of size 1
         signal = data[0]
         target = data[1] if (len(data) > 1) else None
