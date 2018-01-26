@@ -114,11 +114,21 @@ class Cropper(object):
             offsets_crop.append(offset)
         # print('DEBUG: shape', x[slices].shape, '| pixels', x[slices].size)
         self.crops[shape_input] = {
+            'shape_input': shape_input,
             'shape_crop': shape_crop,
             'offsets_crop': offsets_crop,
             'slices': slices,
         }
+        self.crops['last'] = self.crops[shape_input]
         return x[slices].copy()
+
+    def unprop(self, ar):
+        print(self.crops['last'])
+        shape_input = self.crops['last']['shape_input']
+        slices = self.crops['last']['slices']
+        ar_unpropped = np.zeros(shape_input, dtype=ar.dtype)
+        ar_unpropped[slices] = ar
+        return ar_unpropped
 
     def __str__(self):
         params = [str(self.shape)]
