@@ -10,73 +10,83 @@ import warnings
 import json
 import pdb
 
-def get_dataloader(opts):
+def set_warnings():
+    warnings.filterwarnings('ignore', message='.*zoom().*')
+    warnings.filterwarnings('ignore', message='.*end of stream*')
+    warnings.filterwarnings('ignore', message='.*multiple of element size.*')
+
+def get_dataset(opts, propper):
     transform_signal = [eval(t) for t in opts.transform_signal]
     transform_target = [eval(t) for t in opts.transform_target]
-    if opts.class_dataset == 'CziDataset':
-        cropper = fnet.transforms.Cropper(('/16', '/16', '/16'), offsets=('mid', 'mid', 'mid'))
-    elif opts.class_dataset == 'TiffDataset':
-        cropper = fnet.transforms.Cropper(('/16', '/16'), offsets=('mid', 'mid'),
-                                          n_max_pixels=6000000
-        )
-    else:
-        raise NotImplementedError
-    transform_signal.append(cropper)
-    transform_target.append(cropper)
+    transform_signal.append(propper)
+    transform_target.append(propper)
     ds = getattr(fnet.data, opts.class_dataset)(
         path_csv = opts.path_dataset_csv,
         transform_source = transform_signal,
         transform_target = transform_target,
     )
     print(ds)
-    return torch.utils.data.DataLoader(
-        ds,
-        batch_size = 1,
-    )
+    return ds
+
+def save_tiff_and_log(tag, ar, path_tiff_dir, entry, path_log_dir):
+    if not os.path.exists(path_tiff_dir):
+        os.makedirs(path_tiff_dir)
+    path_tiff = os.path.join(path_tiff_dir, '{:s}.tiff'.format(tag))
+    tifffile.imsave(path_tiff, ar)
+    print('saved:', path_tiff)
+    entry['path_' + tag] = os.path.relpath(path_tiff, path_log_dir)
 
 def main():
-    warnings.filterwarnings('ignore', message='.*zoom().*')
-    warnings.filterwarnings('ignore', message='.*end of stream*')
-    warnings.filterwarnings('ignore', message='.*multiple of element size.*')
-
+    # set_warnings()
     factor_yx = 0.37241  # 0.108 um/px -> 0.29 um/px
     default_resizer_str = 'fnet.transforms.Resizer((1, {:f}, {:f}))'.format(factor_yx, factor_yx)
-    
     parser = argparse.ArgumentParser()
     parser.add_argument('--class_dataset', default='CziDataset', help='Dataset class')
     parser.add_argument('--gpu_ids', type=int, default=0, help='GPU ID')
     parser.add_argument('--n_images', type=int, default=16, help='max number of images to test')
+    parser.add_argument('--no_prediction', action='store_true', help='set to not save prediction image')
+    parser.add_argument('--no_prediction_unpropped', action='store_true', help='set to not save unpropped prediction image')
+    parser.add_argument('--no_signal', action='store_true', help='set to not save signal image')
+    parser.add_argument('--no_target', action='store_true', help='set to not save target image')
     parser.add_argument('--path_dataset_csv', type=str, help='path to csv for constructing Dataset')
     parser.add_argument('--path_model_dir', help='path to model directory')
     parser.add_argument('--path_save_dir', help='path to output directory')
+    parser.add_argument('--propper_kwargs', type=json.loads, default={}, help='path to output directory')
+    
     parser.add_argument('--transform_signal', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset signal')
     parser.add_argument('--transform_target', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset target')
     opts = parser.parse_args()
 
+    if opts.class_dataset == 'TiffDataset':
+        if opts.propper_kwargs.get('action') != '+':
+            opts.propper_kwargs['n_max_pixels'] = 6000000
+    propper = fnet.transforms.Propper(**opts.propper_kwargs)
+    print(propper)
     model = fnet.load_model_from_dir(opts.path_model_dir, opts.gpu_ids)
     print(model)
-    dataloader = get_dataloader(opts)
+    dataset = get_dataset(opts, propper)
     entries = []
-    for i, (signal, target) in enumerate(dataloader):
+    count = 0
+    for i, data_pre in enumerate(dataset):
+        info_data = dataset.get_information(i)
+        entry = {'information': info_data} if isinstance(info_data, str) else info_data
+        data = [torch.unsqueeze(d, 0) for d in data_pre]  # make batch of size 1
+        signal = data[0]
+        target = data[1] if (len(data) > 1) else None
         prediction = model.predict(signal)
         path_tiff_dir = os.path.join(opts.path_save_dir, '{:02d}'.format(i))
-        if not os.path.exists(path_tiff_dir):
-            os.makedirs(path_tiff_dir)
-        path_tiff_s = os.path.join(path_tiff_dir, 'signal.tiff')
-        path_tiff_t = os.path.join(path_tiff_dir, 'target.tiff')
-        path_tiff_p = os.path.join(path_tiff_dir, 'prediction.tiff')
-        tifffile.imsave(path_tiff_s, signal.numpy()[0, ])
-        print('saved:', path_tiff_s)
-        tifffile.imsave(path_tiff_t, target.numpy()[0, ])
-        print('saved:', path_tiff_t)
-        tifffile.imsave(path_tiff_p, prediction.numpy()[0, ])
-        print('saved:', path_tiff_p)
-        entries.append({
-            'path_signal': os.path.relpath(path_tiff_s, opts.path_save_dir),
-            'path_target': os.path.relpath(path_tiff_t, opts.path_save_dir),
-            'path_prediction': os.path.relpath(path_tiff_p, opts.path_save_dir),
-        })
-        if i >= opts.n_images:
+        if not opts.no_signal:
+            save_tiff_and_log('signal_transformed', signal.numpy()[0, ], path_tiff_dir, entry, opts.path_save_dir)
+        if not opts.no_target and target is not None:
+            save_tiff_and_log('target_transformed', target.numpy()[0, ], path_tiff_dir, entry, opts.path_save_dir)
+        if not opts.no_prediction:
+            save_tiff_and_log('prediction', prediction.numpy()[0, ], path_tiff_dir, entry, opts.path_save_dir)
+        if not opts.no_prediction_unpropped:
+            ar_pred_unpropped = propper.undo_last(prediction.numpy()[0, 0, ])
+            save_tiff_and_log('prediction_unpropped', ar_pred_unpropped, path_tiff_dir, entry, opts.path_save_dir)
+        entries.append(entry)
+        count += 1
+        if opts.n_images > 0 and count >= opts.n_images:
             break
     with open(os.path.join(opts.path_save_dir, 'predict_options.json'), 'w') as fo:
         json.dump(vars(opts), fo, indent=4, sort_keys=True)
