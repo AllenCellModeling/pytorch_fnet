@@ -15,11 +15,11 @@ def set_warnings():
     warnings.filterwarnings('ignore', message='.*end of stream*')
     warnings.filterwarnings('ignore', message='.*multiple of element size.*')
 
-def get_dataset(opts, cropper):
+def get_dataset(opts, propper):
     transform_signal = [eval(t) for t in opts.transform_signal]
     transform_target = [eval(t) for t in opts.transform_target]
-    transform_signal.append(cropper)
-    transform_target.append(cropper)
+    transform_signal.append(propper)
+    transform_target.append(propper)
     ds = getattr(fnet.data, opts.class_dataset)(
         path_csv = opts.path_dataset_csv,
         transform_source = transform_signal,
@@ -42,26 +42,29 @@ def main():
     default_resizer_str = 'fnet.transforms.Resizer((1, {:f}, {:f}))'.format(factor_yx, factor_yx)
     parser = argparse.ArgumentParser()
     parser.add_argument('--class_dataset', default='CziDataset', help='Dataset class')
-    parser.add_argument('--dont_save_signal', action='store_true', help='set to not save signal image')
-    parser.add_argument('--dont_save_target', action='store_true', help='set to not save target image')
     parser.add_argument('--gpu_ids', type=int, default=0, help='GPU ID')
     parser.add_argument('--n_images', type=int, default=16, help='max number of images to test')
+    parser.add_argument('--no_prediction', action='store_true', help='set to not save prediction image')
+    parser.add_argument('--no_prediction_unpropped', action='store_true', help='set to not save unpropped prediction image')
+    parser.add_argument('--no_signal', action='store_true', help='set to not save signal image')
+    parser.add_argument('--no_target', action='store_true', help='set to not save target image')
     parser.add_argument('--path_dataset_csv', type=str, help='path to csv for constructing Dataset')
     parser.add_argument('--path_model_dir', help='path to model directory')
     parser.add_argument('--path_save_dir', help='path to output directory')
+    parser.add_argument('--propper_kwargs', type=json.loads, default={}, help='path to output directory')
+    
     parser.add_argument('--transform_signal', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset signal')
     parser.add_argument('--transform_target', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset target')
     opts = parser.parse_args()
 
-    if opts.class_dataset == 'CziDataset':
-        cropper = fnet.transforms.Cropper(('/16', '/16', '/16'), offsets=('mid', 'mid', 'mid'))
-    else:  # opts.class_dataset == 'TiffDataset'
-        cropper = fnet.transforms.Cropper(('/16', '/16'), offsets=('mid', 'mid'),
-                                          n_max_pixels=6000000)
-        
+    if opts.class_dataset == 'TiffDataset':
+        if opts.propper_kwargs.get('action') != '+':
+            opts.propper_kwargs['n_max_pixels'] = 6000000
+    propper = fnet.transforms.Propper(**opts.propper_kwargs)
+    print(propper)
     model = fnet.load_model_from_dir(opts.path_model_dir, opts.gpu_ids)
     print(model)
-    dataset = get_dataset(opts, cropper)
+    dataset = get_dataset(opts, propper)
     entries = []
     count = 0
     for i, data_pre in enumerate(dataset):
@@ -72,18 +75,18 @@ def main():
         target = data[1] if (len(data) > 1) else None
         prediction = model.predict(signal)
         path_tiff_dir = os.path.join(opts.path_save_dir, '{:02d}'.format(i))
-        if not opts.dont_save_signal:
+        if not opts.no_signal:
             save_tiff_and_log('signal_transformed', signal.numpy()[0, ], path_tiff_dir, entry, opts.path_save_dir)
-        if not opts.dont_save_target and target is not None:
+        if not opts.no_target and target is not None:
             save_tiff_and_log('target_transformed', target.numpy()[0, ], path_tiff_dir, entry, opts.path_save_dir)
-        save_tiff_and_log('prediction_propped', prediction.numpy()[0, ], path_tiff_dir, entry, opts.path_save_dir)
-        
-        ar_pred_unpropped = cropper.unprop(prediction.numpy()[0, 0, ])
-        save_tiff_and_log('prediction', ar_pred_unpropped, path_tiff_dir, entry, opts.path_save_dir)
-        
+        if not opts.no_prediction:
+            save_tiff_and_log('prediction', prediction.numpy()[0, ], path_tiff_dir, entry, opts.path_save_dir)
+        if not opts.no_prediction_unpropped:
+            ar_pred_unpropped = propper.undo_last(prediction.numpy()[0, 0, ])
+            save_tiff_and_log('prediction_unpropped', ar_pred_unpropped, path_tiff_dir, entry, opts.path_save_dir)
         entries.append(entry)
         count += 1
-        if count >= opts.n_images:
+        if opts.n_images > 0 and count >= opts.n_images:
             break
     with open(os.path.join(opts.path_save_dir, 'predict_options.json'), 'w') as fo:
         json.dump(vars(opts), fo, indent=4, sort_keys=True)
