@@ -18,7 +18,7 @@ def do_nothing(img):
 class Propper(object):
     """Padder + Cropper"""
     
-    def __init__(self, action='+', **kwargs):
+    def __init__(self, action='-', **kwargs):
         assert action in ('+', '-')
         
         self.action = action
@@ -168,6 +168,7 @@ class Cropper(object):
         shape_crop = self._calc_shape_crop(shape_in)
         offsets_crop = self._calc_offsets_crop(shape_in, shape_crop)
         slices = [slice(offsets_crop[i], offsets_crop[i] + shape_crop[i]) for i in range(len(shape_in))]
+        self.crops[shape_in]['slices'] = slices
         return slices
 
     def __call__(self, x_in):
