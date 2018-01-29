@@ -1,572 +1,81 @@
-path_czi,channel_signal,channel_target
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_1-Scene-01-P1-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_1-Scene-02-P4-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_1-Scene-03-P7-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_1-Scene-04-P10-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_1-Scene-05-P13-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_1-Scene-06-P16-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_1-Scene-08-P22-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_1-Scene-09-P25-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_2-Scene-01-P2-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_2-Scene-02-P5-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_2-Scene-03-P8-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_2-Scene-04-P11-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_2-Scene-05-P14-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_2-Scene-06-P17-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_2-Scene-07-P20-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_2-Scene-08-P23-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_2-Scene-09-P26-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_3-Scene-01-P3-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_3-Scene-02-P6-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_4-Scene-01-P28-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_4-Scene-03-P34-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_4-Scene-04-P37-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_4-Scene-05-P40-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_4-Scene-06-P43-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_4-Scene-07-P46-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_4-Scene-08-P49-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_4-Scene-09-P52-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_5-Scene-02-P32-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_5-Scene-03-P35-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_5-Scene-05-P41-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_5-Scene-06-P44-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_5-Scene-07-P47-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_5-Scene-08-P50-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_6-Scene-01-P30-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P01.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P02.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P03.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P04.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P06.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P07.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P08.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P09.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P10.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P11.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P12.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P13.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P14.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P15.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P16.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P17.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P18.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P19.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P20.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P21.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P22.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P23.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P24.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P25.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P26.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P27.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P28.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P32.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P33.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P34.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_E07_P01.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_E07_P05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_E07_P06.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_E07_P08.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_E08_P09.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_E08_P10.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_E08_P11.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_E08_P12.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_E08_P13.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_E08_P18.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_E08_P20.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_E08_P21.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_F07_P21.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_F07_P23.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_F07_P24.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_F07_P25.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_F07_P27.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E04_P02.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E04_P03.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E04_P07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E04_P08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E04_P09.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E04_P10.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E05_P11.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E05_P12.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E05_P13.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E05_P14.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E05_P16.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E05_P17.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E05_P21.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E05_P22.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E05_P23.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E06_P24.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E06_P25.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E06_P26.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E06_P27.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E06_P28.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E07_P29.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E07_P30.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E07_P31.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E07_P32.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E07_P33.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E07_P34.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E08_P35.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E08_P36.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E08_P37.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E08_P38.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E08_P39.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_F04_P48.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_F04_P49.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_F05_P42.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_F05_P43.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_F05_P45.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_F05_P46.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_F06_P41.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000729/ZSD3/100X_zstack/3500000729_100X_20170320_1-Scene-2-P25-E04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000729/ZSD3/100X_zstack/3500000729_100X_20170320_1-Scene-3-P26-E04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000729/ZSD3/100X_zstack/3500000729_100X_20170320_1-Scene-4-P28-E04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000729/ZSD3/100X_zstack/3500000729_100X_20170320_1-Scene-5-P29-E04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000729/ZSD3/100X_zstack/3500000729_100X_20170320_1-Scene-6-P30-E04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000729/ZSD3/100X_zstack/3500000729_100X_20170320_1-Scene-7-P31-E04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000729/ZSD3/100X_zstack/3500000729_100X_20170320_1-Scene-8-P32-E04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000729/ZSD3/100X_zstack/3500000729_100X_20170320_2-Scene-01-P33-F04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000729/ZSD3/100X_zstack/3500000729_100X_20170320_2-Scene-02-P34-F04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000729/ZSD3/100X_zstack/3500000729_100X_20170320_2-Scene-03-P35-F04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000729/ZSD3/100X_zstack/3500000729_100X_20170320_2-Scene-04-P36-F04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000729/ZSD3/100X_zstack/3500000729_100X_20170320_2-Scene-06-P38-F04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000729/ZSD3/100X_zstack/3500000729_100X_20170320_2-Scene-07-P39-F05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000729/ZSD3/100X_zstack/3500000729_100X_20170320_3-Scene-5-P47-F07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000729/ZSD3/100X_zstack/3500000729_100X_20170320_5-Scene-01-P1-E08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000729/ZSD3/100X_zstack/3500000729_100X_20170320_6-Scene-1-P11-E07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E04_P01.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E04_P02.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E04_P03.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E04_P04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E04_P05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E05_P06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E05_P07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E05_P08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E05_P09.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E05_P10.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E05_P11.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E05_P12.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E06_P13.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E06_P14.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E06_P15.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E06_P16.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E07_P17.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E07_P18.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_F04_P26.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_F04_P27.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_F04_P28.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_F04_P29.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_F04_P30.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_F05_P23.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_F05_P24.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_F05_P25.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_F06_P21.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_F06_P22.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_F08_P19.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_F08_P20.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000719/ZSD2/100X_zstack/3500000719_100X_20170317_F07_P01.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000719/ZSD2/100X_zstack/3500000719_100X_20170317_F08_P03.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000719/ZSD2/100X_zstack/3500000719_100X_20170317_F08_P06.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000719/ZSD2/100X_zstack/3500000719_100X_20170317_F08_P07.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000719/ZSD2/100X_zstack/3500000719_100X_20170317_F08_P08.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000719/ZSD2/100X_zstack/3500000719_100X_20170317_F08_P09.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000719/ZSD2/100X_zstack/3500000719_100X_20170317_F08_P10.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000719/ZSD2/100X_zstack/3500000719_100X_20170317_F08_P14.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D04_P02.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D04_P03.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D04_P04.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D04_P05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D04_P06.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D05_P07.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D05_P08.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D05_P09.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D05_P10.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D05_P11.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D06_P12.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D06_P13.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D06_P14.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D06_P16.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D06_P17.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D07_P23.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D07_P24.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D07_P25.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D07_P26.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D07_P27.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D08_P28.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D08_P29.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D08_P30.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_1-Scene-01-P1-D04.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_1-Scene-02-P2-D04.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_1-Scene-03-P3-D04.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_1-Scene-04-P4-D04.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_1-Scene-05-P5-D05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_1-Scene-06-P6-D05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_1-Scene-07-P7-D05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_1-Scene-08-P8-D05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_1-Scene-09-P9-D06.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_1-Scene-10-P10-D06.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_2-Scene-01-P11-D06.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_2-Scene-04-P14-D07.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_2-Scene-14-P24-E07.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_4-Scene-1-P29-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_4-Scene-2-P30-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_4-Scene-3-P31-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_4-Scene-4-P32-E04.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_4-Scene-6-P34-E04.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_4-Scene-7-P35-E04.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_4-Scene-8-P36-E04.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D04_P05_P06-Scene-1-P5-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D05_P011_P12-Scene-1-P11-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D05_P013_P14-Scene-1-P14-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D05_P013_P14-Scene-2-P13-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D05_P015_P16-Scene-1-P16-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D05_P015_P16-Scene-2-P15-D05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D06_P019_P20-Scene-1-P20-D06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D06_P019_P20-Scene-2-P19-D06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D06_P23_P24-Scene-1-P23-D06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D06_P25_P26-Scene-1-P25-D06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D06_P27_P28-Scene-1-P28-D06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D06_P27_P28-Scene-2-P27-D06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D07_P31_P32-Scene-1-P31-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D07_P31_P32-Scene-2-P32-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D07_P35_P36-Scene-2-P35-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D07_P37_P38-Scene-1-P38-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D07_P37_P38-Scene-2-P37-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D07_P41_P42-Scene-1-P41-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D07_P41_P42-Scene-2-P42-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D07_P43_P44-Scene-1-P44-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D07_P43_P44-Scene-2-P43-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D07_P45_P46-Scene-1-P46-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D07_P45_P46-Scene-2-P45-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D08_P47_P48-Scene-1-P48-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D08_P47_P48-Scene-2-P47-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D08_P49_P50-Scene-1-P50-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D08_P49_P50-Scene-2-P49-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_c-Scene-01-P1-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_c-Scene-02-P4-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_c-Scene-04-P10-D06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_c-Scene-05-P13-D06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_c-Scene-06-P16-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_c-Scene-07-P19-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_c-Scene-08-P22-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_c-Scene-09-P25-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_c-Scene-10-P28-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_c-Scene-11-P31-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_c-Scene-12-P34-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_c-Scene-13-P37-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_e-Scene-02-P6-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_e-Scene-05-P15-D06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_e-Scene-07-P21-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_e-Scene-09-P27-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_e-Scene-10-P30-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_r1-Scene-1-P2-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_r2-Scene-01-P8-D06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_r2-Scene-04-P17-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_r2-Scene-05-P20-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_r2-Scene-06-P23-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_r2-Scene-08-P29-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_r2-Scene-09-P32-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_r2-Scene-10-P35-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_r2-Scene-11-P38-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P01.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P02.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P03.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P10.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P11.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P13.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P14.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P15.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P16.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P17.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P18.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P19.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P20.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P21.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P22.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P25.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P26.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P27.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P28.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P30.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P31.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P32.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D04_P05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D04_P07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D04_P09.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D04_P13.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D04_P15.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D05_P19.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D05_P21.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D05_P22.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D06_P23.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D06_P25.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D06_P26.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D06_P27.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D06_P31.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D06_P36.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D07_P37.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D07_P38.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D07_P40.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D07_P41.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D07_P42.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D07_P45.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D07_P46.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D07_P49.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D07_P50.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D04_P02.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D04_P04.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D04_P05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D04_P07.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D04_P09.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D04_P10.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D05_P12.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D05_P13.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D05_P14.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D05_P15.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D05_P16.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D05_P17.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D05_P19.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D05_P22.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D05_P23.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D05_P24.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D05_P26.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D05_P27.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000668/ZSD2/100X_zstack/3500000668_100X_20170306_E04_P01.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000668/ZSD2/100X_zstack/3500000668_100X_20170306_E04_P04.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000668/ZSD2/100X_zstack/3500000668_100X_20170306_E04_P05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000668/ZSD2/100X_zstack/3500000668_100X_20170306_E04_P07.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000668/ZSD2/100X_zstack/3500000668_100X_20170306_E04_P11.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000668/ZSD2/100X_zstack/3500000668_100X_20170306_E04_P15.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000668/ZSD2/100X_zstack/3500000668_100X_20170306_E04_P17.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000668/ZSD2/100X_zstack/3500000668_100X_20170306_E04_P19.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000668/ZSD2/100X_zstack/3500000668_100X_20170306_E05_P21.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000668/ZSD2/100X_zstack/3500000668_100X_20170306_E05_P23.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000668/ZSD2/100X_zstack/3500000668_100X_20170306_E05_P24.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000668/ZSD2/100X_zstack/3500000668_100X_20170306_E05_P25.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000668/ZSD2/100X_zstack/3500000668_100X_20170306_E05_P27.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000668/ZSD2/100X_zstack/3500000668_100X_20170306_E05_P28.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000668/ZSD2/100X_zstack/3500000668_100X_20170306_E05_P30.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D04_P01.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D04_P02.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D04_P03.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D04_P04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D04_P05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D04_P06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D04_P09.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D04_P10.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D04_P11.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D04_P12.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D05_P13.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D05_P14.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D05_P15.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D05_P16.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D06_P18.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D06_P20.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D06_P21.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D06_P24.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D07_P26.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D07_P27.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D07_P30.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D07_P31.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D07_P32.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D07_P33.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D07_P34.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D07_P36.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_E06_P42.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_E06_P43.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F06_P34.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F06_P35.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F07_P24.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F07_P25.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F07_P26.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F07_P27.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F07_P28.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F07_P30.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F07_P31.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F08_P10.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F08_P11.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F08_P12.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F08_P13.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F08_P14.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F08_P15.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F08_P16.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F08_P17.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F08_P18.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F08_P19.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F08_P1.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F08_P2.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000680/ZSD2/100X_zstack/3500000680_100X_20170307_E08_P01.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000680/ZSD2/100X_zstack/3500000680_100X_20170307_E08_P03.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000680/ZSD2/100X_zstack/3500000680_100X_20170307_E08_P05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000680/ZSD2/100X_zstack/3500000680_100X_20170307_E08_P07.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000680/ZSD2/100X_zstack/3500000680_100X_20170307_E08_P09.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000680/ZSD2/100X_zstack/3500000680_100X_20170307_E08_P13.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000680/ZSD2/100X_zstack/3500000680_100X_20170307_E08_P15.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000680/ZSD2/100X_zstack/3500000680_100X_20170307_E08_P17.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000680/ZSD2/100X_zstack/3500000680_100X_20170307_E08_P19.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000680/ZSD2/100X_zstack/3500000680_100X_20170307_F04_P25.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000680/ZSD2/100X_zstack/3500000680_100X_20170307_F04_P26.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000680/ZSD2/100X_zstack/3500000680_100X_20170307_F04_P27.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000680/ZSD2/100X_zstack/3500000680_100X_20170307_F04_P29.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000680/ZSD2/100X_zstack/3500000680_100X_20170307_F04_P31.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000680/ZSD2/100X_zstack/3500000680_100X_20170307_F04_P33.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000680/ZSD2/100X_zstack/3500000680_100X_20170307_F04_P34.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000680/ZSD2/100X_zstack/3500000680_100X_20170307_F04_P35.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E04_P03_P04-Scene-1-P3-E04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E04_P05_P06-Scene-1-P5-E04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E04_P05_P06-Scene-2-P6-E04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E04_P07_P08-Scene-1-P7-E04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E04_P09_P10-Scene-1-P10-E04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E04_P09_P10-Scene-2-P9-E04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E04_P11_P12-Scene-2-P11-E05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E04_P13_P14-Scene-1-P13-E05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E05_P15_P16-Scene-1-P16-E05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E05_P17_P18-Scene-1-P17.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E06_P19_P20-Scene-1-P19-E05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E06_P21_P22-Scene-1-P21.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E06_P21_P22-Scene-2-P22.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E06_P23.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E06_P24.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E06_P25.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E06_P26.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E06_P27.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E06_P28.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E06_P29.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E06_P30.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E06_P31.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E06_P32.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E07_P33.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E07_P34.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E07_P35.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E07_P36.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E07_P37.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E07_P39.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E07_P40.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E07_P41.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E07_P42.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E08_P43.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E08_P47.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E08_P48.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E06_P29.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E06_P30.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E06_P31.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E06_P34.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E06_P35.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E06_P36.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E06_P37.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E06_P38.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E06_P39.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E06_P40.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P02.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P05.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P09.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P10.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P11.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P12.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P13.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P14.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P15.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P16.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P18.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P19.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P24.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P25.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P27.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000758/ZSD2/100X_zstack/3500000758_100X_20170327_D04_P04.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000758/ZSD2/100X_zstack/3500000758_100X_20170327_D04_P05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000695/ZSD2/100X_zstack/3500000695_100X_20170310_E05_P03.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000695/ZSD2/100X_zstack/3500000695_100X_20170310_E05_P05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000695/ZSD2/100X_zstack/3500000695_100X_20170310_E05_P07.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000695/ZSD2/100X_zstack/3500000695_100X_20170310_E05_P09.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000695/ZSD2/100X_zstack/3500000695_100X_20170310_E05_P11-12-Scene-1-P11-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000695/ZSD2/100X_zstack/3500000695_100X_20170310_E05_P13-14-Scene-1-P13-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000695/ZSD2/100X_zstack/3500000695_100X_20170310_E05_P15_P16-Scene-1-P15-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000695/ZSD2/100X_zstack/3500000695_100X_20170310_E05_P17_P18-Scene-1-P18-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000695/ZSD2/100X_zstack/3500000695_100X_20170310_E05_P17_P18-Scene-2-P17-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000695/ZSD2/100X_zstack/3500000695_100X_20170310_E06_P29.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000695/ZSD2/100X_zstack/3500000695_100X_20170310_E06_P31.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000695/ZSD2/100X_zstack/3500000695_100X_20170310_E06_P33.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000695/ZSD2/100X_zstack/3500000695_100X_20170310_E06_P35.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_1-Scene-1-P1-E06.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_1-Scene-3-P3-E06.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_2-Scene-5-P5-E06.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_2-Scene-7-P7-E06.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_3-Scene-01-P9-E07.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_3-Scene-03-P11-E07.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_3-Scene-04-P12-E07.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_3-Scene-08-P16-E07.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_3-Scene-09-P17-E07.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_3-Scene-10-P18-E07.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_4-Scene-1-P19-E08.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_4-Scene-3-P21-E08.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_4-Scene-5-P23-E08.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_5-Scene-1-P24-E08.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_5-Scene-3-P26-E08.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_6-Scene-03-P31-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_6-Scene-04-P32-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_6-Scene-05-P33-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_6-Scene-07-P35-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_6-Scene-08-P36-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_6-Scene-09-P37-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_6-Scene-12-P40-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_6-Scene-13-P41-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_6-Scene-15-P43-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_6-Scene-16-P44-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_6-Scene-18-P46-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_6-Scene-19-P47-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_6-Scene-20-P48-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_6-Scene-21-P49-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_6-Scene-22-P50-E05.czi,3,1
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_1-Scene-1-P1-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_1-Scene-2-P4-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_1-Scene-3-P7-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_1-Scene-4-P10-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_1-Scene-5-P13-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_1-Scene-6-P16-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_2-Scene-1-P19-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_2-Scene-2-P22-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_2-Scene-3-P25-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_3-Scene-01-P2-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_3-Scene-02-P5-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_3-Scene-03-P8-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_3-Scene-04-P11-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_3-Scene-05-P14-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_3-Scene-06-P17-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_3-Scene-07-P20-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_3-Scene-08-P23-D04.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_4-Scene-01-P30-D06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_4-Scene-02-P33-D06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_4-Scene-04-P39-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_4-Scene-05-P42-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_4-Scene-07-P48-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_4-Scene-08-P51-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_4-Scene-09-P54-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_5-Scene-01-P28-D06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_5-Scene-02-P31-D06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_5-Scene-03-P34-D06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_5-Scene-04-P37-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_5-Scene-05-P40-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_5-Scene-07-P46-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_5-Scene-08-P49-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_5-Scene-09-P52-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_6-Scene-01-P29-D06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_6-Scene-02-P32-D06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_6-Scene-03-P35-D06.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_6-Scene-04-P38-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_6-Scene-05-P41-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_6-Scene-06-P44-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_6-Scene-07-P47-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_6-Scene-08-P50-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_6-Scene-09-P53-D07.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_7-Scene-01-P55-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_7-Scene-02-P56-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_7-Scene-03-P58-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_7-Scene-04-P59-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_7-Scene-05-P61-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_7-Scene-07-P64-D08.czi,6,3
-//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_7-Scene-08-P65-D08.czi,6,3
+path_czi,channel_signal,channel_target,structureProteinName,colony_position
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_2-Scene-1-P19-D04.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_2-Scene-2-P22-D04.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_1-Scene-3-P3-E06.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D04_P09.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_c-Scene-09-P25-D08.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_4-Scene-3-P21-E08.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E06_P21_P22-Scene-1-P21.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D06_P25_P26-Scene-1-P25-D06.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E04_P03.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E06_P14.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_1-Scene-02-P2-D04.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E04_P13_P14-Scene-1-P13-E05.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_F04_P26.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000722/ZSD3/100X_zstack/3500000722_100X_20170317_E04_P19.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E06_P36.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000729/ZSD3/100X_zstack/3500000729_100X_20170320_2-Scene-07-P39-F05.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E05_P11.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000523/ZSD2/100X_zstack/3500000523_100X_20170314_D04_P06.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_4-Scene-4-P32-E04.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_c-Scene-11-P31-D08.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_2-Scene-5-P5-E06.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000719/ZSD2/100X_zstack/3500000719_100X_20170317_F07_P01.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E08_P37.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_4-Scene-6-P34-E04.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_c-Scene-12-P34-D08.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000726/ZSD2/100X_zstack/3500000726_100X_20170320_3-Scene-08-P16-E07.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_E08_P11.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_1-Scene-08-P22-D04.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E05_P14.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_F07_P21.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E04_P07.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_F05_P23.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_c-Scene-10-P28-D08.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000766/ZSD2/100X_zstack/3500000766_100X_20170328_D05_P14.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D04_P03.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000666/ZSD3/100X_zstack/3500000666_100X_20170303_E07_P32.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D04_P10.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P23.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P12.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000527/ZSD3/100X_zstack/3500000527_100X_20170314_D07_P27.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000654/ZSD2/100X_zstack/3500000654_100X_20170301_F08_P13.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_E08_P18.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000636/ZSD3/100X_zstack/3500000636_100X_20170227_E05_P06.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000741/ZSD2/100X_zstack/3500000741_100X_20170324_D04_P06.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000635/ZSD2/100X_zstack/3500000635_100X_20170227_E08_P13.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_1-Scene-03-P7-D04.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000738/ZSD2/100X_zstack/3500000738_100X_20170321_2-Scene-04-P14-D07.czi,3,1,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P24.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000645/ZSD3/100X_zstack/3500000645_10X_20170301_E07_P02.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000729/ZSD3/100X_zstack/3500000729_100X_20170320_3-Scene-5-P47-F07.czi,6,3,Alpha tubulin,
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D07_P45_P46-Scene-1-P46-D07.czi,6,3,Alpha tubulin,r
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_3-Scene-07-P20-D04.czi,6,3,Alpha tubulin,r
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_2-Scene-03-P8-D04.czi,6,3,Alpha tubulin,r
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_6-Scene-03-P35-D06.czi,6,3,Alpha tubulin,r
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_5-Scene-06-P44-D05.czi,6,3,Alpha tubulin,r
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_6-Scene-05-P41-D07.czi,6,3,Alpha tubulin,r
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D07_P41_P42-Scene-2-P42-D07.czi,6,3,Alpha tubulin,r
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000693/ZSD3/100X_zstack/3500000693_100X_20170310_D07_P46.czi,6,3,Alpha tubulin,r
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000672/ZSD3/100X_zstack/3500000672_100X_20170306_D08_P49_P50-Scene-1-P50-D08.czi,6,3,Alpha tubulin,r
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_r2-Scene-11-P38-D08.czi,6,3,Alpha tubulin,r
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_2-Scene-02-P5-D04.czi,6,3,Alpha tubulin,r
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_r2-Scene-09-P32-D08.czi,6,3,Alpha tubulin,r
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000684/ZSD3/100X_zstack/3500000684_100X_20170307_E08_P48.czi,6,3,Alpha tubulin,r
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_3-Scene-02-P5-D04.czi,6,3,Alpha tubulin,r
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_r2-Scene-06-P23-D08.czi,6,3,Alpha tubulin,r
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_4-Scene-07-P48-D07.czi,6,3,Alpha tubulin,e
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_e-Scene-09-P27-D08.czi,6,3,Alpha tubulin,e
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_4-Scene-04-P39-D07.czi,6,3,Alpha tubulin,e
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_7-Scene-03-P58-D08.czi,6,3,Alpha tubulin,e
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_7-Scene-01-P55-D08.czi,6,3,Alpha tubulin,e
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_7-Scene-04-P59-D08.czi,6,3,Alpha tubulin,e
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_6-Scene-01-P30-D05.czi,6,3,Alpha tubulin,e
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_3-Scene-02-P6-D04.czi,6,3,Alpha tubulin,e
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_4-Scene-02-P33-D06.czi,6,3,Alpha tubulin,e
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_7-Scene-08-P65-D08.czi,6,3,Alpha tubulin,e
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000765/ZSD3/100X_zstack/3500000765_100X_20170328_3-Scene-01-P3-D04.czi,6,3,Alpha tubulin,e
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_4-Scene-01-P30-D06.czi,6,3,Alpha tubulin,e
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_7-Scene-07-P64-D08.czi,6,3,Alpha tubulin,e
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000757/ZSD3/100X_zstack/3500000757_100X_20170327_4-Scene-08-P51-D07.czi,6,3,Alpha tubulin,e
+//allen/aics/microscopy/PRODUCTION/PIPELINE_4_OptimizationAutomation/3500000781/ZSD3/100X_zstack/3500000781_100X_20170331_e-Scene-05-P15-D06.czi,6,3,Alpha tubulin,e
