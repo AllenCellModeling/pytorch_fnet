@@ -6,7 +6,7 @@ import pdb
 class Model(object):
     def __init__(
             self,
-            nn_module = 'ttf_v8_nn',
+            nn_module = None,
             init_weights = True,
             lr = 0.001,
             criterion_fn = torch.nn.MSELoss, 
