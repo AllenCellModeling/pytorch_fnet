@@ -1,24 +1,22 @@
 #!/bin/bash -x
 
-TARGET=${1:-dna}
+DATASET=${1:-dna}
 N_ITER=50000
 BUFFER_SIZE=30
-RUN_DIR="saved_models/${TARGET}"
-PATH_DATA_TRAIN="data/csvs/${TARGET}_train.csv"
-PATH_DATA_TEST="data/csvs/${TARGET}_test.csv"
+BATCH_SIZE=24
+RUN_DIR="saved_models/${DATASET}"
+PATH_DATASET_ALL_CSV="data/csvs/${DATASET}.csv"
+PATH_DATASET_TRAIN_CSV="data/csvs/${DATASET}/train.csv"
 GPU_IDS=${2:-0}
 
 cd $(cd "$(dirname ${BASH_SOURCE})" && pwd)/..
 
+python scripts/python/split_dataset.py ${PATH_DATASET_ALL_CSV} "data/csvs" --train_size 0.75 -v
 python train_model.py \
        --n_iter ${N_ITER} \
+       --path_dataset_csv ${PATH_DATASET_TRAIN_CSV} \
        --buffer_size ${BUFFER_SIZE} \
-       --replace_interval -1 \
-       --path_train_csv ${PATH_DATA_TRAIN} \
-       --path_test_csv ${PATH_DATA_TEST} \
-       --batch_size 24 \
-       --nn_module ttf_v8_nn \
+       --buffer_switch_frequency 2000000 \
+       --batch_size ${BATCH_SIZE} \
        --path_run_dir ${RUN_DIR} \
-       --no_checkpoint_testing \
        --gpu_ids ${GPU_IDS}
-
