@@ -23,6 +23,9 @@ class Model(object):
         self._init_model()
 
     def _init_model(self):
+        if self.nn_module is None:
+            self.net = None
+            return
         self.net = importlib.import_module('fnet.nn_modules.' + self.nn_module).Net()
         if self.init_weights:
             self.net.apply(_weights_init)
