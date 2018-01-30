@@ -5,7 +5,6 @@ import json
 import logging
 import numpy as np
 import os
-import pandas as pd
 import pdb
 import sys
 import time
@@ -93,10 +92,11 @@ def main():
 
     #Load saved history if it already exists
     path_losses_csv = os.path.join(opts.path_run_dir, 'losses.csv')
-    df_losses = pd.DataFrame()
-    if os.path.exists(path_model):
-        df_losses = pd.read_csv(path_losses_csv)
+    if os.path.exists(path_losses_csv):
+        fnetlogger = fnet.FnetLogger(path_losses_csv)
         logger.info('History loaded from: {:s}'.format(path_losses_csv))
+    else:
+        fnetlogger = fnet.FnetLogger(columns=['num_iter', 'loss_batch'])
 
     opts.__dict__['npatches'] = max(0, (opts.n_iter - model.count_iter)*opts.batch_size)
     dataloader_train = get_dataloader(opts)
@@ -110,21 +110,19 @@ def main():
 
     for i, (signal, target) in enumerate(dataloader_train, model.count_iter):
         loss_batch = model.do_train_iter(signal, target)
-        logger.info('num_iter: {:4d} | loss_batch: {:.4f}'.format(i + 1, loss_batch))
+        fnetlogger.add({'num_iter': i + 1, 'loss_batch': loss_batch})
+        print('num_iter: {:6d} | loss_batch: {:.3f}'.format(i + 1, loss_batch))
         dict_iter = dict(
             num_iter = i + 1,
             loss_batch = loss_batch,
         )
-        df_losses_curr = pd.concat([df_losses, pd.DataFrame([dict_iter])], ignore_index=True)
         if ((i + 1) % opts.iter_checkpoint == 0) or ((i + 1) == opts.n_iter):
-            if dataloader_test is not None:
-                raise NotImplementedError
             model.save_state(path_model)
-            df_losses_curr.to_csv(path_losses_csv, index=False)
+            fnetlogger.to_csv(path_losses_csv)
+            logger.info('loss log saved to: {:s}'.format(path_losses_csv))
             logger.info('model saved to: {:s}'.format(path_model))
             logger.info('elapsed time: {:.1f} s'.format(time.time() - time_start))
-        df_losses = df_losses_curr
-    logger.info('total training time: {:.1f} s'.format(time.time() - time_start))
+    
 
 if __name__ == '__main__':
     main()
