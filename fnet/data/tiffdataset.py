@@ -52,4 +52,4 @@ class TiffDataset(FnetDataset):
         return len(self.df)
 
     def get_information(self, index):
-        return self.df.iloc[index, :].copy()
+        return self.df.iloc[index, :].to_dict()
