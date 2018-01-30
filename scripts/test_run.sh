@@ -4,7 +4,7 @@ DATASET=${1:-dna}
 BUFFER_SIZE=1
 N_ITER=20
 RUN_DIR="saved_models/TEST"
-PATH_DATASET_CSV="data/${DATASET}/train.csv"
+PATH_DATASET_CSV="data/csvs/${DATASET}/train.csv"
 GPU_IDS=${2:-0}
 
 cd $(cd "$(dirname ${BASH_SOURCE})" && pwd)/..

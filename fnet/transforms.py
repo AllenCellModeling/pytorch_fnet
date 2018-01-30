@@ -102,7 +102,6 @@ class Cropper(object):
         self.by = by
         self.n_max_pixels = n_max_pixels
         
-        self._shape_adjustments = {}
         self.crops = {}
         self.last_crop = None
 
@@ -111,27 +110,19 @@ class Cropper(object):
 
     def _adjust_shape_crop(self, shape_crop):
         key = tuple(shape_crop)
-        if key in self._shape_adjustments:
-            return self._shape_adjustments[key]
         shape_crop_new = list(shape_crop)
         prod_shape = np.prod(shape_crop_new)
         idx_dim_reduce = 0
-
-        if len(shape_crop) == 3:
-            order_dim_reduce = [2, 1, 2, 2, 1, 0]
-        else:
-            order_dim_reduce = [0, 1]
-
+        order_dim_reduce = list(range(len(shape_crop))[-2:])  # alternate between last two dimensions
         while prod_shape > self.n_max_pixels:
             dim = order_dim_reduce[idx_dim_reduce]
             if not (dim == 0 and shape_crop_new[dim] <= 64):
-                shape_crop_new[dim] -= self.reduce_by
+                shape_crop_new[dim] -= self.by
                 prod_shape = np.prod(shape_crop_new)
             idx_dim_reduce += 1
             if idx_dim_reduce >= len(order_dim_reduce):
                 idx_dim_reduce = 0
         value = tuple(shape_crop_new)
-        self._shape_adjustments[key] = value
         print('DEBUG: cropper shape change', shape_crop, 'becomes', value)
         return value
 

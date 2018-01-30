@@ -36,6 +36,21 @@ def save_tiff_and_log(tag, ar, path_tiff_dir, entry, path_log_dir):
     print('saved:', path_tiff)
     entry['path_' + tag] = os.path.relpath(path_tiff, path_log_dir)
 
+def get_prediction_entry(dataset, index):
+    info = dataset.get_information(index)
+    # In the case where 'path_signal', 'path_target' keys exist in dataset information,
+    # replace with 'path_signal_dataset', 'path_target_dataset' to avoid confusion with
+    # predict.py's 'path_signal' and 'path_target'.
+    if isinstance(info, dict):
+        if 'path_signal' in info:
+            info['path_signal_dataset'] = info.pop('path_signal')
+        if 'path_target' in info:
+            info['path_target_dataset'] = info.pop('path_target')
+        return info
+    if isinstance(info, str):
+        return {'information': info}
+    raise AttributeError
+    
 def main():
     # set_warnings()
     factor_yx = 0.37241  # 0.108 um/px -> 0.29 um/px
@@ -52,7 +67,6 @@ def main():
     parser.add_argument('--path_model_dir', help='path to model directory')
     parser.add_argument('--path_save_dir', help='path to output directory')
     parser.add_argument('--propper_kwargs', type=json.loads, default={}, help='path to output directory')
-    
     parser.add_argument('--transform_signal', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset signal')
     parser.add_argument('--transform_target', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset target')
     opts = parser.parse_args()
@@ -68,17 +82,16 @@ def main():
     entries = []
     count = 0
     for i, data_pre in enumerate(dataset):
-        info_data = dataset.get_information(i)
-        entry = {'information': info_data} if isinstance(info_data, str) else info_data
+        entry = get_prediction_entry(dataset, i)
         data = [torch.unsqueeze(d, 0) for d in data_pre]  # make batch of size 1
         signal = data[0]
         target = data[1] if (len(data) > 1) else None
         prediction = model.predict(signal)
         path_tiff_dir = os.path.join(opts.path_save_dir, '{:02d}'.format(i))
         if not opts.no_signal:
-            save_tiff_and_log('signal_transformed', signal.numpy()[0, ], path_tiff_dir, entry, opts.path_save_dir)
+            save_tiff_and_log('signal', signal.numpy()[0, ], path_tiff_dir, entry, opts.path_save_dir)
         if not opts.no_target and target is not None:
-            save_tiff_and_log('target_transformed', target.numpy()[0, ], path_tiff_dir, entry, opts.path_save_dir)
+            save_tiff_and_log('target', target.numpy()[0, ], path_tiff_dir, entry, opts.path_save_dir)
         if not opts.no_prediction:
             save_tiff_and_log('prediction', prediction.numpy()[0, ], path_tiff_dir, entry, opts.path_save_dir)
         if not opts.no_prediction_unpropped:

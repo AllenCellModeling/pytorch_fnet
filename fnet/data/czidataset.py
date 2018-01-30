@@ -1,12 +1,13 @@
 import torch.utils.data
 from fnet.data.czireader import CziReader
+from fnet.data.fnetdataset import FnetDataset
 import pandas as pd
 
 import pdb
 
 import fnet.transforms as transforms
 
-class CziDataset(torch.utils.data.Dataset):
+class CziDataset(FnetDataset):
     """Dataset for CZI files."""
 
     def __init__(self, dataframe: pd.DataFrame = None, path_csv: str = None, 
@@ -50,3 +51,6 @@ class CziDataset(torch.utils.data.Dataset):
     
     def __len__(self):
         return len(self.df)
+
+    def get_information(self, index: int) -> dict:
+        return self.df.iloc[index, :].to_dict()
