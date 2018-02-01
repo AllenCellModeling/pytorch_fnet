@@ -3,7 +3,7 @@
 DATASET=${1:-dna}
 TEST_OR_TRAIN=test
 MODEL_DIR=saved_models/${DATASET}
-N_IMAGES=8
+N_IMAGES=16
 GPU_IDS=${2:-0}
 
 cd $(cd "$(dirname ${BASH_SOURCE})" && pwd)/..
