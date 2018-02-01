@@ -76,18 +76,17 @@ def main():
         torch.cuda.manual_seed_all(opts.seed)
 
     #Instantiate Model
-    model = fnet.fnet_model.Model(
-        nn_module=opts.nn_module,
-        lr=opts.lr,
-        gpu_ids=opts.gpu_ids,
-    )
-    logger.info('Model instianted from: {:s}'.format(opts.nn_module))
-    
-    #Load saved model if it already exists
     path_model = os.path.join(opts.path_run_dir, 'model.p')
     if os.path.exists(path_model):
-        model.load_state(path_model)
+        model = fnet.load_model_from_dir(opts.path_run_dir, gpu_ids=opts.gpu_ids)
         logger.info('model loaded from: {:s}'.format(path_model))
+    else:
+        model = fnet.fnet_model.Model(
+            nn_module=opts.nn_module,
+            lr=opts.lr,
+            gpu_ids=opts.gpu_ids,
+        )
+        logger.info('Model instianted from: {:s}'.format(opts.nn_module))
     logger.info(model)
 
     #Load saved history if it already exists
