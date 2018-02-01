@@ -13,7 +13,7 @@ def normalize(img):
     return result
 
 def do_nothing(img):
-    return img
+    return img.astype(np.float)
 
 class Propper(object):
     """Padder + Cropper"""
