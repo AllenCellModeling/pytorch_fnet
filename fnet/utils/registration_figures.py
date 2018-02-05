@@ -15,5 +15,7 @@ if __name__ == '__main__':
 
     df = pd.read_csv(mod.args['registration_csv'])
     f,ax = plt.subplots()
-    df.plot(kind='hist',y='pixel_error',ax=ax,bins=np.arange(0,10,.25))
+    df.plot(kind='hist',y='pixel_error',ax=ax,bins=np.arange(0,10,.25),legend=False)
+    ax.set_xlabel('average pixel error')
+    ax.set_ylabel('number of tiles')
     plt.savefig(mod.args['output_figure'])
