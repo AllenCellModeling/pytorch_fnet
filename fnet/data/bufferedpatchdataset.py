@@ -17,7 +17,8 @@ class BufferedPatchDataset(FnetDataset):
                  buffer_switch_frequency = 720, 
                  npatches = 100000,
                  verbose = False,
-                 transform = None):
+                 transform = None,
+                 shuffle_images = True):
         
         self.counter = 0
         
@@ -31,23 +32,30 @@ class BufferedPatchDataset(FnetDataset):
         self.buffer = list()
         
         self.verbose = verbose
+        self.shuffle_images = shuffle_images
         
         shuffed_data_order = np.arange(0, len(dataset))
-        np.random.shuffle(shuffed_data_order)
+
+        if self.shuffle_images:
+            np.random.shuffle(shuffed_data_order)
+        
         
         pbar = tqdm(range(0, buffer_size))
-                                               
+                       
+        self.buffer_history = list()
+            
         for i in pbar:
             #convert from a torch.Size object to a list
             if self.verbose: pbar.set_description("buffering images")
 
             datum_index = shuffed_data_order[i]
-
             datum = dataset[datum_index]
             
             datum_size = datum[0].size()
             
+            self.buffer_history.append(datum_index)
             self.buffer.append(datum)
+            
             
             
         self.patch_size = [datum_size[0]] + patch_size
@@ -71,8 +79,14 @@ class BufferedPatchDataset(FnetDataset):
                        
         self.buffer.pop(0)
         
-        new_datum_index = np.random.randint(len(self.dataset))
-                                            
+        if self.shuffle_images:
+            new_datum_index = np.random.randint(len(self.dataset))
+        else:
+            new_datum_index = self.buffer_history[-1]+1
+            if new_datum_index == len(self.dataset):
+                new_datum_index = 0
+                             
+        self.buffer_history.append(new_datum_index)
         self.buffer.append(self.dataset[new_datum_index])
         
         if self.verbose: print("Added item {0}".format(new_datum_index))
@@ -94,6 +108,8 @@ class BufferedPatchDataset(FnetDataset):
 
         return [d[tuple(index)] for d in datum]
     
+    def get_buffer_history(self):
+        return self.buffer_history
     
 def _test():
     # dims_chunk = (2,3,4)
