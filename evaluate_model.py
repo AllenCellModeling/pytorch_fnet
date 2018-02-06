@@ -119,10 +119,13 @@ def main():
     
     
     figure_save_path = opts.path_save_dir + os.sep + 'stats.png'
-
+    print_stats_all(all_stats_list, figure_save_path)
+    figure_save_path = opts.path_save_dir + os.sep + 'stats.eps'
     print_stats_all(all_stats_list, figure_save_path)
     
     figure_save_path = opts.path_save_dir + os.sep + 'stats_v2.png'
+    print_stats_all_v2(stats_per_im_list, figure_save_path)
+    figure_save_path = opts.path_save_dir + os.sep + 'stats_v2.eps'
     print_stats_all_v2(stats_per_im_list, figure_save_path)
     
 def str2bool(v):
