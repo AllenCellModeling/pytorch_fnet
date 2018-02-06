@@ -82,7 +82,7 @@ def main():
     model = None
     dataset = get_dataset(opts, propper)
     entries = []
-    indices = range(len(dataset)) if opts.n_images < 0 else range(opts.n_images)
+    indices = range(len(dataset)) if opts.n_images < 0 else range(min(opts.n_images, len(dataset)))
     for idx in indices:
         entry = get_prediction_entry(dataset, idx)
         data = [torch.unsqueeze(d, 0) for d in dataset[idx]]  # make batch of size 1
@@ -109,7 +109,7 @@ def main():
         
     with open(os.path.join(opts.path_save_dir, 'predict_options.json'), 'w') as fo:
         json.dump(vars(opts), fo, indent=4, sort_keys=True)
-    pd.DataFrame(entries).to_csv(os.path.join(opts.path_save_dir, 'predictions.csv'))
+    pd.DataFrame(entries).to_csv(os.path.join(opts.path_save_dir, 'predictions.csv'), index=False)
         
 
 if __name__ == '__main__':
