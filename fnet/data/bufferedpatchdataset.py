@@ -7,15 +7,6 @@ from tqdm import tqdm
 import pdb
 
 
-def ismember(a, b):
-    bind = {}
-    for i, elt in enumerate(b):
-        if elt not in bind:
-            bind[elt] = i
-    return [bind.get(itm, None) for itm in a]  # None can be replaced by any other "not in b" value
-
-
-
 class BufferedPatchDataset(FnetDataset):
     """Dataset that provides chunks/patchs from another dataset."""
 
