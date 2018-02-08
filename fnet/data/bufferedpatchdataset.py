@@ -7,6 +7,15 @@ from tqdm import tqdm
 import pdb
 
 
+def ismember(a, b):
+    bind = {}
+    for i, elt in enumerate(b):
+        if elt not in bind:
+            bind[elt] = i
+    return [bind.get(itm, None) for itm in a]  # None can be replaced by any other "not in b" value
+
+
+
 class BufferedPatchDataset(FnetDataset):
     """Dataset that provides chunks/patchs from another dataset."""
 
@@ -56,7 +65,7 @@ class BufferedPatchDataset(FnetDataset):
             self.buffer_history.append(datum_index)
             self.buffer.append(datum)
             
-            
+        self.remaining_to_be_in_buffer = shuffed_data_order[i+1:]
             
         self.patch_size = [datum_size[0]] + patch_size
 
@@ -80,7 +89,14 @@ class BufferedPatchDataset(FnetDataset):
         self.buffer.pop(0)
         
         if self.shuffle_images:
-            new_datum_index = np.random.randint(len(self.dataset))
+            
+            if len(self.remaining_to_be_in_buffer) == 0:
+                self.remaining_to_be_in_buffer = np.arange(0, len(self.dataset))
+                np.random.shuffle(self.remaining_to_be_in_buffer)
+            
+            new_datum_index = self.remaining_to_be_in_buffer[0]
+            self.remaining_to_be_in_buffer = self.remaining_to_be_in_buffer[1:]
+            
         else:
             new_datum_index = self.buffer_history[-1]+1
             if new_datum_index == len(self.dataset):
