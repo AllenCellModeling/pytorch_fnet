@@ -11,7 +11,7 @@ import time
 import torch
 import warnings
 
-def get_dataloader(opts):
+def get_dataloader(remaining_iterations, opts):
     transform_signal = [eval(t) for t in opts.transform_signal]
     transform_target = [eval(t) for t in opts.transform_target]
     ds = getattr(fnet.data, opts.class_dataset)(
@@ -25,13 +25,15 @@ def get_dataloader(opts):
         patch_size = opts.patch_size,
         buffer_size = opts.buffer_size,
         buffer_switch_frequency = opts.buffer_switch_frequency,
-        npatches = opts.npatches,
+        npatches = remaining_iterations*opts.batch_size,
         verbose = True,
+        shuffle_images = opts.shuffle_images,
     )
-    return torch.utils.data.DataLoader(
+    dataloader = torch.utils.data.DataLoader(
         ds_patch,
         batch_size = opts.batch_size,
     )
+    return dataloader
 
 def main():
     parser = argparse.ArgumentParser()
@@ -52,6 +54,7 @@ def main():
     parser.add_argument('--path_run_dir', default='saved_models', help='base directory for saved models')
     parser.add_argument('--replace_interval', type=int, default=-1, help='iterations between replacements of images in cache')
     parser.add_argument('--seed', type=int, help='random seed')
+    parser.add_argument('--shuffle_images', action='store_true', help='set to shuffle images in BufferedPatchDataset')
     parser.add_argument('--transform_signal', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset signal')
     parser.add_argument('--transform_target', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset target')
     opts = parser.parse_args()
@@ -97,8 +100,7 @@ def main():
     else:
         fnetlogger = fnet.FnetLogger(columns=['num_iter', 'loss_batch'])
 
-    opts.__dict__['npatches'] = max(0, (opts.n_iter - model.count_iter)*opts.batch_size)
-    dataloader_train = get_dataloader(opts)
+    dataloader_train = get_dataloader(max(0, (opts.n_iter - model.count_iter)), opts)
     dataloader_test = None
     
     if opts.checkpoint_testing:
@@ -118,6 +120,7 @@ def main():
         if ((i + 1) % opts.iter_checkpoint == 0) or ((i + 1) == opts.n_iter):
             model.save_state(path_model)
             fnetlogger.to_csv(path_losses_csv)
+            logger.info('BufferedPatchDataset buffer history: {}'.format(dataloader_train.dataset.get_buffer_history()))
             logger.info('loss log saved to: {:s}'.format(path_losses_csv))
             logger.info('model saved to: {:s}'.format(path_model))
             logger.info('elapsed time: {:.1f} s'.format(time.time() - time_start))

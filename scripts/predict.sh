@@ -12,7 +12,7 @@ do
 	 --path_dataset_csv data/csvs/${DATASET}/${TEST_OR_TRAIN}.csv \
 	 --n_images ${N_IMAGES} \
 	 --no_prediction_unpropped \
-	 --path_save_dir results/${DATASET}/${TEST_OR_TRAIN} \
+	 --path_save_dir results/3d/${DATASET}/${TEST_OR_TRAIN} \
 	 --gpu_ids ${GPU_IDS}
 done
 
