@@ -75,7 +75,7 @@ def main():
         print('Output path already exists.')
         return
     if opts.class_dataset == 'TiffDataset':
-        if opts.propper_kwargs.get('action') != '+':
+        if opts.propper_kwargs.get('action') == '-':
             opts.propper_kwargs['n_max_pixels'] = 6000000
     propper = fnet.transforms.Propper(**opts.propper_kwargs)
     print(propper)
