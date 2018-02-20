@@ -52,7 +52,7 @@ def main():
         os.path.basename(__file__).split('.')[0] + '.csv',
     )
     df_manifest.to_csv(path_manifest, index=False)
-    print('wrote:', path_manifest)
+    print('saved:', path_manifest)
 
 if __name__ == '__main__':
     main()
