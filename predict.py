@@ -1,13 +1,14 @@
 import argparse
 import fnet.data
 import importlib
+import json
+import numpy as np
+import os
 import pandas as pd
-import torch
 import tifffile
 import time
-import os
+import torch
 import warnings
-import json
 import pdb
 
 def set_warnings():
@@ -64,7 +65,7 @@ def main():
     parser.add_argument('--no_signal', action='store_true', help='set to not save signal image')
     parser.add_argument('--no_target', action='store_true', help='set to not save target image')
     parser.add_argument('--path_dataset_csv', type=str, help='path to csv for constructing Dataset')
-    parser.add_argument('--path_model_dir', nargs='+', default=[], help='path to model directory')
+    parser.add_argument('--path_model_dir', nargs='+', default=[None], help='path to model directory')
     parser.add_argument('--path_save_dir', help='path to output directory')
     parser.add_argument('--propper_kwargs', type=json.loads, default={}, help='path to output directory')
     parser.add_argument('--transform_signal', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset signal')
@@ -95,12 +96,12 @@ def main():
             save_tiff_and_log('target', target.numpy()[0, ], path_tiff_dir, entry, opts.path_save_dir)
 
         for path_model_dir in opts.path_model_dir:
-            if model is None or len(opts.path_model_dir) > 1:
+            if (path_model_dir is not None) and (model is None or len(opts.path_model_dir) > 1):
                 model = fnet.load_model_from_dir(path_model_dir, opts.gpu_ids)
                 print(model)
                 name_model = os.path.basename(path_model_dir)
-            prediction = model.predict(signal)
-            if not opts.no_prediction:
+            prediction = model.predict(signal) if model is not None else None
+            if not opts.no_prediction and prediction is not None:
                 save_tiff_and_log('prediction_{:s}'.format(name_model), prediction.numpy()[0, ], path_tiff_dir, entry, opts.path_save_dir)
             if not opts.no_prediction_unpropped:
                 ar_pred_unpropped = propper.undo_last(prediction.numpy()[0, 0, ])
