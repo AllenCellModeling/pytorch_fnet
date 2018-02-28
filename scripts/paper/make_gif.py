@@ -24,16 +24,16 @@ def make_timelapse_gif(
         path_out_dir,
         tag = '',
         range_percentile = (0.5, 99.5),
+        delay = 20,
 ):
     df = pd.read_csv(path_source_csv)
-    print(df.shape, df.columns)
     # sample from up to 8 images
     n_samples = min(8, df.shape[0])
     indices_sample = np.random.choice(range(df.shape[0]), size=n_samples, replace=False)
     dirname = os.path.dirname(path_source_csv)
     if not os.path.exists(path_out_dir):
         os.makedirs(path_out_dir)
-    print('DEBUG: col', col)
+    print('making gif from images in "{:s}"', col)
     idx_col = df.columns.get_loc(col)
     imgs = []
     for idx in indices_sample:
@@ -51,22 +51,34 @@ def make_timelapse_gif(
         img_uint8 = to_uint8(img, range_val)
         path_save = os.path.join(
             path_out_dir,
-            '{:s}_z{:02d}_{:03d}.tiff'.format(tag, z_slice, idx)
+            '{:03d}_{:s}_z{:02d}.tiff'.format(idx, tag, z_slice)
         )
         tifffile.imsave(path_save, img_uint8)
         print('wrote:', path_save)
         imgs_out.append(path_save)
     path_gif = os.path.join(path_out_dir, '{:s}_z{:02d}.gif'.format(tag, z_slice))
-    cmd = 'convert -delay {:d} {:s} {:s}'.format(15, ' '.join(imgs_out), path_gif)
+    cmd = 'convert -delay {:d} {:s} {:s}'.format(delay, ' '.join(imgs_out), path_gif)
     subprocess.run(cmd, shell=True, check=True)
     print('wrote:', path_gif)
     
 if __name__ == '__main__':
-    make_timelapse_gif(
-        path_source_csv = 'results/timelapse/timelapse_wt/predictions.csv',
-        col = 'path_prediction_tom20',
-        z_slice = 32,
-        path_out_dir = 'animated/timelapse_wt/tom20',
-        tag = 'bf',
-        range_percentile = (0.1, 99.9),
-    )
+    tags = [
+        'bf',
+        'dna',
+        'dna_extended',
+        'lamin_b1',
+        'lamin_b1_extended',
+        'fibrillarin',
+        'tom20',
+        'sec61_beta',
+    ]
+    for tag in tags:
+        make_timelapse_gif(
+            path_source_csv = 'results/timelapse/timelapse_wt2_s2/predictions.csv',
+            col = 'path_signal' if tag in ['bf', 'dic', 'em'] else 'path_prediction_{:s}'.format(tag),
+            z_slice = 32,
+            path_out_dir = 'animated/timelapse_wt2_s2/{:s}'.format(tag),
+            tag = tag,
+            range_percentile = (0.1, 99.9),
+            delay=18,
+        )
