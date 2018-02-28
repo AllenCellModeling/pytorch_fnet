@@ -7,12 +7,13 @@ import tifffile
 import shutil
 import pdb
 
-def to_uint8(ar, style=0):
+def to_uint8(ar, val_range=None):
     ar = ar.copy()
-    if style == 0:
+    if val_range is None:
+        raise NotImplementedError
         val_min, val_max = np.percentile(ar, 0.1), np.percentile(ar, 99.9)
     else:
-        raise NotImplementedError
+        val_min, val_max = val_range
     print(val_min, val_max)
     ar[ar <= val_min] = val_min
     ar[ar >= val_max] = val_max
@@ -30,6 +31,9 @@ def finder_max(ar):
         ar = ar[0, ]
     return np.argmax(np.sum(ar, axis=(1, 2)))
 
+def finder_z52(ar):
+    return 52
+
 MAP_SLICE_FINDER = {
     'alpha_tubulin': finder_middle,
     'beta_actin': finder_middle,
@@ -39,6 +43,7 @@ MAP_SLICE_FINDER = {
     'membrane': finder_middle,
     'sec61_beta': finder_middle,
     'tom20': finder_middle,
+    'myosin_iib': finder_z52,
 }
 
 def select_files(paths_inputs, path_output_dir, seed, overwrite=False):
@@ -104,8 +109,9 @@ def select_slices(path_csv, path_output_dir):
             path_output_dir,
             os.path.basename(path_prediction).split('.')[0] + '_z{:02d}.tiff'.format(idx_z),
         )
-        img_t = to_uint8(ar_t[0, idx_z, ] if ar_t.ndim == 4 else ar_t[idx_z, ])
-        img_p = to_uint8(ar_p[0, idx_z, ] if ar_p.ndim == 4 else ar_p[idx_z, ])
+        val_range = np.percentile(ar_t[0, idx_z, ], (.1, 99.9))
+        img_t = to_uint8(ar_t[0, idx_z, ] if ar_t.ndim == 4 else ar_t[idx_z, ], val_range=val_range)
+        img_p = to_uint8(ar_p[0, idx_z, ] if ar_p.ndim == 4 else ar_p[idx_z, ], val_range=val_range)
         tifffile.imsave(path_img_target, img_t)
         print('saved:', path_img_target)
         tifffile.imsave(path_img_prediction, img_p)
@@ -114,6 +120,7 @@ def select_slices(path_csv, path_output_dir):
             'model': row['model'],
             'slice_finder': fn_finder.__name__,
             'z_slice': idx_z,
+            'val_range': val_range,
             'path_img_target': os.path.relpath(path_img_target, path_output_dir),
             'path_img_prediction': os.path.relpath(path_img_target, path_output_dir),
         }
