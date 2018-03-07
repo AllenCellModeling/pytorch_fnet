@@ -1,10 +1,10 @@
 #!/bin/bash -x
 
-SAVE_DIR="saved_models/EVAL_DIR_3D"
-PREDICTIONS_DIR="/root/allen/aics/modeling/cheko/projects/pytorch_fnet/results/3d/"
+
+PREDICTIONS_DIR=${1:-/root/allen/aics/modeling/cheko/projects/pytorch_fnet/results/3d/}
+SAVE_DIR=${2:-saved_models/EVAL_DIR_3D}
 SAVE_ERROR_MAPS="TRUE"
 OVERWRITE="FALSE"
-GPU_IDS=${1:-0}
 
 python evaluate_model.py \
        --predictions_dir ${PREDICTIONS_DIR} \
