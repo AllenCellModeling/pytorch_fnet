@@ -1,6 +1,7 @@
 from matplotlib import pyplot as plt
 import numpy as np
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score, explained_variance_score
+import scipy.stats as stats
 
 import collections
 
@@ -53,15 +54,35 @@ def get_stats(pred, target):
     n_pixels = np.prod(target.shape)
     mse = np.mean(err_map)
 
-    r2 = r2_score(target.flatten(), pred.flatten())
+    target_flat = target.flatten()
+    pred_flat = pred.flatten()
+    
+    R2 = r2_score(target_flat, pred_flat)
+    
+    y_bar = np.mean(target_flat)
+    
+    denom = np.sum((target_flat - y_bar)**2)
+    nom = np.sum((pred_flat-target_flat)**2)
+    
+    exp_var = 1-(nom/denom)
+    
+    r2 = stats.pearsonr(target_flat, pred_flat)[0]**2
+    
+    var_pred = np.var(pred_flat)
+    var_target = np.var(target_flat)
+    
     
     delta_min = np.min(delta) 
     delta_max = np.max(delta)
     
-    percentiles = [0.1, 1, 5, 10, 25, 50, 75, 90, 95, 99, 99.9]
-    percentile_values = np.percentile(np.abs(delta), percentiles)
+#     percentiles = [0.1, 1, 5, 10, 25, 50, 75, 90, 95, 99, 99.9]
+#     percentile_values = np.percentile(np.abs(delta), percentiles)
     
-    percentiles = collections.OrderedDict(zip(percentiles, percentile_values))
+#     percentiles = collections.OrderedDict(zip(percentiles, percentile_values))
     
-    return err_map, n_pixels, se, mse, r2, delta_min, delta_max, percentiles
+    all_stats = {'n_pixels':  n_pixels, 'mse': mse, 'R2': R2, 'r2': r2, 'exp_var': exp_var, \
+             'var_pred': var_pred, 'var_target': var_target, \
+             'delta_min': delta_min, 'delta_max': delta_max}
+    
+    return err_map, se, all_stats
         
