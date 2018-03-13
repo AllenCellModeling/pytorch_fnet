@@ -12,5 +12,4 @@ EXPOSE 9998
 
 COPY . /root/projects/pytorch_fnet
 WORKDIR "/root/projects/pytorch_fnet"
-ENV PATH /opt/conda/envs/pytorch_fnet/bin:$PATH
 RUN pip install -e . 
