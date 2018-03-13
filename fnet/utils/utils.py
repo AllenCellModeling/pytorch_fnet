@@ -66,7 +66,7 @@ def get_stats(pred, target):
     
     exp_var = 1-(nom/denom)
     
-    r2 = stats.pearsonr(target_flat, pred_flat)[0]**2
+    r = stats.pearsonr(target_flat, pred_flat)[0]
     
     var_pred = np.var(pred_flat)
     var_target = np.var(target_flat)
@@ -80,7 +80,7 @@ def get_stats(pred, target):
     
 #     percentiles = collections.OrderedDict(zip(percentiles, percentile_values))
     
-    all_stats = {'n_pixels':  n_pixels, 'mse': mse, 'R2': R2, 'r2': r2, 'exp_var': exp_var, \
+    all_stats = {'n_pixels':  n_pixels, 'mse': mse, 'R2': R2, 'r': r, 'exp_var': exp_var, \
              'var_pred': var_pred, 'var_target': var_target, \
              'delta_min': delta_min, 'delta_max': delta_max}
     

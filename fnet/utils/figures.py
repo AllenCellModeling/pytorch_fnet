@@ -134,8 +134,8 @@ def evaluate_model(predictions_file = None, predictions_dir = None, path_save_di
         c_max_out = np.zeros(len(u_structures))
         noise_model = list()
         for structure, i in zip(u_structures, range(len(u_structures))):
+            #set nan cmax values to the average post
             
-
             
             wt_map = [wildtype in structure for wildtype in wildtypes_short]
             if ~np.any(wt_map):
@@ -146,16 +146,21 @@ def evaluate_model(predictions_file = None, predictions_dir = None, path_save_di
             noise_model += wildtypes_short[wt_map].tolist()
             
             var_g = vars_g[wt_map]
-            var_i = all_ref_per_im['var_target'][all_ref_per_im['structure'] == structure]
+            var_i = np.mean(all_ref_per_im['var_target'][all_ref_per_im['structure'] == structure])
             
-            c_max_per_img = c_max(var_i, var_g)
             
+            c_max_per_img = c_max(var_i, var_g) 
             c_max_out[i] = np.mean(c_max_per_img)
             
             
             struct_inds_ref = stats_ref_per_im_list['structure'] == structure
             struct_inds = stats_per_im_list['structure'] == structure
             cm = c_max(stats_ref_per_im_list['var_target'][struct_inds_ref], var_g)
+
+            
+            #if its wildtype gfp we know its undefined
+            if structure == 'wildtype_gfp':
+                cm = np.nan
             
             if np.sum(struct_inds) > 0:
                 try:
@@ -380,7 +385,7 @@ def print_stats_all_v2(stats, figure_save_path, parameter_to_plot='r2', width = 
             
             # pdb.set_trace()
             
-            bplot = plt.boxplot(group_stats[parameter_to_plot], 0, '', positions = [pos], widths=[width], patch_artist=True)
+            bplot = plt.boxplot(group_stats[parameter_to_plot], 0, '', positions = [pos], widths=[width], patch_artist=True, whis = 'range')
             
             bplot['boxes'][0].set_facecolor(color)
             bplot['medians'][0].set_color('k')
