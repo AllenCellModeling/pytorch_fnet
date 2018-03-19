@@ -385,7 +385,7 @@ def print_stats_all_v2(stats, figure_save_path, parameter_to_plot='r2', width = 
             
             # pdb.set_trace()
             
-            bplot = plt.boxplot(group_stats[parameter_to_plot], 0, '', positions = [pos], widths=[width], patch_artist=True, whis = 'range')
+            bplot = plt.boxplot(group_stats[parameter_to_plot], 0, '', positions = [pos], widths=[width], patch_artist=True, whis = 1.5)
             
             bplot['boxes'][0].set_facecolor(color)
             bplot['medians'][0].set_color('k')
@@ -398,24 +398,13 @@ def print_stats_all_v2(stats, figure_save_path, parameter_to_plot='r2', width = 
         
         if cmax_stats is not None:
             c_max = cmax_stats[cmax_stats['structure'] == structure]['c_max'].tolist()[0]
-
                 
             plt.plot([i, i+width], [c_max]*2, color='k') 
             
-#         if not np.any([wildtype == structure for wildtype in wildtypes]):
-#             for val in var_g:
-#                 c_max = 1/np.sqrt(1 + (val / (var_i-val)))
-
-#                 if c_max == 0:
-#                     pdb.set_trace()
-
-#                 plt.plot([i, i+width], [c_max]*2, color='k')   
-            
-        
+    
         i += 1
 
         
-    
     hlist = list()
     
     for group, color in zip(train_or_test, colors):
