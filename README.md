@@ -110,7 +110,7 @@ for TEST_OR_TRAIN in test train
 do
   python predict.py \
 	 --path_model_dir ${MODEL_DIR}${SUFFIX} \
-  --class_dataset MyDataSet \
+         --class_dataset MyDataSet \
 	 --path_dataset_csv data/csvs/${DATASET}/${TEST_OR_TRAIN}.csv \
 	 --n_images ${N_IMAGES} \
 	 --no_prediction_unpropped \
