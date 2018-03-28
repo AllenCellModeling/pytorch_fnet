@@ -53,11 +53,11 @@ EXAMPLE OUTPUT OF SUCCESSFUL RUN OF TEST DATA
 example prediction outputs should be places in ./results/
 
 ## Instructions to run on your data
-The most general solution is to implement a new PyTorch dataset object that is responsible for loading signal images (transmitted light) and target images (fluorescence) into a consistent format. See `fnet/data/tiffdataset.py` or `fnet/data/czidataset.py` as examples.  Our existing wrapper scripts will work if you make this dataset object have an `__init__` function can be correctly called with a simple keyword argument of path_csv, which points to a csv file (example: `mydata.csv`) that describes your dataset and that you should place in `data/csvs`. You should implement `__get_item__(self,i)` to return a list of pytorch Tensor objects, where the first element is the signal data and the second element is the target image.  The Tensors should be of dimensions of `1,Z,Y,X`.  Place your new dataset object (example: MyDataSet.py) in `pytorch_fnet/fnet/data/`
+The most general solution is to implement a new PyTorch dataset object that is responsible for loading signal images (transmitted light) and target images (fluorescence) into a consistent format. See `fnet/data/tiffdataset.py` or `fnet/data/czidataset.py` as examples.  Our existing wrapper scripts will work if you make this dataset object have an `__init__` function can be correctly called with a simple keyword argument of path_csv, which points to a csv file (example: `data/csvs/mydata.csv`) that describes your dataset. You should implement `__get_item__(self,i)` to return a list of pytorch Tensor objects, where the first element is the signal data and the second element is the target image.  The Tensors should be of dimensions of `1,Z,Y,X`.  Place your new dataset object (example: MyDataSet.py) in `pytorch_fnet/fnet/data/`
 
-If you have single channel tiff stacks for both input and target images, you can simply use our existing tiffdataset class with a csv that has columns labelled path_target, and path_signal, and whose elements are paths to where those images can be read.
+If you have single channel tiff stacks for both input and target images, you can simply use our existing tiffdataset class with a csv that has columns labelled `path_target`, and `path_signal`, and whose elements are paths to where those images can be read.
 
-Create a new training wrapper script that is a modification of scripts/train_model.sh, let's call it train_mymodel.sh.
+Create a new training wrapper script that is a modification of `scripts/train_model.sh`, let's call it `train_mymodel.sh`.
 
 ```
 #!/bin/bash -x
@@ -89,9 +89,9 @@ Now to train your model on your dataset you would run (assuming you only have 1 
 ```
 ./scripts/train_mymodel.sh mydata 0
 ```
-This should save a trained model in saved_models/mydata, using 75/25 test/train split on your data, placing CSVs in data/csvs/mydata/test.csv and data/csvs/mydata/train.csv the reflect that split.  
+This should save a trained model in `saved_models/mydata`, using 75/25 test/train split on your data, placing CSVs in `data/csvs/mydata/test.csv` and `data/csvs/mydata/train.csv` the reflect that split.  
 
-You should modify scripts/predict_model.sh to reflect your new dataset object as well, saved as (scripts/predict_mymodel.sh)
+You should modify `scripts/predict_model.sh` to reflect your new dataset object as well, saved as (`scripts/predict_mymodel.sh`)
 
 ```
 #!/bin/bash -x
@@ -124,7 +124,7 @@ You can then run predictions on your dataset by running
 ```
 scripts\predict_mymodel.sh mydata 0 
 ```
-which will output into predictions in results/mydata/test and results/mydata/train.
+which will output into predictions in `results/mydata/test` and `results/mydata/train`.
 
 ## Citation
 If you find this code useful in your research, please consider citing the following paper:
