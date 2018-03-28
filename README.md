@@ -40,8 +40,8 @@ This installation should take a few minutes on a standard computer.
 ```
 ./scripts/train_model.sh dna 0
 ```
-This will split the dna dataset up into test and training images and run training on the test images. 
-Should take ~XX hours, and the final output should be similar to this.
+This will split the dna dataset up into 25% test and 75% training images and run training on the test images. 
+Should take ~16 hours, and the final output should be similar to this.
 ```
 EXAMPLE OUTPUT OF SUCCESSFUL RUN OF TEST DATA
 ```
@@ -51,7 +51,7 @@ You can train other models by replacing `dna` with the names of the structures d
 ```
 ./scripts/test_predict.sh dna 0
 ```
-example prediction outputs should be places in ./results/
+example prediction outputs should be places in `results/dna/test` and `results/dna/train`
 
 ## Instructions to run on your data
 The most general solution is to implement a new PyTorch dataset object that is responsible for loading signal images (transmitted light) and target images (fluorescence) into a consistent format. See `fnet/data/tiffdataset.py` or `fnet/data/czidataset.py` as examples.  Our existing wrapper scripts will work if you make this dataset object have an `__init__` function can be correctly called with a simple keyword argument of path_csv, which points to a csv file (example: `data/csvs/mydata.csv`) that describes your dataset. You should implement `__get_item__(self,i)` to return a list of pytorch Tensor objects, where the first element is the signal data and the second element is the target image.  The Tensors should be of dimensions of `1,Z,Y,X`.  Place your new dataset object (example: MyDataSet.py) in `pytorch_fnet/fnet/data/`
