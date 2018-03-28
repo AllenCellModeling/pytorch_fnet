@@ -3,21 +3,35 @@ Three dimensional cross-modal image inference: label-free methods for subcellula
 
 ![Model](doc/PredictingStructures-1.jpg?raw=true "Model Architecture")
 
-## Setup
-Installing on linux is recommended
+## System Requirements
+Installing on linux is recommended (we have used Ubuntu 16.04)
 
-### Prerequisites
-Running on docker is recommended, though not required.
- - install pytorch on docker / nvidia-docker as in e.g. this guide: https://github.com/pytorch/pytorch/tree/v0.3.1
- - download the training images: **todo**
+An nVidia graphics card with >10GB of ram (we have used a NVidia Titan X Pascal) with current drivers installed (we have used nVidia driver version 375.39)
 
-### Build the Docker image:  
+### Installation
+Instructions follow docker based workflow, non docker versions are likely possible but instructions are not provided
+
+## Install requirements
+Estimated time 1 hour
+ - install docker (https://docs.docker.com/install/)
+ - install nvidia-docker (https://github.com/NVIDIA/nvidia-docker)
+ - install git
+
+## Installation
+Estimated time 15 minutes, plus X minutes for data download
+ - clone repository and build docker image
 ```
+git clone https://github.com/AllenCellModeling/pytorch_fnet
+cd pytorch_fnet
 docker build -t ${USER}/pytorch_fnet -f Dockerfile .
+```
+ - download the test image dataset: **todo**
+ 
+```
+commands to download data
 ```
 
 This installation should take a few minutes on a standard computer.
-Note: You may need to edit the Dockerfile to point to the correct pytorch image.
 ### Start Docker container:  
 ```
 ./start_docker.sh
@@ -26,6 +40,17 @@ Note: You may need to edit the Dockerfile to point to the correct pytorch image.
 ```
 ./scripts/test_run.sh
 ```
+This will split the dataset up into test and training images and run training on the test images. 
+Should take ~XX hours, and the final output should be similar to this
+```
+EXAMPLE OUTPUT OF SUCCESSFUL RUN OF TEST DATA
+```
+
+### run predictions on the test set data
+```
+./scripts/test_predict.sh
+```
+example prediction outputs should be places in ./results/
 
 ## Citation
 If you find this code useful in your research, please consider citing the following paper:
