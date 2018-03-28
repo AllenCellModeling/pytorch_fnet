@@ -138,7 +138,6 @@ If you find this code useful in your research, please consider citing the follow
 	URL = {https://www.biorxiv.org/content/early/2018/03/28/289504},
 	eprint = {https://www.biorxiv.org/content/early/2018/03/28/289504.full.pdf},
 	journal = {bioRxiv}
-}
 
 
 ## Contact
