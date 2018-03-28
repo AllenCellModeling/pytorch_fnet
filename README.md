@@ -49,7 +49,7 @@ You can train other models by replacing `dna` with the names of the structures d
 
 ### run predictions on the test set data
 ```
-./scripts/test_predict.sh
+./scripts/test_predict.sh dna 0
 ```
 example prediction outputs should be places in ./results/
 
