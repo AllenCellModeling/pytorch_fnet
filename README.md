@@ -52,6 +52,80 @@ EXAMPLE OUTPUT OF SUCCESSFUL RUN OF TEST DATA
 ```
 example prediction outputs should be places in ./results/
 
+## Instructions to run on your data
+The most general solution is to implement a new PyTorch dataset object that is responsible for loading signal images (transmitted light) and target images (fluorescence) into a consistent format. See pytorch_fnet/fnet/data/tiffdataset.py or pytorch_fnet/fnet/data/czidataset.py as examples.  Our existing wrapper scripts will work if you make this dataset object have an __init__ function can be correctly called with a simple keyword argument of path_csv, which points to a csv file (example: mydata.csv) that describes your dataset and that you should place in data/csvs. You should implement __get_item__(self,i) to return a list of pytorch Tensor objects, where the first element is the signal data and the second element is the target image.  The Tensors should be of dimensions of 1,Z,Y,X.  Place your new dataset object (example: MyDataSet.py) in pytorch_fnet/fnet/data/.
+
+If you have single channel tiff stacks for both input and target images, you can simply use our existing tiffdataset class with a csv that has columns labelled path_target, and path_signal, and whose elements are paths to where those images can be read.
+
+Create a new training wrapper script that is a modification of scripts/train_model.sh, let's call it train_mymodel.sh.
+
+```
+#!/bin/bash -x
+
+DATASET=${1:-dna}
+N_ITER=50000
+BUFFER_SIZE=30
+BATCH_SIZE=24
+RUN_DIR="saved_models/${DATASET}"
+PATH_DATASET_ALL_CSV="data/csvs/${DATASET}.csv"
+PATH_DATASET_TRAIN_CSV="data/csvs/${DATASET}/train.csv"
+GPU_IDS=${2:-0}
+
+cd $(cd "$(dirname ${BASH_SOURCE})" && pwd)/..
+
+python scripts/python/split_dataset.py ${PATH_DATASET_ALL_CSV} "data/csvs" --train_size 0.75 -v
+python train_model.py \
+       --n_iter ${N_ITER} \
+       --class_dataset MyDataSet
+       --path_dataset_csv ${PATH_DATASET_TRAIN_CSV} \
+       --buffer_size ${BUFFER_SIZE} \
+       --buffer_switch_frequency 2000000 \
+       --batch_size ${BATCH_SIZE} \
+       --path_run_dir ${RUN_DIR} \
+       --gpu_ids ${GPU_IDS}
+```
+Now to train your model on your dataset you would run (assuming you only have 1 GPU on slot 0)
+
+```
+./scripts/train_mymodel.sh mydata 0
+```
+This should save a trained model in saved_models/mydata, using 75/25 test/train split on your data, placing CSVs in data/csvs/mydata/test.csv and data/csvs/mydata/train.csv the reflect that split.  
+
+You should modify scripts/predict_model.sh to reflect your new dataset object as well, saved as (scripts/predict_mymodel.sh)
+
+```
+#!/bin/bash -x
+
+DATASET=${1:-dna}
+MODEL_DIR=saved_models/${DATASET}
+N_IMAGES=20
+GPU_IDS=${2:-0}
+TRANSFORM_TARGET=${3:-fnet.transforms.normalize}
+
+SUFFIX=${4:-}
+
+echo ${DATASET}${SUFFIX}
+
+for TEST_OR_TRAIN in test train
+do
+  python predict.py \
+	 --path_model_dir ${MODEL_DIR}${SUFFIX} \
+  --class_dataset MyDataSet \
+	 --path_dataset_csv data/csvs/${DATASET}/${TEST_OR_TRAIN}.csv \
+	 --n_images ${N_IMAGES} \
+	 --no_prediction_unpropped \
+	 --path_save_dir results/${DATASET}${SUFFIX}/${TEST_OR_TRAIN} \
+	 --gpu_ids ${GPU_IDS} \
+	 --transform_target ${TRANSFORM_TARGET}
+done
+```
+You can then run predictions on your dataset by running
+
+```
+scripts\predict_mymodel.sh mydata 0 
+```
+which will output into predictions in results/mydata/test and results/mydata/train.
+
 ## Citation
 If you find this code useful in your research, please consider citing the following paper:
 
