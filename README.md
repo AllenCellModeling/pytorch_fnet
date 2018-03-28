@@ -15,6 +15,8 @@ Running on docker is recommended, though not required.
 ```
 docker build -t ${USER}/pytorch_fnet -f Dockerfile .
 ```
+
+This installation should take a few minutes on a standard computer.
 Note: You may need to edit the Dockerfile to point to the correct pytorch image.
 ### Start Docker container:  
 ```
