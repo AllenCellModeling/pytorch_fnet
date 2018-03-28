@@ -13,7 +13,7 @@ Instructions follow docker based workflow, non docker versions are possible but 
 
 ## Install requirements
 Estimated time 1 hour
- - install docker (https://docs.docker.com/install/)
+ - install docker (https://docs.docker.com/install/) (we used `Docker version 17.09.1-ce, build 19e2cf6` )
  - install nvidia-docker (https://github.com/NVIDIA/nvidia-docker)
  - install git
 
