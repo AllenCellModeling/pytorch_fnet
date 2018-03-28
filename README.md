@@ -9,7 +9,7 @@ Installing on linux is recommended (we have used Ubuntu 16.04)
 An nVidia graphics card with >10GB of ram (we have used a NVidia Titan X Pascal) with current drivers installed (we have used nVidia driver version 375.39)
 
 ### Installation
-Instructions follow docker based workflow, non docker versions are likely possible but instructions are not provided
+Instructions follow docker based workflow, non docker versions are possible but instructions are not provided
 
 ## Install requirements
 Estimated time 1 hour
@@ -53,7 +53,7 @@ EXAMPLE OUTPUT OF SUCCESSFUL RUN OF TEST DATA
 example prediction outputs should be places in ./results/
 
 ## Instructions to run on your data
-The most general solution is to implement a new PyTorch dataset object that is responsible for loading signal images (transmitted light) and target images (fluorescence) into a consistent format. See pytorch_fnet/fnet/data/tiffdataset.py or pytorch_fnet/fnet/data/czidataset.py as examples.  Our existing wrapper scripts will work if you make this dataset object have an `__init__` function can be correctly called with a simple keyword argument of path_csv, which points to a csv file (example: mydata.csv) that describes your dataset and that you should place in data/csvs. You should implement `__get_item__(self,i)` to return a list of pytorch Tensor objects, where the first element is the signal data and the second element is the target image.  The Tensors should be of dimensions of 1,Z,Y,X.  Place your new dataset object (example: MyDataSet.py) in pytorch_fnet/fnet/data/.
+The most general solution is to implement a new PyTorch dataset object that is responsible for loading signal images (transmitted light) and target images (fluorescence) into a consistent format. See `fnet/data/tiffdataset.py` or `fnet/data/czidataset.py` as examples.  Our existing wrapper scripts will work if you make this dataset object have an `__init__` function can be correctly called with a simple keyword argument of path_csv, which points to a csv file (example: `mydata.csv`) that describes your dataset and that you should place in `data/csvs`. You should implement `__get_item__(self,i)` to return a list of pytorch Tensor objects, where the first element is the signal data and the second element is the target image.  The Tensors should be of dimensions of `1,Z,Y,X`.  Place your new dataset object (example: MyDataSet.py) in `pytorch_fnet/fnet/data/`
 
 If you have single channel tiff stacks for both input and target images, you can simply use our existing tiffdataset class with a csv that has columns labelled path_target, and path_signal, and whose elements are paths to where those images can be read.
 
