@@ -38,13 +38,14 @@ This installation should take a few minutes on a standard computer.
 ```
 ### Start example training run
 ```
-./scripts/test_run.sh
+./scripts/train_model.sh dna 0
 ```
-This will split the dataset up into test and training images and run training on the test images. 
-Should take ~XX hours, and the final output should be similar to this
+This will split the dna dataset up into test and training images and run training on the test images. 
+Should take ~XX hours, and the final output should be similar to this.
 ```
 EXAMPLE OUTPUT OF SUCCESSFUL RUN OF TEST DATA
 ```
+You can train other models by replacing `dna` with the names of the structures dataset (alpha_tubulin, beta_actin, st6gal1, desmoplakin, dic_lamin_b1, dic_membrane, fibrillarin, lamin_b1, membrane, myosin_iib, sec61_beta, tom20, zo1). 
 
 ### run predictions on the test set data
 ```
