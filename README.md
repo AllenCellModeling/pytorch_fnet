@@ -129,16 +129,17 @@ which will output into predictions in `results/mydata/test` and `results/mydata/
 ## Citation
 If you find this code useful in your research, please consider citing the following paper:
 
-    @article {Ounkomol216606,
-      author = {Ounkomol, Chek and Fernandes, Daniel A. and Seshamani, Sharmishtaa and Maleckar, Mary M. and Collman, Forrest and Johnson, Gregory R.},
-      title = {Three dimensional cross-modal image inference: label-free methods for subcellular structure prediction},
-      year = {2017},
-      doi = {10.1101/216606},
-      publisher = {Cold Spring Harbor Laboratory},
-      URL = {https://www.biorxiv.org/content/early/2017/11/09/216606},
-      eprint = {https://www.biorxiv.org/content/early/2017/11/09/216606.full.pdf},
-      journal = {bioRxiv}
-    }
+    @article {Ounkomol289504,
+	author = {Ounkomol, Chawin and Seshamani, Sharmishtaa and Maleckar, Mary M and Collman, Forrest and Johnson, Gregory},
+	title = {Label-free prediction of three-dimensional fluorescence images from transmitted light microscopy},
+	year = {2018},
+	doi = {10.1101/289504},
+	publisher = {Cold Spring Harbor Laboratory},
+	URL = {https://www.biorxiv.org/content/early/2018/03/28/289504},
+	eprint = {https://www.biorxiv.org/content/early/2018/03/28/289504.full.pdf},
+	journal = {bioRxiv}
+}
+
 
 ## Contact
 Gregory Johnson
