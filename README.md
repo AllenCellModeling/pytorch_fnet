@@ -42,9 +42,34 @@ This installation should take a few minutes on a standard computer.
 ./scripts/train_model.sh dna 0
 ```
 This will split the dna dataset up into 25% test and 75% training images and run training on the test images. 
-Should take ~16 hours, and the final output should be similar to this.
+Should take ~16 hours, and the final output should be similar to this.  Your example output should be a saved model in `saved_models/dna` with a `run.log` file whose last entries look like this
 ```
-EXAMPLE OUTPUT OF SUCCESSFUL RUN OF TEST DATA
+$ tail run.log 
+2018-02-06 16:40:24,520 - model saved to: saved_models/dna/model.p
+2018-02-06 16:40:24,520 - elapsed time: 56481.3 s
+2018-02-06 16:49:59,591 - BufferedPatchDataset buffer history: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]
+2018-02-06 16:49:59,592 - loss log saved to: saved_models/dna/losses.csv
+2018-02-06 16:49:59,592 - model saved to: saved_models/dna/model.p
+2018-02-06 16:49:59,592 - elapsed time: 57056.4 s
+2018-02-06 16:59:31,301 - BufferedPatchDataset buffer history: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]
+2018-02-06 16:59:31,302 - loss log saved to: saved_models/dna/losses.csv
+2018-02-06 16:59:31,302 - model saved to: saved_models/dna/model.p
+2018-02-06 16:59:31,303 - elapsed time: 57628.1 s
+```
+and a `losses.csv` file whose last entries look like this
+
+```
+$ tail losses.csv 
+49991,0.25850439071655273
+49992,0.2647261321544647
+49993,0.283742755651474
+49994,0.311653733253479
+49995,0.30210474133491516
+49996,0.2369609922170639
+49997,0.2907244861125946
+49998,0.23749516904354095
+49999,0.3207407295703888
+50000,0.3556152284145355
 ```
 You can train other models by replacing `dna` with the names of the structures dataset (alpha_tubulin, beta_actin, st6gal1, desmoplakin, dic_lamin_b1, dic_membrane, fibrillarin, lamin_b1, membrane, myosin_iib, sec61_beta, tom20, zo1). 
 
@@ -52,7 +77,18 @@ You can train other models by replacing `dna` with the names of the structures d
 ```
 ./scripts/test_predict.sh dna 0
 ```
-example prediction outputs should be places in `results/dna/test` and `results/dna/train`
+example prediction outputs should be places in `results/dna/test` and `results/dna/train`.  
+```
+pytorch_fnet/results/3d/dna/test$ ls
+00  01	02  03	04  05	06  07	08  09	10  11	12  13	14  15	16  17	18  19	predictions.csv  predict_options.json
+```
+
+### recreating paper figures
+If you want to run all the training and evaluation code necessary to reproduce the paper figures, run `./scripts/paper/run_all.sh`.  This should run training and predictions for all the models and datasets used in the paper.
+
+After running those scripts you should be able to run all the cells in the ipython notebook. First launch jupyter using `jupyter notebook` and then open `figures.ipynb` and run all the cells.
+
+### recreate
 
 ## Instructions to run on your data
 The most general solution is to implement a new PyTorch dataset object that is responsible for loading signal images (transmitted light) and target images (fluorescence) into a consistent format. See `fnet/data/tiffdataset.py` or `fnet/data/czidataset.py` as examples.  Our existing wrapper scripts will work if you make this dataset object have an `__init__` function can be correctly called with a simple keyword argument of path_csv, which points to a csv file (example: `data/csvs/mydata.csv`) that describes your dataset. You should implement `__get_item__(self,i)` to return a list of pytorch Tensor objects, where the first element is the signal data and the second element is the target image.  The Tensors should be of dimensions of `1,Z,Y,X`.  Place your new dataset object (example: MyDataSet.py) in `pytorch_fnet/fnet/data/`
