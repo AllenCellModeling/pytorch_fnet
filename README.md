@@ -25,10 +25,11 @@ git clone https://github.com/AllenCellModeling/pytorch_fnet
 cd pytorch_fnet
 docker build -t ${USER}/pytorch_fnet -f Dockerfile .
 ```
- - download the test image dataset: **todo**
+ - download the images: 
  
 ```
-commands to download data
+wget http://downloads.allencell.org/publication-data/label-free-prediction/data.tar
+tar -C ./data -xvf yourfile.tar 
 ```
 
 This installation should take a few minutes on a standard computer.
