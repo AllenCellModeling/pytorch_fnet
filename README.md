@@ -88,8 +88,6 @@ If you want to run all the training and evaluation code necessary to reproduce t
 
 After running those scripts you should be able to run all the cells in the ipython notebook. First launch jupyter using `jupyter notebook` and then open `figures.ipynb` and run all the cells.
 
-### recreate
-
 ## Instructions to run on your data
 The most general solution is to implement a new PyTorch dataset object that is responsible for loading signal images (transmitted light) and target images (fluorescence) into a consistent format. See `fnet/data/tiffdataset.py` or `fnet/data/czidataset.py` as examples.  Our existing wrapper scripts will work if you make this dataset object have an `__init__` function can be correctly called with a simple keyword argument of path_csv, which points to a csv file (example: `data/csvs/mydata.csv`) that describes your dataset. You should implement `__get_item__(self,i)` to return a list of pytorch Tensor objects, where the first element is the signal data and the second element is the target image.  The Tensors should be of dimensions of `1,Z,Y,X`.  Place your new dataset object (example: MyDataSet.py) in `pytorch_fnet/fnet/data/`
 
