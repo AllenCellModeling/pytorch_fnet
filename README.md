@@ -84,7 +84,7 @@ pytorch_fnet/results/3d/dna/test$ ls
 ```
 
 ### recreating paper figures
-If you want to run all the training and evaluation code necessary to reproduce the paper figures, run `./scripts/paper/run_all.sh`.  This should run training and predictions for all the models and datasets used in the paper.
+If you want to run all the training and evaluation code necessary to reproduce the paper figures, run `./scripts/paper/run_all.sh`.  This should run training and predictions for all the models and datasets used in the paper. Note, this will take several days.
 
 After running those scripts you should be able to run all the cells in the ipython notebook. First launch jupyter using `jupyter notebook` and then open `figures.ipynb` and run all the cells.
 
