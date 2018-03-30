@@ -163,7 +163,7 @@ scripts\predict_mymodel.sh mydata 0
 which will output into predictions in `results/mydata/test` and `results/mydata/train`.
 
 ## Citation
-If you find this code useful in your research, please consider citing the following paper:
+If you find this code useful in your research, please consider citing our pre-publication manuscript:
 
     @article {Ounkomol289504,
 	author = {Ounkomol, Chawin and Seshamani, Sharmishtaa and Maleckar, Mary M and Collman, Forrest and Johnson, Gregory},
