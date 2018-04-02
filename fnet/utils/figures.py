@@ -213,6 +213,9 @@ def time_series_to_img(im_path_list, window_position = None, window_size = None,
         for im_channel in im_t:
             im = imread(im_channel)
             
+            if len(im.shape) == 4:
+                im = im[:,32,:,:]
+            
             if im.shape[1] == 1:
                 im = im[:,0,:,:]
             
@@ -232,8 +235,7 @@ def time_series_to_img(im_path_list, window_position = None, window_size = None,
             
             if border_thickness > 0:
                 channel_list += [np.ones([1, border_thickness, im_window.shape[2]])*border_color]
-            
-            
+    
         #these should all be channel depth of 1 or 3
         max_channel_depth = 1
         for channel in channel_list:
@@ -244,12 +246,13 @@ def time_series_to_img(im_path_list, window_position = None, window_size = None,
             if len(channel.shape) < 3 or channel.shape[0] != max_channel_depth:
                 channel_list[i] = np.tile(channel, [max_channel_depth, 1, 1])
        
-
+        # pdb.set_trace()
+    
         im_list += [np.concatenate(channel_list, 1)]
 
         if border_thickness > 0:
             im_list += [np.ones([max_channel_depth, im_list[-1].shape[1], border_thickness])*border_color]
-        
+   
     im_out = np.concatenate(im_list, 2)
     
     if im_save_path is not None:        
@@ -287,9 +290,6 @@ def stack_to_slices(im_path_list, window_position = None, window_size = None, bo
             if border_thickness > 0:
                 channel_list += [np.ones([im_window.shape[1], border_thickness])*255]
             
-            
-        pdb.set_trace()
-                
         im_list += [np.concatenate(channel_list, 1)]
 
         if border_thickness > 0:
