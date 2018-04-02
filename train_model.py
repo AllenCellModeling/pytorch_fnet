@@ -10,6 +10,14 @@ import sys
 import time
 import torch
 import warnings
+import importlib
+import fnet.loss_functions
+
+import torch.backends.cudnn
+
+from fnet.utils import str2bool, compare_dictionaries
+
+torch.backends.cudnn.benchmark=True
 
 def get_dataloader(remaining_iterations, opts):
     transform_signal = [eval(t) for t in opts.transform_signal]
@@ -57,12 +65,32 @@ def main():
     parser.add_argument('--shuffle_images', action='store_true', help='set to shuffle images in BufferedPatchDataset')
     parser.add_argument('--transform_signal', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset signal')
     parser.add_argument('--transform_target', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset target')
-    opts = parser.parse_args()
+    parser.add_argument('--model_kwargs', type=json.loads, default={}, help='kwargs for the model')
+    parser.add_argument('--criterion_fn', default='torch.nn.MSELoss', help='loss function')
+    parser.add_argument('--overwrite_opts', type=str2bool, default=False, help='overwrite previous options')
     
+    opts = parser.parse_args()
+    print(opts)
+       
+    opts_path = os.path.join(opts.path_run_dir, 'train_options.json')
+ 
     time_start = time.time()
     if not os.path.exists(opts.path_run_dir):
         os.makedirs(opts.path_run_dir)
 
+    if os.path.exists(opts_path) and not opts.overwrite_opts:
+        opts_tmp = json.load(open(opts_path))
+        opts_input = vars(opts)
+        
+        #it should be mostly ok if you change GPUids         
+        opts_tmp['gpu_ids'] = opts_input['gpu_ids']
+        
+        if compare_dictionaries(opts_input, opts_tmp) is not '':
+            raise ValueError('train_options.json already exists. Save to different directory or set --overwrite_opts=True.')
+    else:
+        with open(opts_path, 'w') as fo:
+            json.dump(vars(opts), fo, indent=4, sort_keys=True)        
+        
     #Setup logging
     logger = logging.getLogger('model training')
     logger.setLevel(logging.DEBUG)
@@ -81,13 +109,23 @@ def main():
     #Instantiate Model
     path_model = os.path.join(opts.path_run_dir, 'model.p')
     if os.path.exists(path_model):
-        model = fnet.load_model_from_dir(opts.path_run_dir, gpu_ids=opts.gpu_ids)
+        model = fnet.load_model_from_dir(opts.path_run_dir, gpu_ids=opts.gpu_ids, model_kwargs=opts.model_kwargs)
         logger.info('model loaded from: {:s}'.format(path_model))
     else:
+        
+        module, attr = opts.criterion_fn.rsplit('.',1)
+        
+        
+        criterion_fn = getattr(importlib.import_module(module),attr)
+        
+        # pdb.set_trace()
+        
         model = fnet.fnet_model.Model(
             nn_module=opts.nn_module,
             lr=opts.lr,
             gpu_ids=opts.gpu_ids,
+            model_kwargs=opts.model_kwargs,
+            criterion_fn=criterion_fn,
         )
         logger.info('Model instianted from: {:s}'.format(opts.nn_module))
     logger.info(model)
@@ -106,8 +144,7 @@ def main():
     if opts.checkpoint_testing:
         raise NotImplementedError
     
-    with open(os.path.join(opts.path_run_dir, 'train_options.json'), 'w') as fo:
-        json.dump(vars(opts), fo, indent=4, sort_keys=True)
+
 
     for i, (signal, target) in enumerate(dataloader_train, model.count_iter):
         loss_batch = model.do_train_iter(signal, target)

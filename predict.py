@@ -11,6 +11,10 @@ import torch
 import warnings
 import pdb
 
+import torch.backends.cudnn
+
+torch.backends.cudnn.benchmark=True
+
 def set_warnings():
     warnings.filterwarnings('ignore', message='.*zoom().*')
     warnings.filterwarnings('ignore', message='.*end of stream*')
@@ -70,6 +74,7 @@ def main():
     parser.add_argument('--propper_kwargs', type=json.loads, default={}, help='path to output directory')
     parser.add_argument('--transform_signal', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset signal')
     parser.add_argument('--transform_target', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset target')
+    parser.add_argument('--model_kwargs', type=json.loads, default={}, help='kwargs for the model')
     opts = parser.parse_args()
 
     if os.path.exists(opts.path_save_dir):
@@ -97,7 +102,7 @@ def main():
 
         for path_model_dir in opts.path_model_dir:
             if (path_model_dir is not None) and (model is None or len(opts.path_model_dir) > 1):
-                model = fnet.load_model_from_dir(path_model_dir, opts.gpu_ids)
+                model = fnet.load_model_from_dir(path_model_dir, opts.gpu_ids, model_kwargs = opts.model_kwargs)
                 print(model)
                 name_model = os.path.basename(path_model_dir)
             prediction = model.predict(signal) if model is not None else None

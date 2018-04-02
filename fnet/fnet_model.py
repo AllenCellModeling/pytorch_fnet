@@ -11,6 +11,7 @@ class Model(object):
             lr = 0.001,
             criterion_fn = torch.nn.MSELoss, 
             gpu_ids = -1,
+            model_kwargs = {},
     ):
         self.nn_module = nn_module
         self.init_weights = init_weights
@@ -20,13 +21,14 @@ class Model(object):
         self.gpu_ids = [gpu_ids] if isinstance(gpu_ids, int) else gpu_ids
         
         self.criterion = criterion_fn()
-        self._init_model()
+        self._init_model(model_kwargs)
 
-    def _init_model(self):
+    def _init_model(self, model_kwargs):
         if self.nn_module is None:
             self.net = None
             return
-        self.net = importlib.import_module('fnet.nn_modules.' + self.nn_module).Net()
+        
+        self.net = importlib.import_module('fnet.nn_modules.' + self.nn_module).Net(**model_kwargs)
         if self.init_weights:
             self.net.apply(_weights_init)
         if self.gpu_ids[0] >= 0:
@@ -67,10 +69,10 @@ class Model(object):
         torch.save(self.get_state(), path_save)
         self.to_gpu(curr_gpu_ids)
 
-    def load_state(self, path_load, gpu_ids=-1):
+    def load_state(self, path_load, gpu_ids=-1, model_kwargs={}):
         state_dict = torch.load(path_load)
         self.nn_module = state_dict['nn_module']
-        self._init_model()
+        self._init_model(model_kwargs)
         self.net.load_state_dict(state_dict['nn_state'])
         self.optimizer.load_state_dict(state_dict['optimizer_state'])
         self.count_iter = state_dict['count_iter']

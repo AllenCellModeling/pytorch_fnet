@@ -1,16 +1,15 @@
 import torch
-import pdb
 
 # parent: v5_nn.py
 # changed from v5: removed ReLU at output
 
 class Net(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, out_channels = 1):
         super().__init__()
         mult_chan = 32
         depth = 4
         self.net_recurse = _Net_recurse(n_in_channels=1, mult_chan=mult_chan, depth=depth)
-        self.conv_out = torch.nn.Conv3d(mult_chan,  1, kernel_size=3, padding=1)
+        self.conv_out = torch.nn.Conv3d(mult_chan,  out_channels, kernel_size=3, padding=1)
 
     def forward(self, x):
         x_rec = self.net_recurse(x)
