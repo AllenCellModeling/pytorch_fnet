@@ -85,4 +85,46 @@ def get_stats(pred, target):
              'delta_min': delta_min, 'delta_max': delta_max}
     
     return err_map, se, all_stats
+     
+    
+def str2bool(v):
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+        
+def compare_dictionaries(dict_1, dict_2, dict_1_name = 'd1', dict_2_name = 'd2', path=""):
+    """Compare two dictionaries recursively to find non mathcing elements
+
+    Args:
+        dict_1: dictionary 1
+        dict_2: dictionary 2
+
+    Returns:
+
+    """
+    err = ''
+    key_err = ''
+    value_err = ''
+    old_path = path
+    for k in dict_1.keys():
+        path = old_path + "[%s]" % k
+        if not k in dict_2:
+            key_err += "Key %s%s not in %s\n" % (dict_2_name, path, dict_2_name)
+        else:
+            if isinstance(dict_1[k], dict) and isinstance(dict_2[k], dict):
+                err += compare_dictionaries(dict_1[k],dict_2[k],'d1','d2', path)
+            else:
+                if dict_1[k] != dict_2[k]:
+                    value_err += "Value of %s%s (%s) not same as %s%s (%s)\n"\
+                        % (dict_1_name, path, dict_1[k], dict_2_name, path, dict_2[k])
+
+    for k in dict_2.keys():
+        path = old_path + "[%s]" % k
+        if not k in dict_1:
+            key_err += "Key %s%s not in %s\n" % (dict_2_name, path, dict_1_name)
+
+    return key_err + value_err + err        
         
