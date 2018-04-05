@@ -31,7 +31,7 @@ From within the container, try running the following test script:
 The installation was successful if the script executes without errors.
 
 ## Data
-Data is available as compressed tar achives [here](http://downloads.allencell.org/publication-data/label-free-prediction/). Download and untar an image archive to the `./data/` directory (for example `./data/beta_actin/`). All data can be automatically downloaded and untarred to the correct location by running
+Data is available as compressed tar achives [here](http://downloads.allencell.org/publication-data/label-free-prediction/). Download and untar an image archive to the `./data/` directory (for example `./data/beta_actin/` should be full of images). All data can be automatically downloaded and untarred to the correct location by running
 ```shell
 ./scripts/paper/download_all_data.sh
 ```
