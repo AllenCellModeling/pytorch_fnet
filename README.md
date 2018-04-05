@@ -35,6 +35,7 @@ Data is available as compressed tar achives [here](http://downloads.allencell.or
 ```shell
 ./scripts/paper/download_all_data.sh
 ```
+**Important note:** To build the DNA model, all data must be downloaded, as the we train on the DNA channels across all of these images.
 
 ## Train a model with provided data
 If not already in a Docker container, start a new container:
