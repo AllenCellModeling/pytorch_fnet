@@ -31,12 +31,10 @@ From within the container, try running the following test script:
 The installation was successful if the script executes without errors.
 
 ## Data
-Data is available as compressed tar achives. Download and untar an image archive:
+Data is available as compressed tar achives [here](http://downloads.allencell.org/publication-data/label-free-prediction/). Download and untar an image archive to the `./data/` directory (for example `./data/beta_actin/`). All data can be automatically downloaded and untarred to the correct location by running
 ```shell
-curl -O http://downloads.allencell.org/publication-data/label-free-prediction/[dataset].tar.gz
-tar -C ./data -xvzf [dataset].tar
+./scripts/paper/download_all_data.sh
 ```
-where `[dataset]` is the name of the dataset you wish to download. A list of all available data can be found [here](somelink).
 
 ## Train a model with provided data
 If not already in a Docker container, start a new container:
