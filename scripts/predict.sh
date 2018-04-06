@@ -20,7 +20,6 @@ do
 	 --n_images ${N_IMAGES} \
 	 --no_prediction_unpropped \
 	 --path_save_dir results/${DATASET}${SUFFIX}/${TEST_OR_TRAIN} \
-	 --gpu_ids ${GPU_IDS} \
-	 --transform_target ${TRANSFORM_TARGET}
+	 --gpu_ids ${GPU_IDS} 
 done
 
