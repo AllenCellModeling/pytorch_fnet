@@ -67,7 +67,7 @@ class BufferedPatchDataset(FnetDataset):
     def __getitem__(self, index):
         self.counter +=1
         
-        if self.counter % self.buffer_switch_frequency == 0:
+        if (self.buffer_switch_frequency > 0) and (self.counter % self.buffer_switch_frequency == 0):
             if self.verbose: print("Inserting new item into buffer")
                 
             self.insert_new_element_into_buffer()
