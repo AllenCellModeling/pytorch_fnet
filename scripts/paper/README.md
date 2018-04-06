@@ -1,4 +1,7 @@
 # Creating symlinks to files on network drive
+**NOTE: this README is intended for Allen Institute employees only.**
+
+
 Run the following python script to create symlinks to CZI files on the network drive:
 ```shell
 python scripts/paper/python/make_symlinks.py
