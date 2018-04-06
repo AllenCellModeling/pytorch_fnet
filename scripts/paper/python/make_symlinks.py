@@ -6,13 +6,13 @@ import subprocess
 import pdb
 
 dirname_script = os.path.dirname(__file__)
+# no need to include a "DNA" folder because the files should come from other folders
+# os.path.join(dirname_script, 'source_csvs/dna.csv'),  
 PATHS_DEFAULT = [
-    # os.path.join(dirname_script, 'source_csvs/tester.csv'),
     os.path.join(dirname_script, 'source_csvs/alpha_tubulin.csv'),
     os.path.join(dirname_script, 'source_csvs/beta_actin.csv'),
     os.path.join(dirname_script, 'source_csvs/desmoplakin.csv'),
     os.path.join(dirname_script, 'source_csvs/dic_lamin_b1.csv'),
-    os.path.join(dirname_script, 'source_csvs/dna.csv'),
     os.path.join(dirname_script, 'source_csvs/fibrillarin.csv'),
     os.path.join(dirname_script, 'source_csvs/lamin_b1.csv'),
     os.path.join(dirname_script, 'source_csvs/membrane_caax_63x.csv'),
