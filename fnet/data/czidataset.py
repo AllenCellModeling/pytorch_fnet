@@ -2,6 +2,7 @@ import torch.utils.data
 from fnet.data.czireader import CziReader
 from fnet.data.fnetdataset import FnetDataset
 import pandas as pd
+import numpy as np
 
 import pdb
 
@@ -27,14 +28,19 @@ class CziDataset(FnetDataset):
 
     def __getitem__(self, index):
         element = self.df.iloc[index, :]
+        has_target = not np.isnan(element['channel_target'])
         czi = CziReader(element['path_czi'])
-        im_out = [czi.get_volume(element['channel_signal']), czi.get_volume(element['channel_target'])]
+        
+        im_out = list()
+        im_out.append(czi.get_volume(element['channel_signal']))
+        if has_target:
+            im_out.append(czi.get_volume(element['channel_target']))
         
         if self.transform_source is not None:
             for t in self.transform_source: 
                 im_out[0] = t(im_out[0])
 
-        if self.transform_target is not None:
+        if has_target and self.transform_target is not None:
             for t in self.transform_target: 
                 im_out[1] = t(im_out[1])
 
