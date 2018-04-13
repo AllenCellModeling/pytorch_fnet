@@ -1,11 +1,10 @@
 #!/bin/bash -x
 
-DATASET=${1:-dna}
 BUFFER_SIZE=1
 N_ITER=16
 RUN_DIR=saved_models/TEST
 PATH_DATASET_CSV=data/csvs/test_run.csv
-GPU_IDS=${2:-0}
+GPU_IDS=${1:-0}
 
 cd $(cd "$(dirname ${BASH_SOURCE})" && pwd)/..
 

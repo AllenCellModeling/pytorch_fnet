@@ -48,6 +48,7 @@ def main():
     parser.add_argument('--iter_checkpoint', type=int, default=500, help='iterations between saving log/model checkpoints')
     parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
     parser.add_argument('--n_iter', type=int, default=500, help='number of training iterations')
+    parser.add_argument('--nn_kwargs', type=json.loads, default={}, help='kwargs to be passed to nn ctor')
     parser.add_argument('--nn_module', default='fnet_nn_3d', help='name of neural network module')
     parser.add_argument('--patch_size', nargs='+', type=int, default=[32, 64, 64], help='size of patches to sample from Dataset elements')
     parser.add_argument('--path_dataset_csv', type=str, help='path to csv for constructing Dataset')
@@ -88,6 +89,7 @@ def main():
             nn_module=opts.nn_module,
             lr=opts.lr,
             gpu_ids=opts.gpu_ids,
+            nn_kwargs=opts.nn_kwargs,
         )
         logger.info('Model instianted from: {:s}'.format(opts.nn_module))
     logger.info(model)
