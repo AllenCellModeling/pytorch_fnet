@@ -1,9 +1,10 @@
 import fnet
 import fnet.fnet_model
+import numpy as np
 import os
+import pdb
 import torch
 import unittest
-import pdb
 
 def get_types(x):
     """Recursively find all types in state dictionary."""
@@ -50,12 +51,18 @@ class TestFnetModel(unittest.TestCase):
     def test_train_save_load_predict(self):
         """Train a new model, save it, load it, and perform prediction."""
         # Make temp model save directory
+        rng = np.random.RandomState(42)
         path_save_dir = os.path.join(os.path.dirname(__file__), '.tmp_saved_model')
         path_save_model = os.path.join(path_save_dir, 'model.p')
         if not os.path.exists(path_save_dir):
             os.makedirs(path_save_dir)
         for gpu_id in self.test_gpu_ids:
-            model = fnet.fnet_model.Model(nn_module = 'nn_test', gpu_ids = gpu_id)
+            test_param = rng.randint(1000)
+            model = fnet.fnet_model.Model(
+                nn_module = 'nn_test',
+                nn_kwargs = {'test_param': test_param},
+                gpu_ids = gpu_id,
+            )
             for idx in range(2):
                 loss = model.do_train_iter(self.batch_x, self.batch_y)
             batch_y_pred = model.predict(self.batch_x)
@@ -69,6 +76,7 @@ class TestFnetModel(unittest.TestCase):
             model_loaded = fnet.load_model_from_dir(path_save_dir, gpu_ids=gpu_id)
             batch_y_pred_loaded = model_loaded.predict(self.batch_x)
             self.assertTrue(torch.equal(batch_y_pred, batch_y_pred_loaded))
+            self.assertEqual(model_loaded.net.test_param, test_param)
 
         # Remove saved temp model
         os.remove(path_save_model)
@@ -78,6 +86,7 @@ class TestFnetModel(unittest.TestCase):
         """Load previously saved model and perform prediction."""
         model = fnet.load_model_from_dir(os.path.join(self.dirname_test, 'data', 'model_test'), gpu_ids=-1)
         batch_y_pred = model.predict(self.batch_x)
+        self.assertEqual(model.net.test_param, 42)
 
     def test_move(self):
         """Move of models to different GPUs."""

@@ -10,9 +10,11 @@ class Model(object):
             init_weights = True,
             lr = 0.001,
             criterion_fn = torch.nn.MSELoss, 
+            nn_kwargs={},
             gpu_ids = -1,
     ):
         self.nn_module = nn_module
+        self.nn_kwargs = nn_kwargs
         self.init_weights = init_weights
         self.lr = lr
         self.criterion_fn = criterion_fn
@@ -20,13 +22,13 @@ class Model(object):
         self.gpu_ids = [gpu_ids] if isinstance(gpu_ids, int) else gpu_ids
         
         self.criterion = criterion_fn()
-        self._init_model()
+        self._init_model(nn_kwargs=self.nn_kwargs)
 
-    def _init_model(self):
+    def _init_model(self, nn_kwargs={}):
         if self.nn_module is None:
             self.net = None
             return
-        self.net = importlib.import_module('fnet.nn_modules.' + self.nn_module).Net()
+        self.net = importlib.import_module('fnet.nn_modules.' + self.nn_module).Net(**nn_kwargs)
         if self.init_weights:
             self.net.apply(_weights_init)
         if self.gpu_ids[0] >= 0:
@@ -34,8 +36,9 @@ class Model(object):
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr=self.lr, betas=(0.5, 0.999))
 
     def __str__(self):
-        out_str = '{:s} | iter: {:d}'.format(
+        out_str = '{:s} | {:s} | iter: {:d}'.format(
             self.nn_module,
+            str(self.nn_kwargs),
             self.count_iter,
         )
         return out_str
@@ -43,6 +46,7 @@ class Model(object):
     def get_state(self):
         return dict(
             nn_module = self.nn_module,
+            nn_kwargs = self.nn_kwargs,
             nn_state = self.net.state_dict(),
             optimizer_state = self.optimizer.state_dict(),
             count_iter = self.count_iter,
@@ -70,7 +74,8 @@ class Model(object):
     def load_state(self, path_load, gpu_ids=-1):
         state_dict = torch.load(path_load)
         self.nn_module = state_dict['nn_module']
-        self._init_model()
+        self.nn_kwargs = state_dict.get('nn_kwargs', {})
+        self._init_model(nn_kwargs=self.nn_kwargs)
         self.net.load_state_dict(state_dict['nn_state'])
         self.optimizer.load_state_dict(state_dict['optimizer_state'])
         self.count_iter = state_dict['count_iter']
