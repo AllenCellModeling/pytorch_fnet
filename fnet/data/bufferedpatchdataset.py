@@ -18,7 +18,9 @@ class BufferedPatchDataset(FnetDataset):
                  npatches = 100000,
                  verbose = False,
                  transform = None,
-                 shuffle_images = True):
+                 shuffle_images = True,
+                 dim_squeeze = None,
+    ):
         
         self.counter = 0
         
@@ -33,6 +35,7 @@ class BufferedPatchDataset(FnetDataset):
         
         self.verbose = verbose
         self.shuffle_images = shuffle_images
+        self.dim_squeeze = dim_squeeze
         
         shuffed_data_order = np.arange(0, len(dataset))
 
@@ -104,16 +107,18 @@ class BufferedPatchDataset(FnetDataset):
         buffer_index = np.random.randint(len(self.buffer))
                                    
         datum = self.buffer[buffer_index]
-        
 
-        starts = np.array([np.random.randint(0, d-p) if d-p > 0 else 0 for d, p in zip(datum[0].size(), self.patch_size)])
+        starts = np.array([np.random.randint(0, d - p + 1) if d - p + 1 >= 1 else 0 for d, p in zip(datum[0].size(), self.patch_size)])
 
         ends = starts + np.array(self.patch_size)
         
         #thank you Rory for this weird trick
         index = [slice(s, e) for s,e in zip(starts,ends)]
-
-        return [d[tuple(index)] for d in datum]
+        
+        patch = [d[tuple(index)] for d in datum]
+        if self.dim_squeeze is not None:
+            patch = [torch.squeeze(d, self.dim_squeeze) for d in patch]
+        return patch
     
     def get_buffer_history(self):
         return self.buffer_history
