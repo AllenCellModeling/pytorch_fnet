@@ -21,8 +21,7 @@ def predict_stitched(model, image, patch_size = [64, 64, 64], step_size = [32, 3
     
     imsize = np.array([*image.size()][2:])
     patch_size[patch_size>imsize] = imsize[patch_size>imsize]
-    
-    
+        
     steps = list()
     for dim, dim_step, patch in zip(imsize, step_size, patch_size):
         #make sure we get a _full_ patch for the last sample
@@ -30,10 +29,11 @@ def predict_stitched(model, image, patch_size = [64, 64, 64], step_size = [32, 3
         starts = np.hstack([np.arange(0, dim-patch, dim_step), dim-patch])
         steps += [starts]
 
-    
     #this is probably the most straightforward way of getting the number of output channels
-    patch = image[:, :, 0:patch_size[0], 0:patch_size[1], 0:patch_size[2]]
-    n_channels = model.predict(patch).shape[1]
+    starts = np.zeros(len(imsize)).astype(int)
+    ends = starts + patch_size
+    index = get_slice(starts, ends)
+    n_channels = model.predict(image[index]).shape[1]
     
     imsize = np.array([*image.size()])
     imsize[1] = n_channels
@@ -67,6 +67,7 @@ def predict_stitched(model, image, patch_size = [64, 64, 64], step_size = [32, 3
         patch_slice = get_slice(patch_starts, patch_ends, n_channels)
         out_patch = out_patch[patch_slice]
 
+        #figure out where we need to place the output patch in the output image
         out_starts = np.array(step)+patch_subsample
         out_ends = out_starts + step_size
 
