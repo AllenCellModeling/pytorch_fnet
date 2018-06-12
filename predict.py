@@ -59,6 +59,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--class_dataset', default='CziDataset', help='Dataset class')
     parser.add_argument('--gpu_ids', type=int, default=0, help='GPU ID')
+    parser.add_argument('--module_fnet_model', default='fnet_model', help='module with fnet_model')
     parser.add_argument('--n_images', type=int, default=16, help='max number of images to test')
     parser.add_argument('--no_prediction', action='store_true', help='set to not save prediction image')
     parser.add_argument('--no_prediction_unpropped', action='store_true', help='set to not save unpropped prediction image')
@@ -100,6 +101,7 @@ def main():
 
         for path_model_dir in opts.path_model_dir:
             if (path_model_dir is not None) and (model is None or len(opts.path_model_dir) > 1):
+<<<<<<< HEAD
                 
                 model = fnet.fnet_model.Model(
                     nn_module=opts.nn_module,
@@ -110,6 +112,9 @@ def main():
     
                 path_model = os.path.join(path_model_dir, 'model.p')
                 model.load_state(path_model, gpu_ids=opts.gpu_ids)
+=======
+                model = fnet.load_model(path_model_dir, opts.gpu_ids, module=opts.module_fnet_model)
+>>>>>>> 293dfb05776de4b4dbe81a0e1c1adefe1cb5e233
                 print(model)
                 name_model = os.path.basename(path_model_dir)
             prediction = model.predict(signal) if model is not None else None
