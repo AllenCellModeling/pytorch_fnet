@@ -70,6 +70,9 @@ def main():
     parser.add_argument('--propper_kwargs', type=json.loads, default={}, help='path to output directory')
     parser.add_argument('--transform_signal', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset signal')
     parser.add_argument('--transform_target', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset target')
+    parser.add_argument('--nn_kwargs', type=json.loads, default={}, help='kwargs to be passed to nn ctor')
+    parser.add_argument('--nn_module', default='fnet_nn_3d', help='name of neural network module')
+    
     opts = parser.parse_args()
 
     if os.path.exists(opts.path_save_dir):
@@ -97,7 +100,16 @@ def main():
 
         for path_model_dir in opts.path_model_dir:
             if (path_model_dir is not None) and (model is None or len(opts.path_model_dir) > 1):
-                model = fnet.load_model_from_dir(path_model_dir, opts.gpu_ids)
+                
+                model = fnet.fnet_model.Model(
+                    nn_module=opts.nn_module,
+                    gpu_ids=opts.gpu_ids,
+                    nn_kwargs=opts.nn_kwargs
+                )
+                # logger.info('Model instianted from: {:s}'.format(opts.nn_module))
+    
+                path_model = os.path.join(path_model_dir, 'model.p')
+                model.load_state(path_model, gpu_ids=opts.gpu_ids)
                 print(model)
                 name_model = os.path.basename(path_model_dir)
             prediction = model.predict(signal) if model is not None else None

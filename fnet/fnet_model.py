@@ -21,7 +21,10 @@ class Model(object):
         self.count_iter = 0
         self.gpu_ids = [gpu_ids] if isinstance(gpu_ids, int) else gpu_ids
         
-        self.criterion = criterion_fn()
+        
+        if criterion_fn is not None:
+            self.criterion = criterion_fn()
+            
         self._init_model(nn_kwargs=self.nn_kwargs)
 
     def _init_model(self, nn_kwargs={}):
@@ -102,7 +105,8 @@ class Model(object):
         loss.backward()
         self.optimizer.step()
         self.count_iter += 1
-        return loss.data[0]
+        
+        return loss.data[0].cpu().numpy()
     
     def predict(self, signal):
         if self.gpu_ids[0] >= 0:
@@ -130,9 +134,7 @@ def _weights_init(m):
 
 def _set_gpu_recursive(var, gpu_id):
     """Moves Tensors nested in dict var to gpu_id.
-
     Modified from pytorch_integrated_cell.
-
     Parameters:
     var - (dict) keys are either Tensors or dicts
     gpu_id - (int) GPU onto which to move the Tensors

@@ -10,6 +10,7 @@ import sys
 import time
 import torch
 import warnings
+import importlib
 
 def get_dataloader(remaining_iterations, opts):
     transform_signal = [eval(t) for t in opts.transform_signal]
@@ -50,6 +51,9 @@ def main():
     parser.add_argument('--n_iter', type=int, default=500, help='number of training iterations')
     parser.add_argument('--nn_kwargs', type=json.loads, default={}, help='kwargs to be passed to nn ctor')
     parser.add_argument('--nn_module', default='fnet_nn_3d', help='name of neural network module')
+    
+    parser.add_argument('--criterion_fn', default='torch.nn.MSELoss', help='loss function')
+    
     parser.add_argument('--patch_size', nargs='+', type=int, default=[32, 64, 64], help='size of patches to sample from Dataset elements')
     parser.add_argument('--path_dataset_csv', type=str, help='path to csv for constructing Dataset')
     parser.add_argument('--path_run_dir', default='saved_models', help='base directory for saved models')
@@ -80,18 +84,26 @@ def main():
         torch.cuda.manual_seed_all(opts.seed)
 
     #Instantiate Model
+
+        
+    module, attr = opts.criterion_fn.rsplit('.',1)
+    criterion_fn = getattr(importlib.import_module(module),attr)
+
+    model = fnet.fnet_model.Model(
+        nn_module=opts.nn_module,
+        lr=opts.lr,
+        gpu_ids=opts.gpu_ids,
+        nn_kwargs=opts.nn_kwargs,
+        criterion_fn=criterion_fn,
+    )
+    logger.info('Model instianted from: {:s}'.format(opts.nn_module))
+    
     path_model = os.path.join(opts.path_run_dir, 'model.p')
     if os.path.exists(path_model):
-        model = fnet.load_model_from_dir(opts.path_run_dir, gpu_ids=opts.gpu_ids)
+        model.load_state(path_model, gpu_ids=opts.gpu_ids)
         logger.info('model loaded from: {:s}'.format(path_model))
-    else:
-        model = fnet.fnet_model.Model(
-            nn_module=opts.nn_module,
-            lr=opts.lr,
-            gpu_ids=opts.gpu_ids,
-            nn_kwargs=opts.nn_kwargs,
-        )
-        logger.info('Model instianted from: {:s}'.format(opts.nn_module))
+
+
     logger.info(model)
 
     #Load saved history if it already exists
