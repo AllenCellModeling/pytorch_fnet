@@ -20,6 +20,7 @@ class Model(object):
         self.criterion_fn = criterion_fn
         self.count_iter = 0
         self.gpu_ids = [gpu_ids] if isinstance(gpu_ids, int) else gpu_ids
+        self.device = torch.device('cuda', self.gpu_ids[0]) if self.gpu_ids[0] >= 0 else torch.device('cpu')
         
         self.criterion = criterion_fn()
         self._init_model(nn_kwargs=self.nn_kwargs)
@@ -31,8 +32,7 @@ class Model(object):
         self.net = importlib.import_module('fnet.nn_modules.' + self.nn_module).Net(**nn_kwargs)
         if self.init_weights:
             self.net.apply(_weights_init)
-        if self.gpu_ids[0] >= 0:
-            self.net.cuda(self.gpu_ids[0])
+        self.net.to(self.device)
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr=self.lr, betas=(0.5, 0.999))
 
     def __str__(self):
@@ -55,12 +55,10 @@ class Model(object):
     def to_gpu(self, gpu_ids):
         if isinstance(gpu_ids, int):
             gpu_ids = [gpu_ids]
-        if gpu_ids[0] >= 0:
-            self.net.cuda(gpu_ids[0])
-        else:
-            self.net.cpu()
-        _set_gpu_recursive(self.optimizer.state, gpu_ids[0])  # this may not work in the future
         self.gpu_ids = gpu_ids
+        self.device = torch.device('cuda', self.gpu_ids[0]) if self.gpu_ids[0] >= 0 else torch.device('cpu')
+        self.net.to(self.device)
+        _set_gpu_recursive(self.optimizer.state, self.gpu_ids[0])  # this may not work in the future
 
     def save_state(self, path_save):
         curr_gpu_ids = self.gpu_ids
@@ -83,12 +81,8 @@ class Model(object):
 
     def do_train_iter(self, signal, target):
         self.net.train()
-        if self.gpu_ids[0] >= 0:
-            signal_v = torch.autograd.Variable(signal.cuda(self.gpu_ids[0]))
-            target_v = torch.autograd.Variable(target.cuda(self.gpu_ids[0]))
-        else:
-            signal_v = torch.autograd.Variable(signal)
-            target_v = torch.autograd.Variable(target)
+        signal = torch.tensor(signal, dtype=torch.float32, device=self.device)
+        target = torch.tensor(target, dtype=torch.float32, device=self.device)
         if len(self.gpu_ids) > 1:
             module = torch.nn.DataParallel(
                 self.net,
@@ -97,18 +91,15 @@ class Model(object):
         else:
             module = self.net
         self.optimizer.zero_grad()
-        output = module(signal_v)
-        loss = self.criterion(output, target_v)
+        output = module(signal)
+        loss = self.criterion(output, target)
         loss.backward()
         self.optimizer.step()
         self.count_iter += 1
-        return loss.data[0]
+        return loss.item()
     
     def predict(self, signal):
-        if self.gpu_ids[0] >= 0:
-            signal = signal.cuda(self.gpu_ids[0])
-        else:
-            print('predicting on CPU')
+        signal = torch.tensor(signal, dtype=torch.float32, device=self.device)
         if len(self.gpu_ids) > 1:
             module = torch.nn.DataParallel(
                 self.net,
@@ -116,9 +107,10 @@ class Model(object):
             )
         else:
             module = self.net
-        signal_v = torch.autograd.Variable(signal, volatile=True)
         module.eval()
-        return module(signal_v).data.cpu()
+        with torch.no_grad():
+            prediction = module(signal).cpu()
+        return prediction
 
 def _weights_init(m):
     classname = m.__class__.__name__

@@ -141,8 +141,7 @@ def main():
                 loss_val_sum = 0
                 for idx_val, (signal_val, target_val) in enumerate(dataloader_val):
                     pred_val = model.predict(signal_val)
-                    # Variable needed because criterion checks for "requires_grad"
-                    loss_val_batch = float(criterion_val(pred_val, torch.autograd.Variable(target_val)).data[0])
+                    loss_val_batch = criterion_val(pred_val, target_val).item()
                     loss_val_sum += loss_val_batch
                     print('loss_val_batch: {:.3f}'.format(loss_val_batch))
                 loss_val = loss_val_sum/len(dataloader_val)
