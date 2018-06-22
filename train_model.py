@@ -14,10 +14,11 @@ import warnings
 def get_dataloader(remaining_iterations, opts, validation=False):
     transform_signal = [eval(t) for t in opts.transform_signal]
     transform_target = [eval(t) for t in opts.transform_target]
-    ds = getattr(fnet.data, opts.class_dataset)(
+    ds = getattr(fnet.data, opts.dataset_class)(
         path_csv = opts.path_dataset_csv if not validation else opts.path_dataset_val_csv,
-        transform_source = transform_signal,
+        transform_signal = transform_signal,
         transform_target = transform_target,
+        **opts.dataset_kwargs,
     )
     print(ds)
     ds_patch = fnet.data.BufferedPatchDataset(
@@ -44,7 +45,8 @@ def main():
     parser.add_argument('--bpds_kwargs', type=json.loads, default={}, help='kwargs to be passed to BufferedPatchDataset')
     parser.add_argument('--buffer_size', type=int, default=5, help='number of images to cache in memory')
     parser.add_argument('--buffer_switch_frequency', type=int, default=720, help='BufferedPatchDataset buffer switch frequency')
-    parser.add_argument('--class_dataset', default='CziDataset', help='Dataset class')
+    parser.add_argument('--dataset_class', default='CziDataset', help='Dataset class')
+    parser.add_argument('--dataset_kwargs', type=json.loads, default={}, help='kwargs to be passed to Dataset class')
     parser.add_argument('--gpu_ids', type=int, nargs='+', default=0, help='GPU ID')
     parser.add_argument('--interval_save', type=int, default=500, help='iterations between saving log/model')
     parser.add_argument('--iter_checkpoint', nargs='+', type=int, default=[], help='iterations at which to save checkpoints of model')
@@ -58,8 +60,8 @@ def main():
     parser.add_argument('--path_run_dir', default='saved_models', help='base directory for saved models')
     parser.add_argument('--seed', type=int, help='random seed')
     parser.add_argument('--shuffle_images', action='store_true', help='set to shuffle images in BufferedPatchDataset')
-    parser.add_argument('--transform_signal', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset signal')
-    parser.add_argument('--transform_target', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset target')
+    parser.add_argument('--transform_signal', nargs='+', default=['fnet.transforms.Normalize()', default_resizer_str], help='list of transforms on Dataset signal')
+    parser.add_argument('--transform_target', nargs='+', default=['fnet.transforms.Normalize()', default_resizer_str], help='list of transforms on Dataset target')
     opts = parser.parse_args()
     
     time_start = time.time()
