@@ -1,26 +1,37 @@
 import torch
 import torch.nn as nn
 
+from torch.utils.checkpoint import checkpoint
 
-class DenseLayer(nn.Sequential):
-    def __init__(self, in_channels, growth_rate):
+class DenseLayer(nn.Module):
+    def __init__(self, in_channels, growth_rate, dropout_rate = 0.2):
         super().__init__()
-        self.add_module('norm', nn.BatchNorm3d(in_channels))
-        self.add_module('relu', nn.ReLU(True))
-        self.add_module('conv', nn.Conv3d(in_channels, growth_rate, kernel_size=3,
-                                          stride=1, padding=1, bias=True))
-        self.add_module('drop', nn.Dropout3d(0.2, inplace=True))
+        
+        self.main = nn.Sequential(nn.BatchNorm3d(in_channels),
+                                    nn.ReLU(True),
+                                    nn.Conv3d(in_channels, growth_rate, kernel_size=3,
+                                          stride=1, padding=1, bias=True)
+                                 )
+        
+        self.last = None
+        if dropout_rate > 0:
+            self.last = nn.Dropout3d(dropout_rate, inplace=True)
 
     def forward(self, x):
-        return super().forward(x)
+        x = checkpoint(self.main, x)
+        
+        if self.last is not None:
+            x = self.last(x)
+        
+        return x
 
 
 class DenseBlock(nn.Module):
-    def __init__(self, in_channels, growth_rate, n_layers, upsample=False):
+    def __init__(self, in_channels, growth_rate, n_layers, upsample=False, dropout_rate = 0.2):
         super().__init__()
         self.upsample = upsample
         self.layers = nn.ModuleList([DenseLayer(
-            in_channels + i*growth_rate, growth_rate)
+            in_channels + i*growth_rate, growth_rate, dropout_rate = dropout_rate)
             for i in range(n_layers)])
 
     def forward(self, x):
@@ -41,20 +52,28 @@ class DenseBlock(nn.Module):
 
 
 class TransitionDown(nn.Sequential):
-    def __init__(self, in_channels):
+    def __init__(self, in_channels, dropout_rate = 0.2):
         super().__init__()
         self.add_module('norm', nn.BatchNorm3d(num_features=in_channels))
         self.add_module('relu', nn.ReLU(inplace=True))
         self.add_module('conv', nn.Conv3d(in_channels, in_channels,
                                           kernel_size=2, stride=2,
                                           padding=0, bias=True))
-        self.add_module('drop', nn.Dropout3d(0.2, inplace=True))
+        
+        self.drop = None
+        if dropout_rate > 0:
+            self.drop = nn.Dropout3d(dropout_rate, inplace=True)
         
         #removed max pooling and replaced with convolution with stride 2
         # self.add_module('maxpool', nn.MaxPool3d(2))
 
     def forward(self, x):
-        return super().forward(x)
+        x = checkpoint(super().forward, x)
+        
+        if self.drop is not None:
+            x = self.drop(x)
+            
+        return x 
 
 
 class TransitionUp(nn.Module):
@@ -65,17 +84,17 @@ class TransitionUp(nn.Module):
             kernel_size=3, stride=2, padding=0, bias=True)
 
     def forward(self, x, skip):
-        out = self.convTrans(x)
+        out = checkpoint(self.convTrans, x)
         out = center_crop(out, skip.size(2), skip.size(3), skip.size(4))
         out = torch.cat([out, skip], 1)
         return out
 
 
 class Bottleneck(nn.Sequential):
-    def __init__(self, in_channels, growth_rate, n_layers):
+    def __init__(self, in_channels, growth_rate, n_layers, dropout_rate = 0.2):
         super().__init__()
         self.add_module('bottleneck', DenseBlock(
-            in_channels, growth_rate, n_layers, upsample=True))
+            in_channels, growth_rate, n_layers, upsample=True, dropout_rate = dropout_rate))
 
     def forward(self, x):
         return super().forward(x)

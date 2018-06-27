@@ -3,11 +3,12 @@ import torch.nn as nn
 
 from .layers3d import *
 
+from torch.utils.checkpoint import checkpoint
 
 class Net(nn.Module):
     def __init__(self, in_channels=1, down_blocks=(3,3,3,3,3),
                  up_blocks=(3,3,3,3,3), bottleneck_layers=5,
-                 growth_rate=16, out_chans_first_conv=48, out_channels=1):
+                 growth_rate=16, out_chans_first_conv=48, out_channels=1, dropout_rate = 0.2):
         super().__init__()
         self.down_blocks = down_blocks
         self.up_blocks = up_blocks
@@ -29,10 +30,10 @@ class Net(nn.Module):
         self.transDownBlocks = nn.ModuleList([])
         for i in range(len(down_blocks)):
             self.denseBlocksDown.append(
-                DenseBlock(cur_channels_count, growth_rate, down_blocks[i]))
+                DenseBlock(cur_channels_count, growth_rate, down_blocks[i], dropout_rate = dropout_rate))
             cur_channels_count += (growth_rate*down_blocks[i])
             skip_connection_channel_counts.insert(0,cur_channels_count)
-            self.transDownBlocks.append(TransitionDown(cur_channels_count))
+            self.transDownBlocks.append(TransitionDown(cur_channels_count, dropout_rate = dropout_rate))
 
         #####################
         #     Bottleneck    #
@@ -55,7 +56,7 @@ class Net(nn.Module):
 
             self.denseBlocksUp.append(DenseBlock(
                 cur_channels_count, growth_rate, up_blocks[i],
-                    upsample=True))
+                    upsample=True, dropout_rate = dropout_rate))
             prev_block_channels = growth_rate*up_blocks[i]
             cur_channels_count += prev_block_channels
 
@@ -67,7 +68,7 @@ class Net(nn.Module):
 
         self.denseBlocksUp.append(DenseBlock(
             cur_channels_count, growth_rate, up_blocks[-1],
-                upsample=False))
+                upsample=False, dropout_rate = dropout_rate))
         cur_channels_count += growth_rate*up_blocks[-1]
 
         ## Softmax ##
@@ -78,7 +79,7 @@ class Net(nn.Module):
         # self.softmax = nn.LogSoftmax(dim=1)
 
     def forward(self, x):
-        out = self.firstconv(x)
+        out = checkpoint(self.firstconv, x)
 
         skip_connections = []
         for i in range(len(self.down_blocks)):
@@ -92,7 +93,7 @@ class Net(nn.Module):
             out = self.transUpBlocks[i](out, skip)
             out = self.denseBlocksUp[i](out)
 
-        out = self.finalConv(out)
+        out = checkpoint(self.finalConv, out)
         # out = self.softmax(out)
         return out
 
