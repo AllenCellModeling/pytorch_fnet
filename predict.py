@@ -101,8 +101,6 @@ def main():
 
         for path_model_dir in opts.path_model_dir:
             if (path_model_dir is not None) and (model is None or len(opts.path_model_dir) > 1):
-<<<<<<< HEAD
-                
                 model = fnet.fnet_model.Model(
                     nn_module=opts.nn_module,
                     gpu_ids=opts.gpu_ids,
@@ -112,9 +110,7 @@ def main():
     
                 path_model = os.path.join(path_model_dir, 'model.p')
                 model.load_state(path_model, gpu_ids=opts.gpu_ids)
-=======
-                model = fnet.load_model(path_model_dir, opts.gpu_ids, module=opts.module_fnet_model)
->>>>>>> 293dfb05776de4b4dbe81a0e1c1adefe1cb5e233
+
                 print(model)
                 name_model = os.path.basename(path_model_dir)
             prediction = model.predict(signal) if model is not None else None

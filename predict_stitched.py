@@ -1,6 +1,7 @@
 import argparse
 import fnet.data
 import fnet.utils
+import fnet.fnet_model
 import importlib
 import json
 import numpy as np
@@ -79,22 +80,25 @@ def main():
     parser.add_argument('--propper_kwargs', type=json.loads, default={}, help='path to output directory')
     parser.add_argument('--transform_signal', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset signal')
     parser.add_argument('--transform_target', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset target')
-    parser.add_argument('--nn_kwargs', type=json.loads, default={}, help='kwargs to be passed to nn ctor')
     parser.add_argument('--nn_module', default='fnet_nn_3d', help='name of neural network module')
     
     parser.add_argument('--stitch_patch_size', nargs='+', type=int, default=[64, 128, 128], help='patch size for the stitcher')
-    parser.add_argument('--stitch_step_size', nargs='+', type=int, default=[8, 8, 8], help='step size for the stitcher')
+    parser.add_argument('--stitch_step_size', nargs='+', type=int, default=[32, 32, 32], help='step size for the stitcher')
     
     parser.add_argument('--overwrite', type=str2bool, default=False, help='overwite into current existing directory')
+    
+    parser.add_argument('--n_max_pixels', type=int, default=6000000, help='max number of pixels for the input images')
     
     opts = parser.parse_args()
 
     if os.path.exists(opts.path_save_dir) and not opts.overwrite:
         print('Output path already exists.')
         return
+    
     if opts.class_dataset == 'TiffDataset':
         if opts.propper_kwargs.get('action') == '-':
-            opts.propper_kwargs['n_max_pixels'] = 6000000
+            opts.propper_kwargs['n_max_pixels'] = opts.n_max_pixels
+    
     propper = fnet.transforms.Propper(**opts.propper_kwargs)
     print(propper)
     model = None
@@ -114,6 +118,12 @@ def main():
 
         for path_model_dir in opts.path_model_dir:
             if (path_model_dir is not None) and (model is None or len(opts.path_model_dir) > 1):
+                
+                with open(os.path.join(path_model_dir, 'train_options.json'), 'r') as opts_file:
+                    opts_saved = json.load(opts_file)
+                
+                opts.nn_kwargs = opts_saved['nn_kwargs']
+                opts.nn_module = opts_saved['nn_module']
                 
                 model = fnet.fnet_model.Model(
                     nn_module=opts.nn_module,

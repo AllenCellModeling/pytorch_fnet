@@ -100,6 +100,8 @@ class Model(object):
         else:
             module = self.net
         self.optimizer.zero_grad()
+        signal_v.requires_grad = True
+        
         output = module(signal_v)
         loss = self.criterion(output, target_v)
         loss.backward()
