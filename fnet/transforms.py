@@ -5,33 +5,53 @@ import scipy
 import warnings
 import pdb
 
-def normalize(img):
-    """Subtract mean, set STD to 1.0"""
-    result = img.astype(np.float64)
-    result -= np.mean(result)
-    result /= np.std(result)
+class Normalize:
+    def __init__(self, per_dim=None):
+        """Class version of normalize function."""
+        self.per_dim = per_dim
+    
+    def __call__(self, x):
+        return normalize(x, per_dim=self.per_dim)
+
+    def __repr__(self):
+        return 'Normalize({})'.format(self.per_dim)
+
+class ToFloat:
+    def __call__(self, x):
+        return x.astype(np.float32)
+
+    def __repr__(self):
+        return 'ToFloat()'
+
+def normalize(img, per_dim=None):
+    """Subtract mean, set STD to 1.0
+
+    Parameters:
+      per_dim: normalize along other axes dimensions not equal to per dim
+    """
+    axis = tuple([i for i in range(img.ndim) if i != per_dim])
+    slices = tuple([slice(None) if i == per_dim else np.newaxis for i in range(img.ndim)])  # to handle broadcasting
+    result = img.astype(np.float32)
+    result -= np.mean(result, axis=axis)[slices]
+    result /= np.std(result, axis=axis)[slices]
     return result
 
 def do_nothing(img):
     return img.astype(np.float)
 
-class Propper(object):
+class Propper:
     """Padder + Cropper"""
-    
     def __init__(self, action='-', **kwargs):
-        assert action in ('+', '-')
-        
         self.action = action
-        if self.action == '+':
-            self.transformer = Padder('+', **kwargs)
+        if self.action in ['+', 'pad']:
+            self.transformer = Padder(**kwargs)
+        elif self.action in ['-', 'crop']:
+            self.transformer = Cropper(**kwargs)
         else:
-            self.transformer = Cropper('-', **kwargs)
+            raise NotImplementedError
 
     def __repr__(self):
-        return 'Propper({})'.format(self.action)
-
-    def __str__(self):
-        return '{} => transformer: {}'.format(self.__repr__(), self.transformer)
+        return repr(self.transformer)
 
     def __call__(self, x_in):
         return self.transformer(x_in)
@@ -95,18 +115,19 @@ class Padder(object):
     
 
 class Cropper(object):
-    def __init__(self, cropping, by=16, offset='mid', n_max_pixels=9732096):
+    def __init__(self, cropping='-', by=16, offset='mid', n_max_pixels=9732096, dims_no_crop=None):
         """Crop input array to given shape."""
         self.cropping = cropping
         self.offset = offset
         self.by = by
         self.n_max_pixels = n_max_pixels
+        self.dims_no_crop = [dims_no_crop] if isinstance(dims_no_crop, int) else dims_no_crop
         
         self.crops = {}
         self.last_crop = None
 
     def __repr__(self):
-        return 'Cropper{}'.format((self.cropping, self.by, self.offset, self.n_max_pixels))
+        return 'Cropper{}'.format((self.cropping, self.by, self.offset, self.n_max_pixels, self.dims_no_crop))
 
     def _adjust_shape_crop(self, shape_crop):
         key = tuple(shape_crop)
@@ -123,14 +144,13 @@ class Cropper(object):
             if idx_dim_reduce >= len(order_dim_reduce):
                 idx_dim_reduce = 0
         value = tuple(shape_crop_new)
-        print('DEBUG: cropper shape change', shape_crop, 'becomes', value)
         return value
 
     def _calc_shape_crop(self, shape_in):
         croppings = (self.cropping, )*len(shape_in) if isinstance(self.cropping, (str, int)) else self.cropping
         shape_crop = []
         for i in range(len(shape_in)):
-            if croppings[i] is None:
+            if (croppings[i] is None) or (self.dims_no_crop is not None and i in self.dims_no_crop):
                 shape_crop.append(shape_in[i])
             elif isinstance(croppings[i], int):
                 shape_crop.append(shape_in[i] - croppings[i])
@@ -182,18 +202,27 @@ class Cropper(object):
         x_out[slices] = x_in
         return x_out
 
-    
 class Resizer(object):
-    def __init__(self, factors):
+    def __init__(self, factors, per_dim=None):
         """
-        factors - tuple of resizing factors for each dimension of the input array"""
+        Parameters:
+          factors: tuple of resizing factors for each dimension of the input array
+          per_dim: normalize along other axes dimensions not equal to per dim
+        """
         self.factors = factors
+        self.per_dim = per_dim
 
     def __call__(self, x):
-        return scipy.ndimage.zoom(x, (self.factors), mode='nearest')
+        if self.per_dim is None:
+            return scipy.ndimage.zoom(x, (self.factors), mode='nearest')
+        ars_resized = list()
+        for idx in range(x.shape[self.per_dim]):
+            slices = tuple([idx if i == self.per_dim else slice(None) for i in range(x.ndim)])
+            ars_resized.append(scipy.ndimage.zoom(x[slices], self.factors, mode='nearest'))
+        return np.stack(ars_resized, axis=self.per_dim)
 
     def __repr__(self):
-        return 'Resizer({:s})'.format(str(self.factors)) 
+        return 'Resizer({:s}, {})'.format(str(self.factors), self.per_dim) 
 
 class ReflectionPadder3d(object):
     def __init__(self, padding):
