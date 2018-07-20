@@ -6,15 +6,19 @@ import pdb
 import torch
 import unittest
 
-def get_types(x):
-    """Recursively find all types in state dictionary."""
-    types = set()
+def get_devices(x):
+    """Recursively find all devices in state dictionary."""
+    devices = set()
     if isinstance(x, dict):
         for key, val in x.items():
-            types.update(get_types(val))
+            devices.update(get_devices(val))
     else:
-        types.add(type(x))
-    return types
+        if isinstance(x, torch.Tensor):
+            if x.device.type == 'cpu':
+                devices.add(-1)
+            else:
+                devices.add(x.device.index)
+    return devices
 
 class TestFnetModel(unittest.TestCase):
     @classmethod
@@ -40,6 +44,7 @@ class TestFnetModel(unittest.TestCase):
             devices = list(range(torch.cuda.device_count()))
             cls.test_gpu_ids.extend(devices)
             cls.test_gpu_ids.append(devices)  # all devices simultaneously
+            cls.test_gpu_ids.append(devices[-2:][::-1])  # last two devices, reverse order
         cls.test_gpu_ids.append(-1)  # CPU
         print('gpu_ids to be tested:', cls.test_gpu_ids)
 
@@ -68,12 +73,10 @@ class TestFnetModel(unittest.TestCase):
             batch_y_pred = model.predict(self.batch_x)
             model.save_state(path_save_model)
             state_loaded = torch.load(path_save_model)
-            types_state_loaded = get_types(state_loaded)
-            self.assertTrue(
-                torch.cuda.FloatTensor not in types_state_loaded,
-                msg = 'CUDA tensors should not be in saved state',
-            )
-            model_loaded = fnet.load_model_from_dir(path_save_dir, gpu_ids=gpu_id)
+            devices_state_loaded = get_devices(state_loaded)
+            self.assertEqual(tuple(devices_state_loaded), (-1, ))  # saved state should only have CPU tensors
+            
+            model_loaded = fnet.load_model(path_save_dir, gpu_ids=gpu_id)
             batch_y_pred_loaded = model_loaded.predict(self.batch_x)
             self.assertTrue(torch.equal(batch_y_pred, batch_y_pred_loaded))
             self.assertEqual(model_loaded.net.test_param, test_param)
@@ -84,29 +87,25 @@ class TestFnetModel(unittest.TestCase):
 
     def test_load_previous_fnet_model(self):
         """Load previously saved model and perform prediction."""
-        model = fnet.load_model_from_dir(os.path.join(self.dirname_test, 'data', 'model_test'), gpu_ids=-1)
+        model = fnet.load_model(os.path.join(self.dirname_test, 'data', 'model_test'), gpu_ids=-1)
         batch_y_pred = model.predict(self.batch_x)
         self.assertEqual(model.net.test_param, 42)
 
     def test_move(self):
-        """Move of models to different GPUs."""
+        """Move models to different GPUs."""
         model = fnet.fnet_model.Model(nn_module = 'nn_test', gpu_ids = -1)
         loss = model.do_train_iter(self.batch_x, self.batch_y)
         for gpu_id in self.test_gpu_ids:
+            device_exp = gpu_id if isinstance(gpu_id, int) else gpu_id[0]
             model.to_gpu(gpu_id)
             self.assertEqual(
                 sorted(model.gpu_ids),
                 sorted([gpu_id] if isinstance(gpu_id, int) else gpu_id),
             )
             batch_y_pred = model.predict(self.batch_x)
-            types_nn = get_types(model.net.state_dict())
-            types_optim = get_types(model.optimizer.state_dict())
-            types_pred = get_types(batch_y_pred)
-            self.assertFalse(torch.cuda.FloatTensor in types_pred)
-            for types in [types_nn, types_optim]:
-                if gpu_id == -1:  # CPU case
-                    self.assertFalse(torch.cuda.FloatTensor in types)
-                    self.assertTrue(torch.FloatTensor in types)
-                else:
-                    self.assertTrue(torch.cuda.FloatTensor in types)
-                    self.assertFalse(torch.FloatTensor in types)
+            devices_nn = get_devices(model.net.state_dict())
+            devices_optim = get_devices(model.optimizer.state_dict())
+            devices_pred = get_devices(batch_y_pred)
+            self.assertEqual(tuple(devices_pred), (-1, ))  # predictions should CPU tensors
+            for devices in [devices_nn, devices_optim]:
+                self.assertEqual(tuple(devices), (device_exp, ))
