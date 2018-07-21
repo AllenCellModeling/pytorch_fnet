@@ -31,8 +31,7 @@ Data is available as compressed tar achives [here](http://downloads.allencell.or
 **Important note:** To build the DNA model, all data must be downloaded, as the we train on the DNA channels across all of these images.
 
 ## Train a model with provided data
-Activate the environment if necessary (conda activate fnet).
-Start training a model with:
+Activate the environment if necessary (`conda activate fnet`). Start training a model with:
 ```shell
 ./scripts/train_model.sh dna 0
 ```
