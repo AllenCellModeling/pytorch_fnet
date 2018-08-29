@@ -1,5 +1,6 @@
 from fnet.data.czireader import CziReader
 from fnet.data.fnetdataset import FnetDataset
+from fnet.functions import to_objects
 import importlib
 import numpy as np
 import os
@@ -25,25 +26,6 @@ def _get_slices(shape, some_dict):
                 lims[idx_side] = int(val) + (1 if side == 'max' else 0)
         slices.append(slice(lims[0], lims[1]))
     return slices
-
-
-def _to_objects(slist):
-    olist = list()
-    for s in slist:
-        if not isinstance(s, str):
-            olist.append(s)
-            continue
-        s_split = s.split('.')
-        for idx_part, part in enumerate(s_split):
-            if not part.isidentifier():
-                break
-        importee = '.'.join(s_split[:idx_part])
-        so = '.'.join(s_split[idx_part:])
-        if len(importee) > 0:
-            module = importlib.import_module(importee)
-            so = 'module.' + so
-        olist.append(eval(so))
-    return olist
 
 
 class AICSCziDataset(FnetDataset):
@@ -94,8 +76,8 @@ class AICSCziDataset(FnetDataset):
             self._find_channels = True
 
         # If transform_signa/transform_target is a string, convert to objects
-        self.transform_signal = _to_objects(self.transform_signal)
-        self.transform_target = _to_objects(self.transform_target)
+        self.transform_signal = to_objects(self.transform_signal)
+        self.transform_target = to_objects(self.transform_target)
         print('DEBUG: transform_signal', self.transform_signal)
         print('DEBUG: transform_target', self.transform_target)
 
