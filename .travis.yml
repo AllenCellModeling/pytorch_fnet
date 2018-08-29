@@ -10,7 +10,7 @@ install:
   - conda update -q conda
   - conda info -a
   - conda create -q -n test_env python=$TRAVIS_PYTHON_VERSION
-  - source $HOME/miniconda3/etc/profile.d/conda.sh
+  - source $HOME/miniconda/etc/profile.d/conda.sh
 
 script:
   - echo "Hello world!"
