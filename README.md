@@ -4,27 +4,20 @@
 ## System Requirements
 Installing on Linux is recommended (we have used Ubuntu 16.04).
 
-An nVIDIA graphics card with >10GB of ram (we have used an nVIDIA Titan X Pascal) with current drivers installed (we have used nVIDIA driver version 375.39).
+An nVIDIA graphics card with >10GB of ram (we have used an nVIDIA Titan X Pascal) with current drivers installed (we have used nVIDIA driver version 390.48).
 
 ## Installation
-The following is a Docker-based installation. Non-Docker installations are possible, but instructions are not provided.
-
-Install software onto host system (estimated time: 1 hour).
- - install Docker (https://docs.docker.com/install/) (we used `Docker version 17.09.1-ce, build 19e2cf6` )
- - install nvidia-docker (https://github.com/NVIDIA/nvidia-docker)
- - install git
-
-Clone repository and build Docker image (estimated time: 15 minutes).
+### Environment setup
+- Install [Miniconda](https://conda.io/miniconda.html) if necessary.
+- Create a Conda environment for the platform:
 ```shell
-git clone https://github.com/AllenCellModeling/pytorch_fnet
-cd pytorch_fnet
-./docker/build_pytorch_fnet.sh
+conda env create -f environment.yml
 ```
-To test the installation, first start a Docker container:
+- Activate the environment:
 ```shell
-./docker/start_docker.sh
+conda activate fnet
 ```
-From within the container, try running the following test script:
+- Try executing the test script:
 ```shell
 ./scripts/test_run.sh
 ```
@@ -38,11 +31,7 @@ Data is available as compressed tar achives [here](http://downloads.allencell.or
 **Important note:** To build the DNA model, all data must be downloaded, as the we train on the DNA channels across all of these images.
 
 ## Train a model with provided data
-If not already in a Docker container, start a new container:
-```shell
-./start_docker.sh
-```
-Start training a model with:
+Activate the environment if necessary (`conda activate fnet`). Start training a model with:
 ```shell
 ./scripts/train_model.sh dna 0
 ```
@@ -93,7 +82,7 @@ prediction_dna.tiff  signal.tiff  target.tiff
 `signal.tiff`, `target.tiff`, and `prediction_dna.tiff` correspond to the input image (bright-field), the target image (real fluorescence image), and the model's output (predicted, "fake" fluorescence image) respectively.
 
 ## Instructions to train models on your data
-The most general solution is to implement a new PyTorch dataset object that is responsible for loading signal images (transmitted light) and target images (fluorescence) into a consistent format. See `fnet/data/tiffdataset.py` or `fnet/data/czidataset.py` as examples.  Our existing wrapper scripts will work if you make this dataset object have an `__init__` function can be correctly called with a simple keyword argument of `path_csv`, which points to a CSV file (example: `data/csvs/mydata.csv`) that describes your dataset. You should implement `__getitem__()` to return a PyTorch Tensor objects, where the first element is the signal data and the second element is the target image.  The Tensors should be of dimensions of `1,Z,Y,X`.  Place your new dataset object (example: `mydataset.py`) in `fnet/data/`.
+The most general solution is to implement a new PyTorch dataset object that is responsible for loading signal images (transmitted light) and target images (fluorescence) into a consistent format. See `fnet/data/tiffdataset.py` or `fnet/data/czidataset.py` as examples.  Our existing wrapper scripts will work if you make this dataset object have an `__init__` function that can be correctly called with a simple keyword argument of `path_csv`, which points to a CSV file (example: `data/csvs/mydata.csv`) that describes your dataset. You should implement `__getitem__()` to return a PyTorch Tensor objects, where the first element is the signal data and the second element is the target image.  The Tensors should be of dimensions of `1,Z,Y,X`.  Place your new dataset object (example: `mydataset.py`) in `fnet/data/`.
 
 If you have single channel tiff stacks for both input and target images, you can simply use our existing tiffdataset class with a CSV that has columns labeled `path_target` and `path_signal` and whose elements are paths to where those images.
 
