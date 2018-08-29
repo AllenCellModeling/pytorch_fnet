@@ -12,7 +12,8 @@ install:
   - conda env create -q -n test_env -f .environment.yml
   - source $HOME/miniconda/etc/profile.d/conda.sh
   - conda activate test_env
+  - conda install pytest
 
 script:
-  - echo "Hello world!"
   - conda env list
+  - python -m pytest --ignore tests/ignore tests

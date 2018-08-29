@@ -9,6 +9,7 @@ import torch
 import tifffile
 import unittest
 
+
 class TestTransform:
     def __call__(self, ar):
         low, hi = np.percentile(ar, [1, 99])
@@ -22,12 +23,14 @@ class TestTransform:
     def __repr__(self):
         return 'TestTransform(2, 3, 6)'
 
+
 class TestTransform2:
     def __call__(self, ar):
         return ar
 
     def __repr__(self):
         return 'TestTransform2()'
+
 
 class TestDataset(unittest.TestCase):
     @classmethod
@@ -47,8 +50,8 @@ class TestDataset(unittest.TestCase):
         transforms = ["fnet.transforms.Normalize(0)"]
         ds = AICSCziDataset(
             df,
-            transform_signal = transforms,
-            transform_target = transforms,
+            transform_signal=transforms,
+            transform_target=transforms,
         )
         shapes_exp = [
             (1, 39, 512, 512),
@@ -131,7 +134,7 @@ class TestDataset(unittest.TestCase):
                 path_save = os.path.join(path_cache_dir, f'{idx_ds}_{idx_data}.tiff')
                 tifffile.imsave(path_save, d.numpy())
                 print(d.shape, path_save)
-        
+
 
 if __name__ == '__main__':
     unittest.main()
