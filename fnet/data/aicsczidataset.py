@@ -8,6 +8,25 @@ import pdb
 import tifffile
 import torch
 
+
+def _get_slices(shape, some_dict):
+    if len(shape) == 4:
+        dim_labels = 'zyx'
+    elif len(shape) == 3:
+        dim_labels = 'yx'
+    else:
+        raise NotImplementedError
+    slices = [slice(None)]  # This is the "channel" dimension
+    for dim_label in dim_labels:
+        lims = [None, None]
+        for idx_side, side in enumerate(['min', 'max']):
+            val = some_dict.get(dim_label + 'lim_' + side)
+            if (val is not None) and (not np.isnan(val)):
+                lims[idx_side] = int(val) + (1 if side == 'max' else 0)
+        slices.append(slice(lims[0], lims[1]))
+    return slices
+
+
 def _to_objects(slist):
     olist = list()
     for s in slist:
@@ -26,8 +45,10 @@ def _to_objects(slist):
         olist.append(eval(so))
     return olist
 
+
 class AICSCziDataset(FnetDataset):
     """Dataset for AICS CZI files."""
+
 
     def __init__(self,
                  dataframe: pd.DataFrame = None,
@@ -78,6 +99,7 @@ class AICSCziDataset(FnetDataset):
         print('DEBUG: transform_signal', self.transform_signal)
         print('DEBUG: transform_target', self.transform_target)
 
+
     def _get_path_cached(self, path_czi, channel, transforms):
         basename = os.path.basename(path_czi)
         tlist = 'none'
@@ -88,6 +110,7 @@ class AICSCziDataset(FnetDataset):
             '{:s}_chan{:d}_{:s}.tiff'.format(basename, channel, tlist),
         )
         return path_cached
+
 
     def __getitem__(self, idx):
         if self._find_channels:
@@ -101,6 +124,7 @@ class AICSCziDataset(FnetDataset):
         flip_y = self.df.loc[index_val, :].get('flip_y', -1) > 0
         flip_x = self.df.loc[index_val, :].get('flip_x', -1) > 0
 
+        slices = None
         czi = None
         data = list()
         for channel, transform in ((channel_signal, self.transform_signal), (channel_target, self.transform_target)):
@@ -112,6 +136,9 @@ class AICSCziDataset(FnetDataset):
                 if os.path.exists(path_cached):
                     print('DEBUG: used cached file:', path_cached)
                     element = tifffile.imread(path_cached)
+                    if element.ndim != 4:
+                        print('Warning! potentially corrupted file!')
+                        element = None
             if element is None:
                 if czi is None:
                     czi = CziReader(path_czi)
@@ -133,7 +160,9 @@ class AICSCziDataset(FnetDataset):
                 print('flipping x')
                 element = np.flip(element, axis=-1)
                 
-            data.append(element)
+            if slices is None:
+                slices = _get_slices(element.shape, self.df.loc[index_val, :])
+            data.append(element[slices])
         
         data = [torch.tensor(ar.astype(np.float), dtype=torch.float32) for ar in data]
         return data

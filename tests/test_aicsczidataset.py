@@ -33,7 +33,33 @@ class TestDataset(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.path_czi = os.path.join(os.path.dirname(__file__), '..', 'data', '3500000427_100X_20170120_F05_P27.czi')
-        
+
+
+    def test_zlimits(self):
+        df = pd.DataFrame({
+            'path_czi': [self.path_czi, self.path_czi, self.path_czi],
+            'channel_signal': 0,
+            'channel_target': 1,
+            'zlim_min': [None, 33, None],
+            'zlim_max': [None, 37, 20],
+            'xlim_min': [None, None, 3]
+        })
+        transforms = ["fnet.transforms.Normalize(0)"]
+        ds = AICSCziDataset(
+            df,
+            transform_signal = transforms,
+            transform_target = transforms,
+        )
+        shapes_exp = [
+            (1, 39, 512, 512),
+            (1, 5, 512, 512),
+            (1, 21, 512, 509),
+        ]
+        for idx_data, data in enumerate(ds):
+            self.assertEqual(tuple(data[0].size()), shapes_exp[idx_data])
+            self.assertEqual(tuple(data[1].size()), shapes_exp[idx_data])
+
+
     def test_caching(self):
         # Both signal and target channels specified
         path_cache_dir = os.path.join('tests', '.tmp')
