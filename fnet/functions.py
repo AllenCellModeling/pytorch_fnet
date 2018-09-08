@@ -1,8 +1,24 @@
+from typing import Optional
 import importlib
 import inspect
+import json
+import logging
 import os
 import pdb  # noqa: F401
 import re
+
+
+def str_to_class(string: str):
+    """Return class from string representation."""
+    idx_dot = string.rfind('.')
+    if idx_dot < 0:
+        module_str = 'fnet.nn_modules'
+        class_str = string
+    else:
+        module_str = string[:idx_dot]
+        class_str = string[idx_dot + 1:]
+    module = importlib.import_module(module_str)
+    return getattr(module, class_str)
 
 
 def to_objects(slist):
@@ -31,7 +47,25 @@ def to_objects(slist):
     return olist
 
 
-def load_model(path_model, gpu_ids=0, module='fnet_model', no_optim=False):
+def load_model(
+        path_save_dir: str, no_optim=False,
+        logger: Optional[logging.Logger] = None,
+):
+    printl = print if logger is None else logger.info
+    path_options = os.path.join(path_save_dir, 'train_options.json')
+    with open(path_options, 'r') as fi:
+        train_options = json.load(fi)
+    fnet_model_kwargs = train_options['fnet_model_kwargs']
+    fnet_model_class = train_options['fnet_model_class']
+    model = str_to_class(fnet_model_class)(**fnet_model_kwargs)
+    path_saved_state = os.path.join(path_save_dir, 'model.p')
+    if os.path.exists(path_saved_state):
+        model.load_state(path_saved_state, no_optim)
+        printl('Loaded model state from:', path_saved_state)
+    return model
+
+
+def load_model_archive(path_model, gpu_ids=0, module='fnet_model', no_optim=False):
     """Load a model from a path to a model.
 
     Args:
