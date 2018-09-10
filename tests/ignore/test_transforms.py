@@ -1,11 +1,29 @@
 import unittest
 import numpy as np
 import fnet.transforms
+import pdb
+
 
 class TestTransforms(unittest.TestCase):
     def setUp(self):
         np.set_printoptions(linewidth=120)
         self.rng = np.random.RandomState(42)
+
+
+    def test_normalize(self):
+        # Normalize along dim 0 and check that all sub-arrays along dim 0 have
+        # mean 0, std 1
+        err_max = 1e-5
+        shape = (11, 16, 32)
+        img = self.rng.standard_normal(shape)
+        img = img + (np.arange(1, shape[0] + 1)[:, np.newaxis, np.newaxis])
+        normer = fnet.transforms.Normalize(0)
+        img_norm = normer(img)
+        err_means = img_norm.mean(axis=(1,2)) - 0 
+        err_stds = img_norm.std(axis=(1,2)) - 1
+        self.assertTrue(np.absolute(err_means).max() < err_max)
+        self.assertTrue(np.absolute(err_stds).max() < err_max)
+
 
     def test_padder(self):
         shape = (11, 64, 88)

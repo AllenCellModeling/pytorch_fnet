@@ -21,10 +21,11 @@ def get_dataset(opts, propper):
     transform_target = [eval(t) for t in opts.transform_target]
     transform_signal.append(propper)
     transform_target.append(propper)
-    ds = getattr(fnet.data, opts.class_dataset)(
+    ds = getattr(fnet.data, opts.dataset_class)(
         path_csv = opts.path_dataset_csv,
-        transform_source = transform_signal,
+        transform_signal = transform_signal,
         transform_target = transform_target,
+        **opts.dataset_kwargs,
     )
     print(ds)
     return ds
@@ -57,7 +58,8 @@ def main():
     factor_yx = 0.37241  # 0.108 um/px -> 0.29 um/px
     default_resizer_str = 'fnet.transforms.Resizer((1, {:f}, {:f}))'.format(factor_yx, factor_yx)
     parser = argparse.ArgumentParser()
-    parser.add_argument('--class_dataset', default='CziDataset', help='Dataset class')
+    parser.add_argument('--dataset_class', default='CziDataset', help='Dataset class')
+    parser.add_argument('--dataset_kwargs', type=json.loads, default={}, help='kwargs to be passed to Dataset class')
     parser.add_argument('--gpu_ids', type=int, default=0, help='GPU ID')
     parser.add_argument('--module_fnet_model', default='fnet_model', help='module with fnet_model')
     parser.add_argument('--n_images', type=int, default=16, help='max number of images to test')
@@ -76,7 +78,7 @@ def main():
     if os.path.exists(opts.path_save_dir):
         print('Output path already exists.')
         return
-    if opts.class_dataset == 'TiffDataset':
+    if opts.dataset_class == 'TiffDataset':
         if opts.propper_kwargs.get('action') == '-':
             opts.propper_kwargs['n_max_pixels'] = 6000000
     propper = fnet.transforms.Propper(**opts.propper_kwargs)

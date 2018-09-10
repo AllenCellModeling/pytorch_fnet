@@ -29,7 +29,7 @@ class Model(fnet.fnet_model.Model):
                 signal_zslice = signal_zslice.cuda(self.gpu_ids[0])
             else:
                 print('predicting on CPU')
-            signal_zslice = torch.autograd.Variable(signal_zslice, volatile=True)
-            prediction_zslice = module(signal_zslice).data.cpu()
+            with torch.no_grad():
+                prediction_zslice = module(signal_zslice).cpu()
             prediction[:, :, idx_z, :, :] = prediction_zslice
         return prediction
