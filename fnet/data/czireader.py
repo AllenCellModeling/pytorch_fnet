@@ -1,6 +1,6 @@
-import aicsimage.io as io
-import os
-import pdb
+import czifile
+import pdb  # noqa: F401
+
 
 def get_czi_metadata(element, tag_list):
     """
@@ -28,13 +28,31 @@ def get_czi_metadata(element, tag_list):
     return values
 
 
-class CziReader(object):
+def get_shape_from_metadata(metadata):
+    """Return tuple of CZI's dimensions in order (Z, Y, X)."""
+    tag_list = 'Metadata.Information.Image'.split('.')
+    elements = get_czi_metadata(metadata, tag_list)
+    if elements is None:
+        return None
+    ele_image = elements[0]
+    dim_tags = ('SizeZ', 'SizeY', 'SizeX')
+    shape = []
+    for dim_tag in dim_tags:
+        ele_dim = get_czi_metadata(ele_image, [dim_tag, 'text'])
+        shape_dim = int(ele_dim[0])
+        shape.append(shape_dim)
+    return tuple(shape)
+
+
+class CziReader:
+    """Wraps czifile.CziFile.
+
+    """
     def __init__(self, path_czi):
-        with io.cziReader.CziReader(path_czi) as reader:
-            # self.czi_reader = io.cziReader.CziReader(path_czi)
-            self.czi_np = reader.czi.asarray()
-            self.axes = ''.join(map(chr, reader.czi.axes))
-            self.metadata = reader.get_metadata()
+        with czifile.CziFile(path_czi) as czi:
+            self.czi_np = czi.asarray()
+            self.axes = czi.axes
+            self.metadata = czi.metadata
 
     def get_size(self, dim_sel):
         dim = -1
@@ -51,17 +69,10 @@ class CziReader(object):
         for entry in get_czi_metadata(self.metadata, tag_list):
             dim = entry.attrib.get('Id')
             if (dim is not None) and (dim.lower() in 'zyx'):
-                scale = None
-                try:
-                    # convert from m/px to um/px
-                    scale = float(get_czi_metadata(entry, ['Value'])[0].text)*10**6
-                except:
-                    pass
+                # convert from m/px to um/px
+                scale = 10**6*float(get_czi_metadata(entry, ['Value'])[0].text)
                 dict_scales[dim.lower()] = scale
         return dict_scales
-
-    def _check_czi(self):
-        pass
 
     def get_volume(self, chan, time_slice=None):
         """Returns the image volume for the specified channel."""
@@ -79,26 +90,5 @@ class CziReader(object):
                 slices.append(slice(None))
             else:
                 slices.append(0)
+        slices = tuple(slices)
         return self.czi_np[slices]
-
-
-def get_shape_from_metadata(metadata):
-    """Return tuple of CZI's dimensions in order (Z, Y, X)."""
-    tag_list = 'Metadata.Information.Image'.split('.')
-    elements = get_czi_metadata(metadata, tag_list)
-    if elements is None:
-        return None
-    ele_image = elements[0]
-    dim_tags = ('SizeZ', 'SizeY', 'SizeX')
-    shape = []
-    for dim_tag in dim_tags:
-        bad_dim = False
-        try:
-            ele_dim = get_czi_metadata(ele_image, [dim_tag, 'text'])
-            shape_dim = int(ele_dim[0])
-        except:
-            bad_dim = True
-        if bad_dim:
-            return None
-        shape.append(shape_dim)
-    return tuple(shape)
