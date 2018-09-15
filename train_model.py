@@ -1,7 +1,8 @@
+from fnet.utils.general_utils import str_to_class
 import argparse
 import copy
 import fnet.data
-import fnet.fnet_model
+import fnet.models
 import json
 import logging
 import numpy as np
@@ -19,7 +20,7 @@ def get_dataloader(args, n_iter_remaining, validation=False):
     if path_csv is not None:
         assert 'path_csv' not in dataset_kwargs, 'dataset csv specified twice'
         dataset_kwargs['path_csv'] = path_csv
-    ds = fnet.functions.str_to_class(args.dataset_class)(**dataset_kwargs)
+    ds = str_to_class(args.dataset_class)(**dataset_kwargs)
     bpds_kwargs = copy.deepcopy(args.bpds_kwargs)
     assert 'dataset' not in bpds_kwargs
     if not validation:
@@ -101,7 +102,7 @@ def main():
         model = fnet.load_model(args.path_run_dir, gpu_ids=args.gpu_ids)
         logger.info('model loaded from: {:s}'.format(path_model))
     else:
-        model = fnet.fnet_model.Model(**args.fnet_model_kwargs)
+        model = fnet.models.Model(**args.fnet_model_kwargs)
     model.to_gpu(args.gpu_ids)
     logger.info(model)
 
@@ -134,7 +135,7 @@ def main():
             i + 1, loss_batch, loss_val
         ))
         if do_save:
-            model.save_state(path_model)
+            model.save(path_model)
             fnetlogger.to_csv(path_losses_csv)
             logger.info('BufferedPatchDataset buffer history: {}'.format(dataloader_train.dataset.get_buffer_history()))
             logger.info('loss log saved to: {:s}'.format(path_losses_csv))
@@ -143,7 +144,7 @@ def main():
         if ((i + 1) in args.iter_checkpoint) or \
            ((i + 1) % args.interval_checkpoint == 0):
             path_save_checkpoint = os.path.join(path_checkpoint_dir, 'model_{:06d}.p'.format(i + 1))
-            model.save_state(path_save_checkpoint)
+            model.save(path_save_checkpoint)
             logger.info('model checkpoint saved to: {:s}'.format(path_save_checkpoint))
 
 
