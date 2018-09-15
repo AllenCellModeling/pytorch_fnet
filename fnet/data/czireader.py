@@ -31,7 +31,6 @@ def get_czi_metadata(element, tag_list):
 class CziReader(object):
     def __init__(self, path_czi):
         with io.cziReader.CziReader(path_czi) as reader:
-            # self.czi_reader = io.cziReader.CziReader(path_czi)
             self.czi_np = reader.czi.asarray()
             self.axes = ''.join(map(chr, reader.czi.axes))
             self.metadata = reader.get_metadata()
@@ -80,8 +79,7 @@ class CziReader(object):
             else:
                 slices.append(0)
         return self.czi_np[slices]
-
-
+    
 def get_shape_from_metadata(metadata):
     """Return tuple of CZI's dimensions in order (Z, Y, X)."""
     tag_list = 'Metadata.Information.Image'.split('.')

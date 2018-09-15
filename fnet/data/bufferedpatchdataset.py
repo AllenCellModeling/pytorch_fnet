@@ -1,6 +1,7 @@
 from fnet.data.fnetdataset import FnetDataset
 import numpy as np
 import torch
+import scipy.ndimage.interpolation as interpolation
 
 from tqdm import tqdm
 
@@ -20,6 +21,7 @@ class BufferedPatchDataset(FnetDataset):
                  transform = None,
                  shuffle_images = True,
                  dim_squeeze = None,
+                 augment_data_rate = 0
     ):
         
         self.counter = 0
@@ -36,13 +38,14 @@ class BufferedPatchDataset(FnetDataset):
         self.verbose = verbose
         self.shuffle_images = shuffle_images
         self.dim_squeeze = dim_squeeze
+        self.augment_data_rate = augment_data_rate
         
         shuffed_data_order = np.arange(0, len(dataset))
 
         if self.shuffle_images:
             np.random.shuffle(shuffed_data_order)
         
-        
+        buffer_size = min(len(dataset),buffer_size) 
         pbar = tqdm(range(0, buffer_size))
                        
         self.buffer_history = list()
@@ -118,10 +121,30 @@ class BufferedPatchDataset(FnetDataset):
         patch = [d[tuple(index)] for d in datum]
         if self.dim_squeeze is not None:
             patch = [torch.squeeze(d, self.dim_squeeze) for d in patch]
+        if hasattr(self.dataset, "transform_patch"):
+            patch = getattr(self.dataset, "transform_patch")(patch)
+        if np.random.uniform() < self.augment_data_rate:
+            patch = flip_and_rotate(patch)
         return patch
     
     def get_buffer_history(self):
         return self.buffer_history
+    
+def flip_and_rotate(patch):
+    signal_patch, target_patch = patch
+    signal_patch_np = signal_patch.numpy()
+    target_patch_np = target_patch.numpy()
+    n_dim = len(signal_patch_np.shape)
+    #apply each transform with equal probability
+    if np.random.randint(0, 1) == 0:
+        signal_patch_np = np.flip(signal_patch_np, axis = n_dim - 2)
+        target_patch_np = np.flip(target_patch_np, axis = n_dim - 2)
+    angle = np.random.randint(0, 360)
+    signal_patch_np = interpolation.rotate(signal_patch_np, angle, axes = (n_dim - 2, n_dim - 1), reshape = False)
+    target_patch_np = interpolation.rotate(target_patch_np, angle, axes = (n_dim - 2, n_dim - 1), reshape = False)
+    signal_patch = torch.from_numpy(signal_patch_np.astype(float)).float()
+    target_patch = torch.from_numpy(target_patch_np.astype(float)).float()
+    return [signal_patch, target_patch]
     
 def _test():
     # dims_chunk = (2,3,4)

@@ -9,6 +9,8 @@ class Model(object):
             nn_module = None,
             init_weights = True,
             lr = 0.001,
+            weight_decay = 0,
+            adamw_decay = 0,
             criterion_fn = torch.nn.MSELoss, 
             nn_kwargs={},
             gpu_ids = -1,
@@ -17,10 +19,12 @@ class Model(object):
         self.nn_kwargs = nn_kwargs
         self.init_weights = init_weights
         self.lr = lr
+        self.weight_decay = weight_decay
         self.criterion_fn = criterion_fn
         self.count_iter = 0
         self.gpu_ids = [gpu_ids] if isinstance(gpu_ids, int) else gpu_ids
-        
+        self.weight_init_key = 'net_recurse.sub_2conv_more.net.0.weight' if self.nn_module == 'fnet_nn_3d_uncertainty' else 'net_recurse.sub_2conv_more.conv1.weight'
+        self.adamw_decay = adamw_decay
         
         if criterion_fn is not None:
             self.criterion = criterion_fn()
@@ -36,7 +40,7 @@ class Model(object):
             self.net.apply(_weights_init)
         if self.gpu_ids[0] >= 0:
             self.net.cuda(self.gpu_ids[0])
-        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=self.lr, betas=(0.5, 0.999))
+        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=self.lr, weight_decay=self.weight_decay, betas=(0.5, 0.999))
 
     def __str__(self):
         out_str = '{:s} | {:s} | iter: {:d}'.format(
@@ -83,6 +87,16 @@ class Model(object):
         self.optimizer.load_state_dict(state_dict['optimizer_state'])
         self.count_iter = state_dict['count_iter']
         self.to_gpu(gpu_ids)
+        
+    def load_weights(self, path_load, gpu_ids=-1):
+        source_model = torch.load(path_load)
+        source_in_channels = source_model.get('nn_kwargs', {}).get('in_channels', 1)
+        source_state_dict = source_model['nn_state']
+        state_dict = self.net.state_dict()
+        weights = state_dict[self.weight_init_key].cpu()[slice(None),slice(0, self.net.in_channels - source_in_channels)]
+        source_weights = source_state_dict[self.weight_init_key]
+        source_state_dict[self.weight_init_key] = torch.cat((weights, source_weights), 1)
+        self.net.load_state_dict(source_state_dict)
 
     def do_train_iter(self, signal, target):
         self.net.train()
@@ -105,10 +119,14 @@ class Model(object):
         output = module(signal_v)
         loss = self.criterion(output, target_v)
         loss.backward()
+        if self.adamw_decay > 0:
+            for group in self.optimizer.param_groups:
+                for param in group['params']:
+                    param.data = param.data.add(-self.adamw_decay * self.lr, param.data)
         self.optimizer.step()
         self.count_iter += 1
         
-        return loss.data[0].cpu().numpy()
+        return loss.data[0]
     
     def predict(self, signal):
         if self.gpu_ids[0] >= 0:

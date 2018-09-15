@@ -19,6 +19,7 @@ def get_dataloader(remaining_iterations, opts, validation=False):
         path_csv = opts.path_dataset_csv if not validation else opts.path_dataset_val_csv,
         transform_source = transform_signal,
         transform_target = transform_target,
+        **opts.fds_kwargs
     )
     print(ds)
     ds_patch = fnet.data.BufferedPatchDataset(
@@ -39,13 +40,14 @@ def get_dataloader(remaining_iterations, opts, validation=False):
 
 def main():
     parser = argparse.ArgumentParser()
-    factor_yx = 0.37241  # 0.108 um/px -> 0.29 um/px
-    default_resizer_str = 'fnet.transforms.Resizer((1, {:f}, {:f}))'.format(factor_yx, factor_yx)
+    factor_yx = 0.37241/2  # 0.108 um/px -> 0.29 um/px
+    default_resizer_str = 'fnet.transforms.Resizer((1/2, {:f}, {:f}))'.format(factor_yx, factor_yx)
     parser.add_argument('--batch_size', type=int, default=24, help='size of each batch')
     parser.add_argument('--bpds_kwargs', type=json.loads, default={}, help='kwargs to be passed to BufferedPatchDataset')
     parser.add_argument('--buffer_size', type=int, default=5, help='number of images to cache in memory')
     parser.add_argument('--buffer_switch_frequency', type=int, default=720, help='BufferedPatchDataset buffer switch frequency')
     parser.add_argument('--class_dataset', default='CziDataset', help='Dataset class')
+    parser.add_argument('--fds_kwargs', type=json.loads, default={}, help='kwargs to be passed to FnetDataset')
     parser.add_argument('--gpu_ids', type=int, nargs='+', default=0, help='GPU ID')
     parser.add_argument('--interval_save', type=int, default=500, help='iterations between saving log/model')
     parser.add_argument('--iter_checkpoint', nargs='+', type=int, default=[], help='iterations at which to save checkpoints of model')
@@ -60,6 +62,7 @@ def main():
     parser.add_argument('--path_dataset_csv', type=str, help='path to csv for constructing Dataset')
     parser.add_argument('--path_dataset_val_csv', type=str, help='path to csv for constructing validation Dataset (evaluated everytime the model is saved)')
     parser.add_argument('--path_run_dir', default='saved_models', help='base directory for saved models')
+    parser.add_argument('--path_source_model', default=None, help='model to initialize new model from')
     parser.add_argument('--seed', type=int, help='random seed')
     parser.add_argument('--shuffle_images', action='store_true', help='set to shuffle images in BufferedPatchDataset')
     parser.add_argument('--transform_signal', nargs='+', default=['fnet.transforms.normalize', default_resizer_str], help='list of transforms on Dataset signal')
@@ -73,7 +76,7 @@ def main():
         path_checkpoint_dir = os.path.join(opts.path_run_dir, 'checkpoints')
         if not os.path.exists(path_checkpoint_dir):
             os.makedirs(path_checkpoint_dir)
-
+    
     #Setup logging
     logger = logging.getLogger('model training')
     logger.setLevel(logging.DEBUG)
@@ -105,10 +108,13 @@ def main():
     logger.info('Model instianted from: {:s}'.format(opts.nn_module))
     
     path_model = os.path.join(opts.path_run_dir, 'model.p')
+    path_source_model = None if opts.path_source_model is None else os.path.join(opts.path_source_model, 'model.p')
     if os.path.exists(path_model):
         model.load_state(path_model, gpu_ids=opts.gpu_ids)
         logger.info('model loaded from: {:s}'.format(path_model))
-
+    elif path_source_model is not None and os.path.exists(path_source_model):
+        model.load_weights(path_source_model, gpu_ids=opts.gpu_ids)
+        logger.info('model weights initialized from: {:s}'.format(path_source_model))
 
     logger.info(model)
 
