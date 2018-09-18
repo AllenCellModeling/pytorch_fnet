@@ -1,17 +1,47 @@
+from fnet.utils.general_utils import to_objects
+from typing import Optional, Union
+import pandas as pd
+import pdb  # noqa: F401
 import torch.utils.data
-import typing
+
 
 class FnetDataset(torch.utils.data.Dataset):
-    """Abstract class for fnet datasets."""
+    """Abstract class for fnet datasets.
 
-    def get_information(self, index) -> typing.Union[dict, str]:
-        """Returns information to identify dataset element specified by index."""
+    Parameters
+    ----------
+    dataframe
+        DataFrame where rows are dataset elements. Overrides path_csv.
+    path_csv
+        Path to csv from which to create DataFrame.
+    transform_signal
+        List of transforms to apply to signal image.
+    transform_target
+        List of transforms to apply to target image.
+
+    """
+
+    def __init__(
+            self,
+            dataframe: Optional[pd.DataFrame] = None,
+            path_csv: Optional[str] = None,
+            transform_signal: Optional[list] = None,
+            transform_target: Optional[list] = None,
+    ):
+        if dataframe is not None:
+            self.df = dataframe
+        else:
+            self.df = pd.read_csv(path_csv)
+        self.transform_signal = to_objects(transform_signal)
+        self.transform_target = to_objects(transform_target)
+        assert all(
+            col in self.df.columns for col in [
+                'path_czi', 'channel_signal', 'channel_target'
+            ]
+        )
+
+    def get_information(self, index) -> Union[dict, str]:
+        """Returns information to identify dataset element specified by index.
+
+        """
         raise NotImplementedError
-
-    def apply_transforms(self, pytorch_tensor):
-        
-        for t in self.transforms:
-            pytorch_tensor = t(pytorch_tensor)
-            
-            
-        return pytorch_tensor

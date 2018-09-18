@@ -8,7 +8,7 @@ import time
 def to_objects(slist):
     """Get a list of objects from list of object __repr__s."""
     if slist is None:
-        return list()
+        return None
     olist = list()
     for s in slist:
         if not isinstance(s, str):
