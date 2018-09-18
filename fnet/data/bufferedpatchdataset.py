@@ -1,10 +1,8 @@
 from fnet.data.fnetdataset import FnetDataset
-import numpy as np
-import torch
-
 from tqdm import tqdm
-
+import numpy as np
 import pdb
+import torch
 
 
 class BufferedPatchDataset(FnetDataset):
@@ -12,20 +10,17 @@ class BufferedPatchDataset(FnetDataset):
 
     def __init__(self, 
                  dataset,
-                 patch_size, 
-                 buffer_size = 1,
-                 buffer_switch_frequency = 720, 
-                 npatches = 100000,
-                 verbose = False,
-                 transform = None,
-                 shuffle_images = True,
-                 dim_squeeze = None,
+                 patch_size=[32, 64, 64],
+                 buffer_size=1,
+                 buffer_switch_frequency=-1,
+                 npatches=100000,
+                 verbose=False,
+                 shuffle_images=True,
+                 dim_squeeze=None,
     ):
-        
         self.counter = 0
         
         self.dataset = dataset
-        self.transform = transform
         
         self.buffer_switch_frequency = buffer_switch_frequency
         

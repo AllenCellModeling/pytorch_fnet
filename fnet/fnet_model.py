@@ -1,5 +1,6 @@
-import fnet.functions
-import importlib
+from fnet.utils.general_utils import get_args, retry_if_oserror, str_to_class
+from fnet.utils.model_utils import move_optim
+from typing import Union
 import math
 import os
 import pdb
@@ -9,41 +10,46 @@ import torch
 class Model:
     def __init__(
             self,
-            nn_module='fnet.nn_modules.fnet_nn_3d',
-            init_weights = True,
-            lr = 0.001,
-            criterion_fn = torch.nn.MSELoss, 
-            nn_kwargs={},
-            gpu_ids = -1,
-            weight_decay=0,
             betas=(0.5, 0.999),
+            criterion_class='torch.nn.MSELoss',
+            init_weights=True,
+            lr=0.001,
+            nn_class='fnet.nn_modules.fnet_nn_3d.Net',
+            nn_kwargs={},
+            nn_module=None,
             scheduler=None,
+            weight_decay=0,
+            gpu_ids=-1,
     ):
-        self.nn_module = nn_module
-        self.nn_kwargs = nn_kwargs
+        self.betas = betas
+        self.criterion = str_to_class(criterion_class)()
+        self.gpu_ids = [gpu_ids] if isinstance(gpu_ids, int) else gpu_ids
         self.init_weights = init_weights
         self.lr = lr
-        self.criterion_fn = criterion_fn
-        self.count_iter = 0
-        self.gpu_ids = [gpu_ids] if isinstance(gpu_ids, int) else gpu_ids
-        self.weight_decay = weight_decay
-        self.betas = betas
+        self.nn_class = nn_class
+        self.nn_kwargs = nn_kwargs
         self.scheduler = scheduler
+        self.weight_decay = weight_decay
+
+        # *** Legacy support ***
+        # self.nn_module might be specified in legacy saves.
+        # If so, override self.nn_class
+        if nn_module is not None:
+            self.nn_class = nn_module + '.Net'
         
+        self.count_iter = 0
         self.device = torch.device('cuda', self.gpu_ids[0]) if self.gpu_ids[0] >= 0 else torch.device('cpu')
-        
-        self.criterion = criterion_fn()
-        self._init_model(nn_kwargs=self.nn_kwargs)
+        self._init_model()
+        self.fnet_model_kwargs, self.fnet_model_posargs = get_args()
+        self.fnet_model_kwargs.pop('self')
 
-
-    def _init_model(self, nn_kwargs={}):
-        self.net = fnet.functions.str_to_class(self.nn_module + '.Net')(
-            **nn_kwargs
+    def _init_model(self):
+        self.net = str_to_class(self.nn_class)(
+            **self.nn_kwargs
         )
         if self.init_weights:
             self.net.apply(_weights_init)
         self.net.to(self.device)
-
         self.optimizer = torch.optim.Adam(
             get_per_param_options(
                 self.net, wd=self.weight_decay
@@ -51,7 +57,6 @@ class Model:
             lr=self.lr,
             betas=self.betas,
         )
-
         if self.scheduler is not None:
             if self.scheduler[0] == 'snapshot':
                 period = self.scheduler[1]
@@ -67,54 +72,60 @@ class Model:
             else:
                 raise NotImplementedError
 
-
     def __str__(self):
-        out_str = '{:s} | {:s} | iter: {:d}'.format(
-            self.nn_module,
-            str(self.nn_kwargs),
-            self.count_iter,
-        )
-        return out_str
+        out_str = [
+            f'*** {self.__class__.__name__} ***',
+            f'{self.nn_class}(**{self.nn_kwargs})',
+            f'iter: {self.count_iter}',
+            f'gpu: {self.gpu_ids}',
+        ]
+        return os.linesep.join(out_str)
 
     def get_state(self):
-        return dict(
-            nn_module = self.nn_module,
-            nn_kwargs = self.nn_kwargs,
-            nn_state = self.net.state_dict(),
-            optimizer_state = self.optimizer.state_dict(),
-            count_iter = self.count_iter,
-        )
+        return {
+            'fnet_model_class': (self.__module__ + '.' +
+                                 self.__class__.__qualname__),
+            'fnet_model_kwargs': self.fnet_model_kwargs,
+            'fnet_model_posargs': self.fnet_model_posargs,
+            'nn_state': self.net.state_dict(),
+            'optimizer_state': self.optimizer.state_dict(),
+            'count_iter': self.count_iter,
+        }
 
-    def to_gpu(self, gpu_ids):
+    def to_gpu(self, gpu_ids: Union[int, list, ]):
         if isinstance(gpu_ids, int):
             gpu_ids = [gpu_ids]
         self.gpu_ids = gpu_ids
-        self.device = torch.device('cuda', self.gpu_ids[0]) if self.gpu_ids[0] >= 0 else torch.device('cpu')
+        self.device = (
+            torch.device('cuda', self.gpu_ids[0]) if self.gpu_ids[0] >= 0 else
+            torch.device('cpu')
+        )
         self.net.to(self.device)
         if self.optimizer is not None:
-            _set_gpu_recursive(self.optimizer.state, self.gpu_ids[0])  # this may not work in the future
+            move_optim(self.optimizer, self.device)
 
-    def save_state(self, path_save):
+    def save(self, path_save: str):
+        """Saves model to disk.
+
+        Parameters
+        ----------
+        path_save
+            Filename to which model is saved.
+
+        """
+        assert not os.path.isdir(path_save)
         curr_gpu_ids = self.gpu_ids
-        dirname = os.path.dirname(path_save)
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
         self.to_gpu(-1)
-        torch.save(self.get_state(), path_save)
+        retry_if_oserror(torch.save)(self.get_state(), path_save)
         self.to_gpu(curr_gpu_ids)
 
-    def load_state(self, path_load, gpu_ids=-1, no_optim=False):
-        state_dict = torch.load(path_load)
-        self.nn_module = state_dict['nn_module']
-        self.nn_kwargs = state_dict.get('nn_kwargs', {})
-        self._init_model(nn_kwargs=self.nn_kwargs)
-        self.net.load_state_dict(state_dict['nn_state'])
+    def load_state(self, state: dict, no_optim: bool = False):
+        self.count_iter = state['count_iter']
+        self.net.load_state_dict(state['nn_state'])
         if no_optim:
             self.optimizer = None
-        else:
-            self.optimizer.load_state_dict(state_dict['optimizer_state'])
-        self.count_iter = state_dict['count_iter']
-        self.to_gpu(gpu_ids)
+            return
+        self.optimizer.load_state_dict(state['optimizer_state'])
 
     def do_train_iter(self, signal, target):
         if self.scheduler is not None:

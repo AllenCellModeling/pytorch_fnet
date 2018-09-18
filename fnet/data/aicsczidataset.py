@@ -1,6 +1,6 @@
 from fnet.data.czireader import CziReader
 from fnet.data.fnetdataset import FnetDataset
-from fnet.functions import to_objects
+from fnet.utils.general_utils import to_objects
 import importlib
 import numpy as np
 import os

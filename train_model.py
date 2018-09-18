@@ -1,7 +1,7 @@
+from fnet.utils.general_utils import str_to_class
 import argparse
 import copy
-import fnet.data
-import fnet.fnet_model
+import fnet
 import json
 import logging
 import numpy as np
@@ -19,7 +19,7 @@ def get_dataloader(args, n_iter_remaining, validation=False):
     if path_csv is not None:
         assert 'path_csv' not in dataset_kwargs, 'dataset csv specified twice'
         dataset_kwargs['path_csv'] = path_csv
-    ds = fnet.functions.str_to_class(args.dataset_class)(**dataset_kwargs)
+    ds = str_to_class(args.dataset_class)(**dataset_kwargs)
     bpds_kwargs = copy.deepcopy(args.bpds_kwargs)
     assert 'dataset' not in bpds_kwargs
     if not validation:
@@ -52,24 +52,21 @@ def get_loss_val(model, dataloader_val):
 
 def main():
     parser = argparse.ArgumentParser()
-    factor_yx = 0.37241  # 0.108 um/px -> 0.29 um/px
-    default_resizer_str = 'fnet.transforms.Resizer((1, {:f}, {:f}))'.format(factor_yx, factor_yx)
     parser.add_argument('--batch_size', type=int, default=24, help='size of each batch')
-    parser.add_argument('--bpds_kwargs', type=json.loads, default={'patch_size': [32, 64, 64]}, help='kwargs to be passed to BufferedPatchDataset')
+    parser.add_argument('--bpds_kwargs', type=json.loads, default={}, help='kwargs to be passed to BufferedPatchDataset')
     parser.add_argument('--dataset_class', default='fnet.data.CziDataset', help='Dataset class')
     parser.add_argument('--dataset_kwargs', type=json.loads, default={}, help='kwargs to be passed to Dataset class')
+    parser.add_argument('--fnet_model_class', default='fnet.models.Model', help='FnetModel class')
     parser.add_argument('--fnet_model_kwargs', type=json.loads, default={}, help='kwargs to be passed to fnet model class')
     parser.add_argument('--gpu_ids', type=int, nargs='+', default=0, help='GPU ID')
     parser.add_argument('--interval_checkpoint', type=int, default=50000, help='intervals at which to save checkpoints of model')
     parser.add_argument('--interval_save', type=int, default=500, help='iterations between saving log/model')
-    parser.add_argument('--iter_checkpoint', nargs='+', type=int, default=[1], help='iterations at which to save checkpoints of model')
-    parser.add_argument('--n_iter', type=int, default=500, help='number of training iterations')
+    parser.add_argument('--iter_checkpoint', nargs='+', type=int, default=[], help='iterations at which to save checkpoints of model')
+    parser.add_argument('--n_iter', type=int, default=50000, help='number of training iterations')
     parser.add_argument('--path_dataset_csv', type=str, help='path to csv for constructing Dataset')
     parser.add_argument('--path_dataset_val_csv', type=str, help='path to csv for constructing validation Dataset (evaluated everytime the model is saved)')
     parser.add_argument('--path_run_dir', default='saved_models', help='base directory for saved models')
     parser.add_argument('--seed', type=int, help='random seed')
-    parser.add_argument('--transform_signal', nargs='+', default=['fnet.transforms.Normalize()', default_resizer_str], help='list of transforms on Dataset signal')
-    parser.add_argument('--transform_target', nargs='+', default=['fnet.transforms.Normalize()', default_resizer_str], help='list of transforms on Dataset target')
     args = parser.parse_args()
 
     time_start = time.time()
@@ -80,10 +77,16 @@ def main():
         if not os.path.exists(path_checkpoint_dir):
             os.makedirs(path_checkpoint_dir)
 
+    path_options = os.path.join(args.path_run_dir, 'train_options.json')
+    with open(path_options, 'w') as fo:
+        json.dump(vars(args), fo, indent=4, sort_keys=True)
+
     # Setup logging
     logger = logging.getLogger('model training')
     logger.setLevel(logging.DEBUG)
-    fh = logging.FileHandler(os.path.join(args.path_run_dir, 'run.log'), mode='a')
+    fh = logging.FileHandler(
+        os.path.join(args.path_run_dir, 'run.log'), mode='a'
+    )
     sh = logging.StreamHandler(sys.stdout)
     fh.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
     logger.addHandler(fh)
@@ -97,11 +100,7 @@ def main():
 
     # Instantiate Model
     path_model = os.path.join(args.path_run_dir, 'model.p')
-    if os.path.exists(path_model):
-        model = fnet.load_model(args.path_run_dir, gpu_ids=args.gpu_ids)
-        logger.info('model loaded from: {:s}'.format(path_model))
-    else:
-        model = fnet.fnet_model.Model(**args.fnet_model_kwargs)
+    model = fnet.models.load_or_init_model(path_model, path_options)
     model.to_gpu(args.gpu_ids)
     logger.info(model)
 
@@ -119,9 +118,6 @@ def main():
     dataloader_val = get_dataloader(
         args, n_remaining_iterations, validation=True
     )
-    with open(os.path.join(args.path_run_dir, 'train_options.json'), 'w') as fo:
-        json.dump(vars(args), fo, indent=4, sort_keys=True)
-
     for i, (signal, target) in enumerate(dataloader_train, model.count_iter):
         do_save = ((i + 1) % args.interval_save == 0) or \
                   ((i + 1) == args.n_iter)
@@ -134,7 +130,7 @@ def main():
             i + 1, loss_batch, loss_val
         ))
         if do_save:
-            model.save_state(path_model)
+            model.save(path_model)
             fnetlogger.to_csv(path_losses_csv)
             logger.info('BufferedPatchDataset buffer history: {}'.format(dataloader_train.dataset.get_buffer_history()))
             logger.info('loss log saved to: {:s}'.format(path_losses_csv))
@@ -143,7 +139,7 @@ def main():
         if ((i + 1) in args.iter_checkpoint) or \
            ((i + 1) % args.interval_checkpoint == 0):
             path_save_checkpoint = os.path.join(path_checkpoint_dir, 'model_{:06d}.p'.format(i + 1))
-            model.save_state(path_save_checkpoint)
+            model.save(path_save_checkpoint)
             logger.info('model checkpoint saved to: {:s}'.format(path_save_checkpoint))
 
 

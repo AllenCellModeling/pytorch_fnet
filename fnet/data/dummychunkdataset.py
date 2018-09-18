@@ -2,8 +2,11 @@ from fnet.data.fnetdataset import FnetDataset
 import torch
 import numpy as np
 
+
 class DummyChunkDataset(FnetDataset):
-    """Dummy dataset to generate random chunks."""
+    """Dummy dataset to generate random chunks.
+
+    """
 
     def __init__(
             self,
@@ -11,6 +14,7 @@ class DummyChunkDataset(FnetDataset):
             random_seed: int = 0,
             **kwargs
     ):
+        super().__init__(**kwargs)
         self.dims_chunk = dims_chunk
         self.random_seed = random_seed
         self._rng = np.random.RandomState(random_seed)
@@ -39,5 +43,3 @@ if __name__ == '__main__':
         print(i, x.shape, y.shape)
         assert x.shape == dims_chunk
         assert y.shape == dims_chunk
-    
-    
