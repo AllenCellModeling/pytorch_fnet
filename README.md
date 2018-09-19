@@ -3,7 +3,7 @@
 [![Documentation Status](https://readthedocs.org/projects/pytorch-fnet/badge/?version=latest)](https://pytorch-fnet.readthedocs.io/en/latest/?badge=latest)
 
 
-![Combined outputs](doc/PredictingStructures-1.jpg?raw=true "Combined outputs")
+![Combined outputs](doc/source/_static/PredictingStructures-1.jpg?raw=true "Combined outputs")
 
 ## System Requirements
 Installing on Linux is recommended (we have used Ubuntu 16.04).
@@ -17,14 +17,17 @@ An nVIDIA graphics card with >10GB of ram (we have used an nVIDIA Titan X Pascal
 ```shell
 conda env create -f environment.yml
 ```
+
 - Activate the environment:
 ```shell
 conda activate fnet
 ```
+
 - Try executing the test script:
 ```shell
 ./scripts/test_run.sh
 ```
+
 The installation was successful if the script executes without errors.
 
 ## Data
@@ -67,6 +70,7 @@ $ tail losses.csv
 49999,0.3207407295703888
 50000,0.3556152284145355
 ```
+
 You can train other models by replacing `dna` with the names of the other structures datasets (e.g., `alpha_tubulin`, `dic_lamin_b1`, `fibrillarin`, etc.).
 
 ## Run predictions with the trained model
