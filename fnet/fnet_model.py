@@ -8,6 +8,10 @@ import torch
 
 
 class Model:
+    """Class that encompasses a pytorch network and its optimization.
+
+    """
+
     def __init__(
             self,
             betas=(0.5, 0.999),
