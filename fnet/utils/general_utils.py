@@ -52,6 +52,7 @@ def get_args():
     """Returns the arguments passed to the calling function.
 
     Example:
+
     >>> def foo(a, b, *args, **kwargs):
     ...     print(get_args())
     ...
