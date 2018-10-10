@@ -1,18 +1,20 @@
 name: fnet
 channels:
+  - defaults
   - pytorch
   - conda-forge
-  - defaults
 dependencies:
   - cython
-  - matplotlib=2.1.1
-  - pandas=0.23.4
-  - pip=10.0.1
+  - matplotlib
+  - numpy
+  - pandas
+  - pip
+  - pytest
   - python=3.6
-  - pytorch=0.4.0
-  - scipy=1.1.0
-  - tifffile=0.15
-  - torchvision=0.1.8
-  - tqdm=4.19.5
+  - pytorch
+  - scipy
+  - tifffile
+  - torchvision
+  - tqdm
   - pip:
-    - czifile==0.1.5
+    - czifile
