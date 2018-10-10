@@ -34,11 +34,6 @@ class FnetDataset(torch.utils.data.Dataset):
             self.df = pd.read_csv(path_csv)
         self.transform_signal = to_objects(transform_signal)
         self.transform_target = to_objects(transform_target)
-        assert all(
-            col in self.df.columns for col in [
-                'path_czi', 'channel_signal', 'channel_target'
-            ]
-        )
 
     def get_information(self, index) -> Union[dict, str]:
         """Returns information to identify dataset element specified by index.
