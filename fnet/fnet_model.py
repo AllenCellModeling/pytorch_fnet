@@ -1,14 +1,65 @@
 from fnet.utils.general_utils import get_args, retry_if_oserror, str_to_class
 from fnet.utils.model_utils import move_optim
-from typing import Union
+from typing import Union, Iterator
 import math
 import os
 import pdb
 import torch
 
 
+def _weights_init(m):
+    classname = m.__class__.__name__
+    if classname.startswith('Conv'):
+        m.weight.data.normal_(0.0, 0.02)
+    elif classname.find('BatchNorm') != -1:
+        m.weight.data.normal_(1.0, 0.02)
+        m.bias.data.fill_(0) 
+
+
+def get_per_param_options(module, wd):
+    """Returns list of per parameter group options.
+
+    Applies the specified weight decay (wd) to parameters except parameters
+    within batch norm layers and bias parameters.
+    """
+    if wd == 0:
+        return module.parameters()
+    with_decay = list()
+    without_decay = list()
+    for idx_m, (name_m, module_sub) in enumerate(module.named_modules()):
+        if len(list(module_sub.named_children())) > 0:
+            continue  # Skip "container" modules
+        if isinstance(module_sub, torch.nn.modules.batchnorm._BatchNorm):
+            for param in module_sub.parameters():
+                without_decay.append(param)
+            continue
+        for name_param, param in module_sub.named_parameters():
+            if 'weight' in name_param:
+                with_decay.append(param)
+            elif 'bias' in name_param:
+                without_decay.append(param)
+    # Check that no parameters were missed or duplicated
+    n_param_module = len(list(module.parameters()))
+    n_param_lists = len(with_decay) + len(without_decay)
+    n_elem_module = sum([p.numel() for p in module.parameters()])
+    n_elem_lists = sum([p.numel() for p in (with_decay + without_decay)])
+    assert n_param_module == n_param_lists
+    assert n_elem_module == n_elem_lists
+    per_param_options = [
+        {
+            'params': with_decay,
+            'weight_decay': wd,
+        },
+        {
+            'params': without_decay,
+            'weight_decay': 0.0,
+        },
+    ]
+    return per_param_options
+
+
 class Model:
-    """Class that encompasses a pytorch network and its optimization.
+    """Class that encompasses a pytorch network and its optimizer.
 
     """
 
@@ -166,70 +217,60 @@ class Model:
             prediction = module(signal).cpu()
         return prediction
 
-def _weights_init(m):
-    classname = m.__class__.__name__
-    if classname.startswith('Conv'):
-        m.weight.data.normal_(0.0, 0.02)
-    elif classname.find('BatchNorm') != -1:
-        m.weight.data.normal_(1.0, 0.02)
-        m.bias.data.fill_(0) 
+    def test_on_batch(
+            self,
+            x: torch.Tensor,
+            y: torch.Tensor,
+    ) -> float:
+        """Test model on a batch of inputs and targets.
 
-def _set_gpu_recursive(var, gpu_id):
-    """Moves Tensors nested in dict var to gpu_id.
+        Parameters
+        ----------
+        x
+            Batched input.
+        y
+            Batched target.
 
-    Modified from pytorch_integrated_cell.
+        Returns
+        -------
+        float
+            Loss as evaluated by self.criterion.
 
-    Parameters:
-    var - (dict) keys are either Tensors or dicts
-    gpu_id - (int) GPU onto which to move the Tensors
-    """
-    for key in var:
-        if isinstance(var[key], dict):
-            _set_gpu_recursive(var[key], gpu_id)
-        elif torch.is_tensor(var[key]):
-            if gpu_id == -1:
-                var[key] = var[key].cpu()
-            else:
-                var[key] = var[key].cuda(gpu_id)
+        """
+        if len(self.gpu_ids) > 1:
+            network = torch.nn.DataParallel(self.net, device_ids=self.gpu_ids)
+        else:
+            network = self.net
+        network.eval()
+        x = x.to(dtype=torch.float32, device=self.device)
+        with torch.no_grad():
+            y_hat = network(x).cpu()
+        loss = self.criterion(y_hat, y)
+        network.train()
+        return loss.item()
 
+    def test_on_iterator(
+            self,
+            iterator: Iterator,
+            **kwargs: dict,
+    ) -> float:
+        """Test model on iterator which has items to be passed to
+        test_on_batch.
 
-def get_per_param_options(module, wd):
-    """Returns list of per parameter group options.
+        Parameters
+        ----------
+        iterator
+            Iterator that generates items to be passed to test_on_batch.
+        kwargs
+            Additional keyword arguments to be passed to test_on_batch.
 
-    Applies the specified weight decay (wd) to parameters except parameters
-    within batch norm layers and bias parameters.
-    """
-    if wd == 0:
-        return module.parameters()
-    with_decay = list()
-    without_decay = list()
-    for idx_m, (name_m, module_sub) in enumerate(module.named_modules()):
-        if len(list(module_sub.named_children())) > 0:
-            continue  # Skip "container" modules
-        if isinstance(module_sub, torch.nn.modules.batchnorm._BatchNorm):
-            for param in module_sub.parameters():
-                without_decay.append(param)
-            continue
-        for name_param, param in module_sub.named_parameters():
-            if 'weight' in name_param:
-                with_decay.append(param)
-            elif 'bias' in name_param:
-                without_decay.append(param)
-    # Check that no parameters were missed or duplicated
-    n_param_module = len(list(module.parameters()))
-    n_param_lists = len(with_decay) + len(without_decay)
-    n_elem_module = sum([p.numel() for p in module.parameters()])
-    n_elem_lists = sum([p.numel() for p in (with_decay + without_decay)])
-    assert n_param_module == n_param_lists
-    assert n_elem_module == n_elem_lists
-    per_param_options = [
-        {
-            'params': with_decay,
-            'weight_decay': wd,
-        },
-        {
-            'params': without_decay,
-            'weight_decay': 0.0,
-        },
-    ]
-    return per_param_options
+        Returns
+        -------
+        float
+            Mean loss for items in iterable.
+
+        """
+        loss_sum = 0
+        for item in iterator:
+            loss_sum += self.test_on_batch(*item, **kwargs)
+        return loss_sum/len(iterator)
