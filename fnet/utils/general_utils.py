@@ -1,7 +1,7 @@
 from typing import Callable
 import importlib
 import inspect
-import pdb  # noqa: F401
+import pandas as pd
 import time
 
 
@@ -89,3 +89,30 @@ def str_to_class(string: str):
         class_str = string[idx_dot + 1:]
     module = importlib.import_module(module_str)
     return getattr(module, class_str)
+
+
+def add_augmentations(df: pd.DataFrame) -> pd.DataFrame:
+    """Adds augmented versions of dataframe rows.
+
+    This is intended to be used on dataframes that represent datasets. Two
+    columns will be added: flip_y, flip_x. Each dataframe row will be
+    replicated 3 more times with flip_y, flip_x, or both columns set to 1.
+
+    Parameters
+    ----------
+    df
+        Dataset dataframe to be augmented.
+
+    Returns
+    -------
+    pd.DataFrame
+        Augmented dataset dataframe.
+
+    """
+    df_flip_y = df.assign(flip_y=1)
+    df_flip_x = df.assign(flip_x=1)
+    df_both = df.assign(flip_y=1, flip_x=1)
+    df_aug = pd.concat(
+        [df, df_flip_y, df_flip_x, df_both], ignore_index=True, sort=False
+    )
+    return df_aug
