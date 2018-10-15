@@ -1,6 +1,7 @@
+from fnet.metrics import corr_coef
 from fnet.utils.general_utils import get_args, retry_if_oserror, str_to_class
 from fnet.utils.model_utils import move_optim
-from typing import Union, Iterator
+from typing import Union, Iterator, Optional
 import math
 import os
 import pdb
@@ -274,3 +275,32 @@ class Model:
         for item in iterator:
             loss_sum += self.test_on_batch(*item, **kwargs)
         return loss_sum/len(iterator)
+
+    def eval_on_batch(
+            self,
+            x: torch.Tensor,
+            y: torch.Tensor,
+            metric: Optional = None,
+    ) -> float:
+        """Evaluates model output using a metric function.
+
+        Parameters
+        ----------
+        x
+            Batched input.
+        y
+            Batched target.
+        metric
+            Metric function. If None, uses fnet.metrics.corr_coef.
+
+        Returns
+        -------
+        float
+            Evaluation as determined by metric function.
+
+        """
+        if metric is None:
+            metric = corr_coef
+        y_hat = self.predict(x)
+        evaluation = metric(y, y_hat)
+        return evaluation

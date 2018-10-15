@@ -116,3 +116,8 @@ def add_augmentations(df: pd.DataFrame) -> pd.DataFrame:
         [df, df_flip_y, df_flip_x, df_both], ignore_index=True, sort=False
     )
     return df_aug
+
+
+def whats_my_name(obj: object):
+    """Returns object's name."""
+    return obj.__module__ + '.' + obj.__qualname__
