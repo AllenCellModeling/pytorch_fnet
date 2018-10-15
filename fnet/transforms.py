@@ -1,20 +1,19 @@
 import numpy as np
-import os
-import pdb
 import scipy
 import warnings
-import pdb
+
 
 class Normalize:
     def __init__(self, per_dim=None):
         """Class version of normalize function."""
         self.per_dim = per_dim
-    
+
     def __call__(self, x):
         return normalize(x, per_dim=self.per_dim)
 
     def __repr__(self):
         return 'Normalize({})'.format(self.per_dim)
+
 
 class ToFloat:
     def __call__(self, x):
@@ -22,6 +21,7 @@ class ToFloat:
 
     def __repr__(self):
         return 'ToFloat()'
+
 
 def normalize(img, per_dim=None):
     """Subtract mean, set STD to 1.0
@@ -36,8 +36,10 @@ def normalize(img, per_dim=None):
     result /= np.std(result, axis=axis)[slices]
     return result
 
+
 def do_nothing(img):
     return img.astype(np.float)
+
 
 class Propper:
     """Padder + Cropper"""
@@ -59,6 +61,7 @@ class Propper:
     def undo_last(self, x_in):
         return self.transformer.undo_last(x_in)
 
+
 class Padder(object):
     def __init__(self, padding='+', by=16, mode='constant'):
         """
@@ -74,7 +77,6 @@ class Padder(object):
         self.padding = padding
         self.by = by
         self.mode = mode
-        
         self.pads = {}
         self.last_pad = None
 
@@ -112,7 +114,7 @@ class Padder(object):
             self.pads[shape_in] = pad_width
         self.last_pad = {'shape_in': shape_in, 'pad_width': pad_width, 'shape_out': x_out.shape}
         return x_out
-    
+
 
 class Cropper(object):
     def __init__(self, cropping='-', by=16, offset='mid', n_max_pixels=9732096, dims_no_crop=None):
@@ -122,7 +124,6 @@ class Cropper(object):
         self.by = by
         self.n_max_pixels = n_max_pixels
         self.dims_no_crop = [dims_no_crop] if isinstance(dims_no_crop, int) else dims_no_crop
-        
         self.crops = {}
         self.last_crop = None
 
@@ -130,7 +131,6 @@ class Cropper(object):
         return 'Cropper{}'.format((self.cropping, self.by, self.offset, self.n_max_pixels, self.dims_no_crop))
 
     def _adjust_shape_crop(self, shape_crop):
-        key = tuple(shape_crop)
         shape_crop_new = list(shape_crop)
         prod_shape = np.prod(shape_crop_new)
         idx_dim_reduce = 0
@@ -202,6 +202,7 @@ class Cropper(object):
         x_out[slices] = x_in
         return x_out
 
+
 class Resizer(object):
     def __init__(self, factors, per_dim=None):
         """
@@ -222,32 +223,14 @@ class Resizer(object):
         return np.stack(ars_resized, axis=self.per_dim)
 
     def __repr__(self):
-        return 'Resizer({:s}, {})'.format(str(self.factors), self.per_dim) 
+        return 'Resizer({:s}, {})'.format(str(self.factors), self.per_dim)
 
-class ReflectionPadder3d(object):
-    def __init__(self, padding):
-        """Return padded 3D numpy array by mirroring/reflection.
-
-        Parameters:
-        padding - (int or tuple) size of the padding. If padding is an int, pad all dimensions by the same value. If
-        padding is a tuple, pad the (z, y, z) dimensions by values specified in the tuple."""
-        self._padding = None
-        
-        if isinstance(padding, int):
-            self._padding = (padding, )*3
-        elif isinstance(padding, tuple):
-            self._padding = padding
-        if (self._padding == None) or any(i < 0 for i in self._padding):
-            raise AttributeError
-
-    def __call__(self, ar):
-        return pad_mirror(ar, self._padding)
 
 class Capper(object):
     def __init__(self, low=None, hi=None):
         self._low = low
         self._hi = hi
-        
+
     def __call__(self, ar):
         result = ar.copy()
         if self._hi is not None:
@@ -259,26 +242,40 @@ class Capper(object):
     def __repr__(self):
         return 'Capper({}, {})'.format(self._low, self._hi)
 
-    
-def pad_mirror(ar, padding):
-    """Pad 3d array using mirroring.
 
-    Parameters:
-    ar - (numpy.array) array to be padded
-    padding - (tuple) per-dimension padding values
+def flip_y(ar: np.ndarray) -> np.ndarray:
+    """Flip array along y axis.
+
+    Array dimensions should end in YX.
+
+    Parameters
+    ----------
+    ar
+        Input array to be flipped.
+
+    Returns
+    -------
+    np.ndarray
+        Flipped array.
+
     """
-    shape = tuple((ar.shape[i] + 2*padding[i]) for i in range(3))
-    result = np.zeros(shape, dtype=ar.dtype)
-    slices_center = tuple(slice(padding[i], padding[i] + ar.shape[i]) for i in range(3))
-    result[slices_center] = ar
-    # z-axis, centers
-    if padding[0] > 0:
-        result[0:padding[0], slices_center[1] , slices_center[2]] = np.flip(ar[0:padding[0], :, :], axis=0)
-        result[ar.shape[0] + padding[0]:, slices_center[1] , slices_center[2]] = np.flip(ar[-padding[0]:, :, :], axis=0)
-    # y-axis
-    result[:, 0:padding[1], :] = np.flip(result[:, padding[1]:2*padding[1], :], axis=1)
-    result[:, padding[1] + ar.shape[1]:, :] = np.flip(result[:, ar.shape[1]:ar.shape[1] + padding[1], :], axis=1)
-    # x-axis
-    result[:, :, 0:padding[2]] = np.flip(result[:, :, padding[2]:2*padding[2]], axis=2)
-    result[:, :, padding[2] + ar.shape[2]:] = np.flip(result[:, :, ar.shape[2]:ar.shape[2] + padding[2]], axis=2)
-    return result
+    return np.flip(ar, axis=-2)
+
+
+def flip_x(ar: np.ndarray) -> np.ndarray:
+    """Flip array along x axis.
+
+    Array dimensions should end in YX.
+
+    Parameters
+    ----------
+    ar
+        Input array to be flipped.
+
+    Returns
+    -------
+    np.ndarray
+        Flipped array.
+
+    """
+    return np.flip(ar, axis=-1)
