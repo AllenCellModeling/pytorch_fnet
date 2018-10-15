@@ -1,8 +1,10 @@
 from fnet.metrics import corr_coef
+from fnet.transforms import flip_y, flip_x
 from fnet.utils.general_utils import get_args, retry_if_oserror, str_to_class
 from fnet.utils.model_utils import move_optim
-from typing import Union, Iterator, Optional
+from typing import Union, Iterator, Optional, Tuple
 import math
+import numpy as np
 import os
 import torch
 
@@ -203,15 +205,65 @@ class Model:
         self.count_iter += 1
         return loss.item()
 
-    def predict(self, signal):
-        signal = torch.tensor(signal, dtype=torch.float32, device=self.device)
+    def _predict_tta(self, x: torch.Tensor) -> torch.Tensor:
+        """Performs model prediction using test-time augmentation."""
+        augs = [
+            None,
+            [flip_y],
+            [flip_x],
+            [flip_y, flip_x],
+        ]
+        x = x.numpy()
+        y_hat_mean = None
+        for aug in augs:
+            x_aug = x.copy()
+            if aug is not None:
+                for trans in aug:
+                    x_aug = trans(x_aug)
+            y_hat = self.predict(x_aug.copy(), tta=False).numpy()
+            if aug is not None:
+                for trans in aug:
+                    y_hat = trans(y_hat)
+            if y_hat_mean is None:
+                y_hat_mean = np.zeros(y_hat.shape, dtype=np.float32)
+            y_hat_mean += y_hat
+        y_hat_mean /= len(augs)
+        return torch.tensor(
+            y_hat_mean,
+            dtype=torch.float32,
+            device=torch.device('cpu')
+        )
+
+    def predict(
+            self,
+            x: Union[torch.Tensor, np.ndarray],
+            tta: bool = False
+    ) -> torch.Tensor:
+        """Performs model prediction.
+
+        Parameters
+        ----------
+        x
+            Batched input.
+        tta
+            Set to to use test-time augmentation.
+
+        Returns
+        -------
+        torch.Tensor
+            Model prediction.
+
+        """
+        if tta:
+            return self._predict_tta(x)
+        x = torch.tensor(x, dtype=torch.float32, device=self.device)
         if len(self.gpu_ids) > 1:
             module = torch.nn.DataParallel(self.net, device_ids=self.gpu_ids)
         else:
             module = self.net
         module.eval()
         with torch.no_grad():
-            prediction = module(signal).cpu()
+            prediction = module(x).cpu()
         return prediction
 
     def test_on_batch(
@@ -277,7 +329,8 @@ class Model:
             x: torch.Tensor,
             y: torch.Tensor,
             metric: Optional = None,
-    ) -> float:
+            tta: bool = False,
+    ) -> Tuple[float, torch.Tensor]:
         """Evaluates model output using a metric function.
 
         Parameters
@@ -288,15 +341,19 @@ class Model:
             Batched target.
         metric
             Metric function. If None, uses fnet.metrics.corr_coef.
+        tta
+            Set to to use test-time augmentation.
 
         Returns
         -------
         float
             Evaluation as determined by metric function.
+        torch.Tensor
+            Model prediction.
 
         """
         if metric is None:
             metric = corr_coef
-        y_hat = self.predict(x)
+        y_hat = self.predict(x, tta=tta)
         evaluation = metric(y, y_hat)
-        return evaluation
+        return evaluation, y_hat
