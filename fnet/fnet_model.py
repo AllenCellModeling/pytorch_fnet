@@ -4,7 +4,6 @@ from fnet.utils.model_utils import move_optim
 from typing import Union, Iterator, Optional
 import math
 import os
-import pdb
 import torch
 
 
@@ -14,7 +13,7 @@ def _weights_init(m):
         m.weight.data.normal_(0.0, 0.02)
     elif classname.find('BatchNorm') != -1:
         m.weight.data.normal_(1.0, 0.02)
-        m.bias.data.fill_(0) 
+        m.bias.data.fill_(0)
 
 
 def get_per_param_options(module, wd):
@@ -92,9 +91,12 @@ class Model:
         # If so, override self.nn_class
         if nn_module is not None:
             self.nn_class = nn_module + '.Net'
-        
         self.count_iter = 0
-        self.device = torch.device('cuda', self.gpu_ids[0]) if self.gpu_ids[0] >= 0 else torch.device('cpu')
+        self.device = (
+            torch.device('cuda', self.gpu_ids[0])
+            if self.gpu_ids[0] >= 0
+            else torch.device('cpu')
+        )
         self._init_model()
         self.fnet_model_kwargs, self.fnet_model_posargs = get_args()
         self.fnet_model_kwargs.pop('self')
@@ -116,9 +118,9 @@ class Model:
         if self.scheduler is not None:
             if self.scheduler[0] == 'snapshot':
                 period = self.scheduler[1]
-                foo = lambda x: 0.5 + 0.5*math.cos(math.pi*(x % period)/period)
                 self.scheduler = torch.optim.lr_scheduler.LambdaLR(
-                    self.optimizer, foo
+                    self.optimizer,
+                    lambda x: 0.5 + 0.5*math.cos(math.pi*(x % period)/period),
                 )
             elif self.scheduler[0] == 'step':
                 step_size = self.scheduler[1]
@@ -190,10 +192,7 @@ class Model:
         signal = torch.tensor(signal, dtype=torch.float32, device=self.device)
         target = torch.tensor(target, dtype=torch.float32, device=self.device)
         if len(self.gpu_ids) > 1:
-            module = torch.nn.DataParallel(
-                self.net,
-                device_ids = self.gpu_ids,
-            )
+            module = torch.nn.DataParallel(self.net, device_ids=self.gpu_ids)
         else:
             module = self.net
         self.optimizer.zero_grad()
@@ -203,14 +202,11 @@ class Model:
         self.optimizer.step()
         self.count_iter += 1
         return loss.item()
-    
+
     def predict(self, signal):
         signal = torch.tensor(signal, dtype=torch.float32, device=self.device)
         if len(self.gpu_ids) > 1:
-            module = torch.nn.DataParallel(
-                self.net,
-                device_ids = self.gpu_ids,
-            )
+            module = torch.nn.DataParallel(self.net, device_ids=self.gpu_ids)
         else:
             module = self.net
         module.eval()
