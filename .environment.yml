@@ -17,4 +17,4 @@ dependencies:
   - torchvision
   - tqdm
   - pip:
-    - czifile
+    - czifile==0.1.5
