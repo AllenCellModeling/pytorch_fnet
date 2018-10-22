@@ -220,7 +220,7 @@ class Model:
             if aug is not None:
                 for trans in aug:
                     x_aug = trans(x_aug)
-            y_hat = self.predict(x_aug.copy(), tta=False).numpy()
+            y_hat = self._predict(x_aug.copy()).numpy()
             if aug is not None:
                 for trans in aug:
                     y_hat = trans(y_hat)
@@ -233,6 +233,18 @@ class Model:
             dtype=torch.float32,
             device=torch.device('cpu')
         )
+
+    def _predict(self, x: torch.Tensor) -> torch.Tensor:
+        """Performs model prediction (normally)."""
+        x = torch.tensor(x, dtype=torch.float32, device=self.device)
+        if len(self.gpu_ids) > 1:
+            module = torch.nn.DataParallel(self.net, device_ids=self.gpu_ids)
+        else:
+            module = self.net
+        module.eval()
+        with torch.no_grad():
+            prediction = module(x).cpu()
+        return prediction
 
     def predict(
             self,
@@ -256,15 +268,7 @@ class Model:
         """
         if tta:
             return self._predict_tta(x)
-        x = torch.tensor(x, dtype=torch.float32, device=self.device)
-        if len(self.gpu_ids) > 1:
-            module = torch.nn.DataParallel(self.net, device_ids=self.gpu_ids)
-        else:
-            module = self.net
-        module.eval()
-        with torch.no_grad():
-            prediction = module(x).cpu()
-        return prediction
+        return self._predict(x)
 
     def test_on_batch(
             self,
