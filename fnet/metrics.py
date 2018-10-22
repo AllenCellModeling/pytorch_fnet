@@ -22,6 +22,8 @@ def corr_coef(
         Pearson correlation coefficient between the inputs.
 
     """
+    if a is None or b is None:
+        return None
     if isinstance(a, torch.Tensor):
         a = a.numpy()
     if isinstance(b, torch.Tensor):
