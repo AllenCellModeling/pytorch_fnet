@@ -1,9 +1,9 @@
-from fnet.fnet_model import Model  # noqa: F401
+from fnet.fnet_ensemble import FnetEnsemble
+from fnet.fnet_model import Model
 from fnet.utils.general_utils import str_to_class
-from typing import Optional
+from typing import List, Optional, Union
 import json
 import os
-import pdb  # noqa: F401
 import torch
 
 
@@ -11,13 +11,14 @@ def load_model(
         path_model: str,
         no_optim: bool = False,
         path_options: Optional[str] = None,
-):
+) -> Model:
     """Loaded saved FnetModel.
 
     Parameters
     ----------
     path_model
-        Path to file in which saved model is saved.
+        Path to model. If path is a directory, assumes directory contains an
+        ensemble of models.
     no_optim
         Set to not the model optimizer.
     path_options
@@ -26,10 +27,12 @@ def load_model(
 
     Returns
     -------
-    FnetModel
-        Loaded FnetModel instance.
+    Model or FnetEnsemble
+        Loaded model.
 
     """
+    if os.path.isdir(path_model):
+        return FnetEnsemble(path_model)
     state = torch.load(path_model)
     if 'fnet_model_class' not in state:
         if path_options is not None:
@@ -69,3 +72,41 @@ def load_or_init_model(path_model: str, path_options: str):
         fnet_model_kwargs = train_options['fnet_model_kwargs']
         return str_to_class(fnet_model_class)(**fnet_model_kwargs)
     return load_model(path_model, path_options=path_options)
+
+
+def create_ensemble(
+        paths_model: Union[str, List[str]],
+        path_save_dir: str,
+) -> None:
+    """Create and save an ensemble model.
+
+    Parameters
+    ----------
+    paths_model
+        Paths to models or model directories. Paths can be specified as items
+        in list or as a string with paths separated by spaces. Any model
+        specified as a directory assumed to be at 'directory/model.p'.
+    path_save_dir
+        Model save path directory. Model will be saved at in path_save_dir as
+        'model.p'.
+
+    """
+    if isinstance(paths_model, str):
+        paths_model = paths_model.split(' ')
+    paths_member = []
+    for path_model in paths_model:
+        path_model = os.path.abspath(path_model)
+        if os.path.isdir(path_model):
+            path_member = os.path.join(path_model, 'model.p')
+            if os.path.exists(path_member):
+                paths_member.append(path_member)
+                continue
+            paths_member.extend(sorted(
+                [
+                    p.path for p in os.scandir(path_model)
+                    if p.path.endswith('.p')
+                ]
+            ))
+    path_save = os.path.join(path_save_dir, 'model.p')
+    ensemble = FnetEnsemble(paths_model=paths_member)
+    ensemble.save(path_save)

@@ -1,6 +1,6 @@
+from fnet.fnet_model import Model
 from typing import Union
 import fnet
-import pdb  # noqa: F401
 import torch
 
 
@@ -29,7 +29,7 @@ def get_data(device: Union[int, torch.device]) -> tuple:
 def train_new(path_model):
     gpu_id = (1 if torch.cuda.is_available() else -1)
     x, y = get_data(gpu_id)
-    model = fnet.models.Model(
+    model = Model(
         nn_class='tests.test_fnet_model.DummyModel',
         nn_kwargs={'some_param': SOME_PARAM_TEST_VAL},
     )

@@ -1,5 +1,4 @@
 import czifile
-import pdb  # noqa: F401
 
 
 def get_czi_metadata(element, tag_list):

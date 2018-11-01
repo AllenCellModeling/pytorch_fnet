@@ -1,6 +1,5 @@
 from fnet.data.czireader import CziReader
 import numpy.testing as npt
-import pdb  # noqa: F401
 
 
 def test_czireader():

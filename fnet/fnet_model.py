@@ -152,7 +152,15 @@ class Model:
             'count_iter': self.count_iter,
         }
 
-    def to_gpu(self, gpu_ids: Union[int, list, ]):
+    def to_gpu(self, gpu_ids: Union[int, list, ]) -> None:
+        """Move network to specified GPU(s).
+
+        Parameters
+        ----------
+        gpu_ids
+            GPU(s) on which to perform training or prediction.
+
+        """
         if isinstance(gpu_ids, int):
             gpu_ids = [gpu_ids]
         self.gpu_ids = gpu_ids
@@ -207,6 +215,7 @@ class Model:
 
     def _predict_tta(self, x: torch.Tensor) -> torch.Tensor:
         """Performs model prediction using test-time augmentation."""
+        print('Predicting with TTA')
         augs = [
             None,
             [flip_y],
