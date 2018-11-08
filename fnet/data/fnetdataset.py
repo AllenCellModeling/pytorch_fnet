@@ -1,8 +1,17 @@
-from fnet.utils.general_utils import to_objects
-from typing import Optional, Union
+from fnet.utils.general_utils import to_objects, whats_my_name
+from typing import List, Optional, Union
 import pandas as pd
-import pdb  # noqa: F401
 import torch.utils.data
+
+
+def _to_str_list(olist: List) -> Optional[List[str]]:
+    """Turns a list of objects into a list of the objects' string
+    representations.
+
+    """
+    if olist is None:
+        return None
+    return [whats_my_name(o) for o in olist]
 
 
 class FnetDataset(torch.utils.data.Dataset):
@@ -28,12 +37,31 @@ class FnetDataset(torch.utils.data.Dataset):
             transform_signal: Optional[list] = None,
             transform_target: Optional[list] = None,
     ):
+        self.path_csv = None
         if dataframe is not None:
             self.df = dataframe
         else:
-            self.df = pd.read_csv(path_csv)
+            self.path_csv = path_csv
+            self.df = pd.read_csv(self.path_csv)
         self.transform_signal = to_objects(transform_signal)
         self.transform_target = to_objects(transform_target)
+        self._metadata = None
+
+    @property
+    def metadata(self) -> dict:
+        """Returns metadata about the dataset."""
+        if self._metadata is not None:
+            return self._metadata
+        self._metadata = {}
+        if self.path_csv is not None:
+            self._metadata['path_csv'] = self.path_csv
+        self._metadata['transform_signal'] = _to_str_list(
+            self.transform_signal
+        )
+        self._metadata['transform_target'] = _to_str_list(
+            self.transform_target
+        )
+        return self._metadata
 
     def get_information(self, index) -> Union[dict, str]:
         """Returns information to identify dataset element specified by index.
