@@ -1,55 +1,96 @@
-import torch.utils.data
 from fnet.data.fnetdataset import FnetDataset
-from fnet.data.tifreader import TifReader
+from fnet.utils.general_utils import add_augmentations
+import numpy as np
+import tifffile
+import torch
 
-import fnet.transforms as transforms
 
-import pandas as pd
+def _flip_y(ar):
+    """Flip array along y axis.
 
-import pdb
+    Array should have dimensions ZYX or YX.
+
+    """
+    return np.flip(ar, axis=-2)
+
+
+def _flip_x(ar):
+    """Flip array along x axis.
+
+    Array should have dimensions ZYX or YX.
+
+    """
+    return np.flip(ar, axis=-1)
+
 
 class TiffDataset(FnetDataset):
-    """Dataset for Tif files."""
+    """Dataset where each row is a signal-target pairing from TIFF files.
 
-    def __init__(self, dataframe: pd.DataFrame = None, path_csv: str = None, 
-                    transform_source = [transforms.normalize],
-                    transform_target = None):
-        
-        if dataframe is not None:
-            self.df = dataframe
-        else:
-            self.df = pd.read_csv(path_csv)
-        assert all(i in self.df.columns for i in ['path_signal', 'path_target'])
-        
-        self.transform_source = transform_source
-        self.transform_target = transform_target
+    Dataset items will be 2-item tuples:
+        (signal image, target image)
 
-    def __getitem__(self, index):
-        element = self.df.iloc[index, :]
+    Parameters
+    ----------
+    augment
+        Set to augment dataset with flips about the x and/or y axis.
 
-        im_out = [TifReader(element['path_signal']).get_image()]
-        if isinstance(element['path_target'], str):
-            im_out.append(TifReader(element['path_target']).get_image())
-        
-        if self.transform_source is not None:
-            for t in self.transform_source: 
-                im_out[0] = t(im_out[0])
+    """
 
-        if self.transform_target is not None and (len(im_out) > 1):
-            for t in self.transform_target: 
-                im_out[1] = t(im_out[1])
+    def __init__(
+            self,
+            augment: bool = False,
+            **kwargs
+    ):
+        super().__init__(**kwargs)
+        assert all(
+            col in self.df.columns for col in ['path_signal', 'path_target']
+        )
+        self.augment = augment
+        if self.augment:
+            self.df = add_augmentations(self.df)
 
-
-        
-        im_out = [torch.from_numpy(im).float() for im in im_out]
-        
-        #unsqueeze to make the first dimension be the channel dimension
-        im_out = [torch.unsqueeze(im, 0) for im in im_out]
-        
-        return im_out
-    
     def __len__(self):
-        return len(self.df)
+        return self.df.shape[0]
 
-    def get_information(self, index):
-        return self.df.iloc[index, :].to_dict()
+    def __getitem__(self, idx):
+        index = self.df.index[idx]
+        flip_y = self.df.loc[index, :].get('flip_y', -1) > 0
+        flip_x = self.df.loc[index, :].get('flip_x', -1) > 0
+        datum = []
+        for col, transforms in [
+                ['path_signal', self.transform_signal],
+                ['path_target', self.transform_target],
+        ]:
+            path_read = self.df.loc[index, col]
+            if not isinstance(path_read, str):
+                datum.append(None)
+                continue
+            ar = tifffile.imread(path_read)
+            if transforms is None:
+                transforms = []
+            if flip_y:
+                transforms.append(_flip_y)
+            if flip_x:
+                transforms.append(_flip_x)
+            for transform in transforms:
+                ar = transform(ar)
+            datum.append(
+                torch.tensor(ar[np.newaxis, ].copy(), dtype=torch.float32)
+            )
+        return tuple(datum)
+
+    def get_information(self, idx: int) -> dict:
+        """Returns information about the dataset item.
+
+        Parameters
+        ----------
+        idx
+            Index of dataset item for which to retrieve information.
+
+        Returns
+        -------
+        dict
+           Information about dataset item.
+
+        """
+        return self.df.iloc[idx, :].to_dict()
