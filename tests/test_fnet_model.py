@@ -35,7 +35,7 @@ def train_new(path_model):
     )
     model.to_gpu(gpu_id)
     for idx in range(4):
-        loss = model.do_train_iter(x, y)
+        loss = model.train_on_batch(x, y)
         print(f'loss: {loss:7.5f}')
     model.save(path_model)
 
@@ -45,7 +45,7 @@ def train_more(path_model):
     x, y = get_data(gpu_id)
     model = fnet.models.load_model(path_model)
     for idx in range(2):
-        loss = model.do_train_iter(x, y)
+        loss = model.train_on_batch(x, y)
         print(f'loss: {loss:7.5f}')
     assert model.count_iter == 6
     assert model.net.some_param == SOME_PARAM_TEST_VAL

@@ -43,7 +43,7 @@ def get_loss_val(model, dataloader_val):
     criterion_val = torch.nn.MSELoss()
     loss_val_sum = 0
     for idx_val, (signal_val, target_val) in enumerate(dataloader_val):
-        pred_val = model.predict(signal_val)
+        pred_val = model.predict_on_batch(signal_val)
         loss_val_batch = criterion_val(pred_val, target_val).item()
         loss_val_sum += loss_val_batch
         print('  loss_val_batch: {:.3f}'.format(loss_val_batch))
@@ -121,7 +121,7 @@ def main():
     for i, (signal, target) in enumerate(dataloader_train, model.count_iter):
         do_save = ((i + 1) % args.interval_save == 0) or \
                   ((i + 1) == args.n_iter)
-        loss_batch = model.do_train_iter(signal, target)
+        loss_batch = model.train_on_batch(signal, target)
         loss_val = get_loss_val(model, dataloader_val) if do_save else None
         fnetlogger.add(
             {'num_iter': i + 1, 'loss_batch': loss_batch, 'loss_val': loss_val}

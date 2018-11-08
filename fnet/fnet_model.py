@@ -1,4 +1,5 @@
 from fnet.metrics import corr_coef
+from fnet.predict_piecewise import predict_piecewise as _predict_piecewise_fn
 from fnet.transforms import flip_y, flip_x
 from fnet.utils.general_utils import get_args, retry_if_oserror, str_to_class
 from fnet.utils.model_utils import move_optim
@@ -195,25 +196,44 @@ class Model:
             return
         self.optimizer.load_state_dict(state['optimizer_state'])
 
-    def do_train_iter(self, signal, target):
+    def train_on_batch(
+            self,
+            x_batch: torch.Tensor,
+            y_batch: torch.Tensor,
+    ) -> float:
+        """Update model using a batch of inputs and targets.
+
+        Parameters
+        ----------
+        x_batch
+            Batched input.
+        y_batch
+            Batched target.
+
+        Returns
+        -------
+        float
+            Loss as determined by self.criterion.
+
+        """
         if self.scheduler is not None:
             self.scheduler.step()
         self.net.train()
-        signal = torch.tensor(signal, dtype=torch.float32, device=self.device)
-        target = torch.tensor(target, dtype=torch.float32, device=self.device)
+        x_batch = x_batch.to(dtype=torch.float32, device=self.device)
+        y_batch = y_batch.to(dtype=torch.float32, device=self.device)
         if len(self.gpu_ids) > 1:
             module = torch.nn.DataParallel(self.net, device_ids=self.gpu_ids)
         else:
             module = self.net
         self.optimizer.zero_grad()
-        output = module(signal)
-        loss = self.criterion(output, target)
+        y_hat_batch = module(x_batch)
+        loss = self.criterion(y_hat_batch, y_batch)
         loss.backward()
         self.optimizer.step()
         self.count_iter += 1
         return loss.item()
 
-    def _predict_tta(self, x: torch.Tensor) -> torch.Tensor:
+    def _predict_on_batch_tta(self, x_batch: torch.Tensor) -> torch.Tensor:
         """Performs model prediction using test-time augmentation."""
         print('Predicting with TTA')
         augs = [
@@ -222,52 +242,71 @@ class Model:
             [flip_x],
             [flip_y, flip_x],
         ]
-        x = x.numpy()
-        y_hat_mean = None
+        x_batch = x_batch.numpy()
+        y_hat_batch_mean = None
         for aug in augs:
-            x_aug = x.copy()
+            x_batch_aug = x_batch.copy()
             if aug is not None:
                 for trans in aug:
-                    x_aug = trans(x_aug)
-            y_hat = self._predict(x_aug.copy()).numpy()
+                    x_batch_aug = trans(x_batch_aug)
+            y_hat_batch = self.predict_on_batch(x_batch_aug.copy()).numpy()
             if aug is not None:
                 for trans in aug:
-                    y_hat = trans(y_hat)
-            if y_hat_mean is None:
-                y_hat_mean = np.zeros(y_hat.shape, dtype=np.float32)
-            y_hat_mean += y_hat
-        y_hat_mean /= len(augs)
+                    y_hat_batch = trans(y_hat_batch)
+            if y_hat_batch_mean is None:
+                y_hat_batch_mean = np.zeros(
+                    y_hat_batch.shape, dtype=np.float32
+                )
+            y_hat_batch_mean += y_hat_batch
+        y_hat_batch_mean /= len(augs)
         return torch.tensor(
-            y_hat_mean,
+            y_hat_batch_mean,
             dtype=torch.float32,
             device=torch.device('cpu')
         )
 
-    def _predict(self, x: torch.Tensor) -> torch.Tensor:
-        """Performs model prediction (normally)."""
-        x = torch.tensor(x, dtype=torch.float32, device=self.device)
+    def predict_on_batch(self, x_batch: torch.Tensor) -> torch.Tensor:
+        """Performs model prediction on a batch of data.
+
+        Parameters
+        ----------
+        x_batch
+            Batch of input data.
+
+        Returns
+        -------
+        torch.Tensor
+            Batch of model predictions.
+
+        """
+        x_batch = torch.tensor(
+            x_batch, dtype=torch.float32, device=self.device
+        )
         if len(self.gpu_ids) > 1:
             module = torch.nn.DataParallel(self.net, device_ids=self.gpu_ids)
         else:
             module = self.net
         module.eval()
         with torch.no_grad():
-            prediction = module(x).cpu()
-        return prediction
+            prediction_batch = module(x_batch).cpu()
+        return prediction_batch
 
     def predict(
             self,
             x: Union[torch.Tensor, np.ndarray],
-            tta: bool = False
+            tta: bool = False,
     ) -> torch.Tensor:
-        """Performs model prediction.
+        """Performs model prediction on a single example.
 
         Parameters
         ----------
         x
-            Batched input.
+            Input data.
+        piecewise
+            Set to perform piecewise predictions. i.e., predict on patches of
+            the input and stitch together the predictions.
         tta
-            Set to to use test-time augmentation.
+            Set to use test-time augmentation.
 
         Returns
         -------
@@ -275,9 +314,44 @@ class Model:
             Model prediction.
 
         """
+        x_batch = torch.unsqueeze(torch.tensor(x), 0)
         if tta:
-            return self._predict_tta(x)
-        return self._predict(x)
+            return self._predict_on_batch_tta(x_batch).squeeze(0)
+        return self.predict_on_batch(x_batch).squeeze(0)
+
+    def predict_piecewise(
+            self,
+            x: Union[torch.Tensor, np.ndarray],
+            tta: bool = False,
+    ):
+        """Performs model prediction piecewise on a single example.
+
+        Predicts on patches of the input and stitchs together the predictions.
+
+        Parameters
+        ----------
+        x
+            Input data.
+        tta
+            Set to use test-time augmentation.
+
+        Returns
+        -------
+        torch.Tensor
+            Model prediction.
+
+        """
+        x = torch.tensor(x)
+        if len(x.size()) < 4:
+            raise NotImplementedError
+        # TODO: add option to pass kwargs to predictor
+        y_hat = _predict_piecewise_fn(
+            self,
+            x,
+            dims_max=[None, 32, 256, 256],
+            overlaps=16
+        )
+        return y_hat
 
     def test_on_batch(
             self,
@@ -337,25 +411,28 @@ class Model:
             loss_sum += self.test_on_batch(*item, **kwargs)
         return loss_sum/len(iterator)
 
-    def eval_on_batch(
+    def evaluate(
             self,
             x: torch.Tensor,
             y: torch.Tensor,
             metric: Optional = None,
-            tta: bool = False,
+            piecewise: bool = False,
+            **kwargs,
     ) -> Tuple[float, torch.Tensor]:
         """Evaluates model output using a metric function.
 
         Parameters
         ----------
         x
-            Batched input.
+            Input data.
         y
-            Batched target.
+            Target data.
         metric
             Metric function. If None, uses fnet.metrics.corr_coef.
-        tta
-            Set to to use test-time augmentation.
+        piecewise
+            Set to perform predictions piecewise.
+        **kwargs
+            Additional kwargs to be passed to predict() method.
 
         Returns
         -------
@@ -367,6 +444,9 @@ class Model:
         """
         if metric is None:
             metric = corr_coef
-        y_hat = self.predict(x, tta=tta)
+        if piecewise:
+            y_hat = self.predict_piecewise(x, **kwargs)
+        else:
+            y_hat = self.predict(x, **kwargs)
         evaluation = metric(y, y_hat)
         return evaluation, y_hat
