@@ -6,7 +6,7 @@
 ![Combined outputs](doc/source/_static/PredictingStructures-1.jpg?raw=true "Combined outputs")
 
 ## *Important Note*
-This repo is currently in development. For the code corresponding to our Nature Methods paper, please use the `release_1` branch [here](https://github.com/AllenCellModeling/pytorch_fnet/tree/release_1).
+This repo is currently in development and may not work as expected. For the code corresponding to our Nature Methods paper, please use the `release_1` branch [here](https://github.com/AllenCellModeling/pytorch_fnet/tree/release_1).
 
 ## System Requirements
 Installing on Linux is recommended (we have used Ubuntu 16.04).
