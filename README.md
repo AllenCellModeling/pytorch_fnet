@@ -142,15 +142,19 @@ which will output predictions into `results/3d/mydata/test` and `results/3d/myda
 ## Citation
 If you find this code useful in your research, please consider citing our pre-publication manuscript:
 ```
-@article {Ounkomol289504,
-author = {Ounkomol, Chawin and Seshamani, Sharmishtaa and Maleckar, Mary M and Collman, Forrest and Johnson, Gregory},
-title = {Label-free prediction of three-dimensional fluorescence images from transmitted light microscopy},
-year = {2018},
-doi = {10.1101/289504},
-publisher = {Cold Spring Harbor Laboratory},
-URL = {https://www.biorxiv.org/content/early/2018/03/28/289504},
-eprint = {https://www.biorxiv.org/content/early/2018/03/28/289504.full.pdf},
-journal = {bioRxiv}
+@article{Ounkomol2018,
+  doi = {10.1038/s41592-018-0111-2},
+  url = {https://doi.org/10.1038/s41592-018-0111-2},
+  year  = {2018},
+  month = {sep},
+  publisher = {Springer Nature America,  Inc},
+  volume = {15},
+  number = {11},
+  pages = {917--920},
+  author = {Chawin Ounkomol and Sharmishtaa Seshamani and Mary M. Maleckar and Forrest Collman and Gregory R. Johnson},
+  title = {Label-free prediction of three-dimensional fluorescence images from transmitted-light microscopy},
+  journal = {Nature Methods}
+}
 ```
 
 ## Contact
