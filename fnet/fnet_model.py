@@ -8,6 +8,7 @@ import math
 import numpy as np
 import os
 import torch
+import pdb
 
 
 def _weights_init(m):
@@ -123,7 +124,7 @@ class Model:
                 period = self.scheduler[1]
                 self.scheduler = torch.optim.lr_scheduler.LambdaLR(
                     self.optimizer,
-                    lambda x: 0.5 + 0.5*math.cos(math.pi*(x % period)/period),
+                    lambda x: 0.01 + (1 - 0.01)*(0.5 + 0.5*math.cos(math.pi*(x % period)/period)),
                 )
             elif self.scheduler[0] == 'step':
                 step_size = self.scheduler[1]
@@ -235,7 +236,6 @@ class Model:
 
     def _predict_on_batch_tta(self, x_batch: torch.Tensor) -> torch.Tensor:
         """Performs model prediction using test-time augmentation."""
-        print('Predicting with TTA')
         augs = [
             None,
             [flip_y],
@@ -322,7 +322,7 @@ class Model:
     def predict_piecewise(
             self,
             x: Union[torch.Tensor, np.ndarray],
-            tta: bool = False,
+            **predict_kwargs,
     ):
         """Performs model prediction piecewise on a single example.
 
@@ -332,8 +332,8 @@ class Model:
         ----------
         x
             Input data.
-        tta
-            Set to use test-time augmentation.
+        **predict_kwargs
+            Kwargs to pass to predict method.
 
         Returns
         -------
@@ -342,14 +342,16 @@ class Model:
 
         """
         x = torch.tensor(x)
-        if len(x.size()) < 4:
-            raise NotImplementedError
-        # TODO: add option to pass kwargs to predictor
+        if len(x.size()) == 4:
+            dims_max = [None, 32, 512, 512]
+        elif len(x.size()) == 3:
+            dims_max = [None, 1024, 1024]
         y_hat = _predict_piecewise_fn(
             self,
             x,
-            dims_max=[None, 32, 256, 256],
-            overlaps=16
+            dims_max=dims_max,
+            overlaps=16,
+            **predict_kwargs,
         )
         return y_hat
 
@@ -448,5 +450,7 @@ class Model:
             y_hat = self.predict_piecewise(x, **kwargs)
         else:
             y_hat = self.predict(x, **kwargs)
+        if y is None:
+            return None, y_hat
         evaluation = metric(y, y_hat)
         return evaluation, y_hat
