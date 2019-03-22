@@ -9,4 +9,16 @@ setuptools.setup(
     author_email='gregj@alleninstitute.org',
     url='https://github.com/AllenCellModeling/pytorch_fnet',
     packages=setuptools.find_packages(),
+    python_requires='>=3.6',
+    install_requires=[
+        'czifile==0.1.5',
+        'matplotlib',
+        'numpy',
+        'pandas',
+        'pytest',
+        'scipy',
+        'tifffile',
+        'torch==0.4',
+        'tqdm',
+    ]
 )
