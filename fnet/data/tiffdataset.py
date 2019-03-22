@@ -1,5 +1,6 @@
 from fnet.data.fnetdataset import FnetDataset
 from fnet.utils.general_utils import add_augmentations
+from typing import Optional
 import numpy as np
 import tifffile
 import torch
@@ -38,14 +39,21 @@ class TiffDataset(FnetDataset):
 
     def __init__(
             self,
+            col_index: Optional[str] = None,
+            col_signal: str = 'path_signal',
+            col_target: str = 'path_target',
             augment: bool = False,
-            **kwargs
+            **kwargs,
     ):
         super().__init__(**kwargs)
-        assert all(
-            col in self.df.columns for col in ['path_signal', 'path_target']
-        )
+        assert col_signal in self.df.columns
+        assert col_target in self.df.columns
+        self.col_index = col_index
+        self.col_signal = col_signal
+        self.col_target = col_target
         self.augment = augment
+        if self.col_index is not None:
+            self.df = self.df.set_index(self.col_index)
         if self.augment:
             self.df = add_augmentations(self.df)
 
@@ -53,15 +61,14 @@ class TiffDataset(FnetDataset):
         return self.df.shape[0]
 
     def __getitem__(self, idx):
-        index = self.df.index[idx]
-        flip_y = self.df.loc[index, :].get('flip_y', -1) > 0
-        flip_x = self.df.loc[index, :].get('flip_x', -1) > 0
+        flip_y = self.df.iloc[idx, :].get('flip_y', -1) > 0
+        flip_x = self.df.iloc[idx, :].get('flip_x', -1) > 0
         datum = []
         for col, transforms in [
-                ['path_signal', self.transform_signal],
-                ['path_target', self.transform_target],
+                [self.col_signal, self.transform_signal],
+                [self.col_target, self.transform_target],
         ]:
-            path_read = self.df.loc[index, col]
+            path_read = self.df.loc[self.df.index[idx], col]
             if not isinstance(path_read, str):
                 datum.append(None)
                 continue
@@ -93,4 +100,4 @@ class TiffDataset(FnetDataset):
            Information about dataset item.
 
         """
-        return self.df.iloc[idx, :].to_dict()
+        return self.df.loc[idx, :].to_dict()
