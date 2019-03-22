@@ -11,7 +11,7 @@ FNET_MODEL_KWARGS="{\
 if [ -d ${RUN_DIR} ]; then
     rm -r ${RUN_DIR}
 fi
-python train_model.py \
+python scripts/train_model.py \
        --n_iter ${N_ITER} \
        --path_dataset_csv ${PATH_DATASET_CSV} \
        --path_dataset_val_csv ${PATH_DATASET_CSV} \

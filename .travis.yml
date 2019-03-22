@@ -13,6 +13,7 @@ install:
   - source $HOME/miniconda/etc/profile.d/conda.sh
   - conda activate test_env
   - conda install pytest
+  - pip install -e .
 
 script:
   - conda env list
