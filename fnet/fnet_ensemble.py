@@ -26,7 +26,7 @@ class FnetEnsemble(Model):
 
     Attributes
     ----------
-    paths_model : List[str]
+    paths_model : Union[str, List[str]]
         Paths to saved models in the ensemble.
     gpu_ids : List[int]
         GPU(s) used for prediction tasks.
@@ -38,7 +38,7 @@ class FnetEnsemble(Model):
             assert os.path.isdir(paths_model)
             paths_model = sorted(
                 [
-                    p.path for p in os.scandir(paths_model)
+                    p.path for p in os.scandir(os.path.abspath(paths_model))
                     if p.path.lower().endswith('.p')
                 ]
             )
@@ -90,7 +90,6 @@ class FnetEnsemble(Model):
             model = _load_model(path_model)
             model.to_gpu(self.gpu_ids)
             print(model)
-            print(model.count_iter)
             y_hat = model.predict(x=x, tta=tta)
             if y_hat_mean is None:
                 y_hat_mean = torch.zeros(*y_hat.size())

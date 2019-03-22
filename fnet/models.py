@@ -31,8 +31,6 @@ def load_model(
         Loaded model.
 
     """
-    if os.path.isdir(path_model):
-        return FnetEnsemble(path_model)
     state = torch.load(path_model)
     if 'fnet_model_class' not in state:
         if path_options is not None:
@@ -107,6 +105,8 @@ def create_ensemble(
                     if p.path.endswith('.p')
                 ]
             ))
+        else:
+            paths_member.append(path_model)
     path_save = os.path.join(path_save_dir, 'model.p')
     ensemble = FnetEnsemble(paths_model=paths_member)
     ensemble.save(path_save)
