@@ -12,7 +12,7 @@ class FakePredictor:
 
 def test_predict_piecewise():
     # Create pretty gradient image as test input
-    shape = (1, 100, 200, 300)
+    shape = (1, 32, 512, 256)
     ar_in = 1
     for idx in range(1, len(shape)):
         slices = [None]*len(shape)
@@ -25,7 +25,7 @@ def test_predict_piecewise():
     ar_out = predict_piecewise(
         predictor,
         ar_in,
-        dims_max=[None, 32, 64, 128],
+        dims_max=[None, 32, 128, 64],
         overlaps=16,
     )
     got = ar_out.numpy()

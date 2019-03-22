@@ -3,9 +3,11 @@ from scipy.signal import triang
 from typing import Union, List
 import numpy as np
 import torch
+import pdb
 
 
 def _get_weights(shape):
+    shape_in = shape
     shape = shape[1:]
     weights = 1
     for idx_d in range(len(shape)):
@@ -13,7 +15,7 @@ def _get_weights(shape):
         slicey[idx_d] = slice(None)
         size = shape[idx_d]
         weights = weights*triang(size)[tuple(slicey)]
-    return weights[np.newaxis, ].astype(np.float32)
+    return np.broadcast_to(weights, shape_in).astype(np.float32)
 
 
 def _predict_piecewise_recurse(
@@ -21,12 +23,13 @@ def _predict_piecewise_recurse(
         ar_in: np.ndarray,
         dims_max: Union[int, List[int]],
         overlaps: Union[int, List[int]],
+        **predict_kwargs,
 ):
     """Performs piecewise prediction recursively."""
     if tuple(ar_in.shape[1:]) == tuple(dims_max[1:]):
         ar_out = (
             predictor
-            .predict(ar_in, tta=True)
+            .predict(ar_in, **predict_kwargs)
             .numpy()
             .astype(np.float32)
         )
@@ -51,7 +54,7 @@ def _predict_piecewise_recurse(
         slices = tuple(slices)
         ar_in_sub = ar_in[slices]
         pred_sub, pred_weight_sub = _predict_piecewise_recurse(
-            predictor, ar_in_sub, dims_max, overlaps
+            predictor, ar_in_sub, dims_max, overlaps, **predict_kwargs
         )
         if ar_out is None or ar_weight is None:
             shape_out[0] = pred_sub.shape[0]  # Set channel dim for output
@@ -72,6 +75,7 @@ def predict_piecewise(
         tensor_in: torch.Tensor,
         dims_max: Union[int, List[int]] = 64,
         overlaps: Union[int, List[int]] = 0,
+        **predict_kwargs,
 ) -> torch.Tensor:
     """Performs piecewise prediction and combines results.
 
@@ -86,6 +90,8 @@ def predict_piecewise(
          Specifies dimensions of each sub prediction.
     overlaps
          Specifies overlap along each dimension for sub predictions.
+    **predict_kwargs
+        Kwargs to pass to predict method.
 
     Returns
     -------
@@ -109,14 +115,18 @@ def predict_piecewise(
     dims_max[0] = None
     overlaps[0] = None
 
-    print('*** Predicting one piecewise ***')
+    print('*** Predicting piecewise ***')
     print('tensor_in.size():', tensor_in.size())
     print('dims_max:', dims_max)
     print('overlaps:', overlaps)
 
     ar_in = tensor_in.numpy()
     ar_out, ar_weight = _predict_piecewise_recurse(
-        predictor, ar_in, dims_max=dims_max, overlaps=overlaps
+        predictor,
+        ar_in,
+        dims_max=dims_max,
+        overlaps=overlaps,
+        **predict_kwargs,
     )
     # tifffile.imsave('debug/ar_sum.tif', ar_out)
     mask = ar_weight > 0.0
