@@ -2,14 +2,19 @@ import setuptools
 
 
 setuptools.setup(
-    name='pytorch_fnet',
-    version="1.0",
-    description='A machine learning model for transforming microsocpy images between modalities',
     author='Ounkomol, Chek and Fernandes, Daniel A. and Seshamani, Sharmishtaa and Maleckar, Mary M. and Collman, Forrest and Johnson, Gregory R.',
     author_email='gregj@alleninstitute.org',
-    url='https://github.com/AllenCellModeling/pytorch_fnet',
+    description='A machine learning model for transforming microsocpy images between modalities',
+    entry_points={
+        'console_scripts': [
+            'fnet = fnet.cli.main:main',
+        ]
+    },
+    name='pytorch_fnet',
     packages=setuptools.find_packages(),
     python_requires='>=3.6',
+    url='https://github.com/AllenCellModeling/pytorch_fnet',
+    version="1.0",
     install_requires=[
         'matplotlib',
         'numpy',
