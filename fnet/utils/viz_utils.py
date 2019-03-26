@@ -1,11 +1,13 @@
+"""Visualization tools."""
+
+
 from typing import List, Optional, Union
+import os
 import matplotlib
 import matplotlib.pyplot as plt
-import os
 import pandas as pd
 
 
-plt.switch_backend('TkAgg')
 plt.style.use('seaborn')
 COLORS = matplotlib.rcParams['axes.prop_cycle'].by_key()['color']
 
@@ -62,7 +64,7 @@ def plot_loss(
     window_train = 128
     window_val = 32
     colors = {'idx': 0}  # maps model-content to colors; idx is COLORS index
-    if len(paths_model) == 0:
+    if paths_model:
         paths_model = (os.getcwd(), )
     fig, ax = plt.subplots()
     for idx_m, path_model in enumerate(paths_model):
