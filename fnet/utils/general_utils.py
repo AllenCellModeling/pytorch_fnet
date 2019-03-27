@@ -1,8 +1,25 @@
 from typing import Callable
 import importlib
 import inspect
-import pandas as pd
+import pdb
 import time
+import pandas as pd
+
+
+def str_to_object(str_o: str):
+    """Get object from string.
+
+    Parameters
+    ----------
+    str_o
+        Fully qualified object name.
+
+    """
+    parts = str_o.split('.')
+    if len(parts) > 1:
+        module = importlib.import_module('.'.join(parts[:-1]))
+        return getattr(module, parts[-1])
+    return inspect.currentframe().f_back.f_globals[str_o]
 
 
 def to_objects(slist):

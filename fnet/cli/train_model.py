@@ -1,4 +1,8 @@
+from fnet.cli.init import save_default_train_options
+from typing import Callable, Optional
+from fnet.utils.general_utils import str_to_object
 import argparse
+import inspect
 import copy
 import fnet
 import fnet.utils.viz_utils as vu
@@ -11,34 +15,7 @@ import pprint
 import sys
 import time
 import torch
-
-
-# Default training options
-DEFAULT_TRAIN_OPTIONS = {
-    'batch_size': 28,
-    'bpds_kwargs': {
-        'buffer_size': 16,
-        'buffer_switch_frequency': 2800,  # every 100 updates
-        'patch_size': [32, 64, 64]
-    },
-    'dataset': 'aics_x',
-    'dataset_kwargs': {},
-    'fnet_model_class': 'fnet.fnet_model.Model',
-    'fnet_model_kwargs': {
-        'betas': [0.9, 0.999],
-        'criterion_class': 'torch.nn.MSELoss',
-        'init_weights': False,
-        'lr': 0.001,
-        'nn_class': 'fnet.nn_modules.fnet_nn_3d.Net',
-        'scheduler': None,
-    },
-    'interval_checkpoint': 50000,
-    'interval_save': 1000,
-    'iter_checkpoint': [],
-    'n_iter': 250000,
-    'path_save_dir': 'saved_models/test',
-    'seed': None,
-}
+import torch.utils.data
 
 
 def init_cuda(gpu: int) -> None:
@@ -49,33 +26,22 @@ def init_cuda(gpu: int) -> None:
     torch.cuda.init()
 
 
-def create_train_options_template(path_json) -> None:
-    """Create train_options.json template in save directory.
-
-    Parameters
-    ----------
-    path_json
-        Path to training options json.
-
-    """
-    dirname = os.path.dirname(path_json)
-    if not os.path.exists(dirname):
-        os.makedirs(dirname)
-    defaults = copy.deepcopy(DEFAULT_TRAIN_OPTIONS)
-    defaults['path_save_dir'] = dirname
-    with open(path_json, 'w') as fo:
-        json.dump(defaults, fo, indent=4, sort_keys=True)
-        print('Saved training options template to', path_json)
-
-
-def get_dataloaders(args, n_iter_remaining, validation=False):
+def get_dataloaders(
+        args: argparse.Namespace,
+        n_iter_remaining: int,
+        validation: bool = False,
+) -> Optional[torch.utils.data.DataLoader]:
+    """Creates DataLoader objects from specified dataset."""
     assert 'dataset' not in args.bpds_kwargs
     bpds_kwargs = copy.deepcopy(args.bpds_kwargs)
     bpds_kwargs['npatches'] = n_iter_remaining*args.batch_size
-    ds = getattr(fnet_hipscs.datasets, args.dataset)(
-        train=not validation,
-        **args.dataset_kwargs,
-    )
+    ds_fn = str_to_object(args.dataset)
+    assert isinstance(ds_fn, Callable)
+    if 'train' not in inspect.getfullargspec(ds_fn).args and validation:
+        # If 'train' if not a dataset function parameter, then assume there is
+        # no validation set.
+        return None
+    ds = ds_fn(train=not validation, **args.dataset_kwargs)
     if validation:
         bpds_kwargs['buffer_size'] = 4
         bpds_kwargs['buffer_switch_frequency'] = -1
@@ -91,20 +57,42 @@ def get_dataloaders(args, n_iter_remaining, validation=False):
     return dataloader
 
 
-def add_parser_arguments(parser):
+def init_logger(path_save: str) -> None:
+    """Initialize training logger.
+
+    Parameters
+    ----------
+    path_save
+        Location to save training log.
+
+    """
+    logger = logging.getLogger('model training')
+    logger.setLevel(logging.DEBUG)
+    fh = logging.FileHandler(path_save, mode='a')
+    sh = logging.StreamHandler(sys.stdout)
+    fh.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
+    logger.addHandler(fh)
+    logger.addHandler(sh)
+    return logger
+
+
+def add_parser_arguments(parser) -> None:
     """Add training script arguments to parser."""
     parser.add_argument('json', help='json with training options')
-    parser.add_argument('--gpu_ids', nargs='+', default=[-1], type=int, help='gpu_id(s)')
+    parser.add_argument(
+        '--gpu_ids', nargs='+', default=[-1], type=int, help='gpu_id(s)'
+    )
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    add_parser_arguments(parser)
-    args = parse_args()
-
+def main(args: Optional[argparse.Namespace]) -> None:
+    """Trains a model."""
     time_start = time.time()
+    if args is None:
+        parser = argparse.ArgumentParser()
+        add_parser_arguments(parser)
+        args = parse_args()
     if not os.path.exists(args.json):
-        create_train_options_template(args.json)
+        save_default_train_options(args.json)
         return
     with open(args.json, 'r') as fi:
         train_options = json.load(fi)
@@ -117,17 +105,7 @@ def main():
         path_checkpoint_dir = os.path.join(args.path_save_dir, 'checkpoints')
         if not os.path.exists(path_checkpoint_dir):
             os.makedirs(path_checkpoint_dir)
-
-    # Setup logging
-    logger = logging.getLogger('model training')
-    logger.setLevel(logging.DEBUG)
-    fh = logging.FileHandler(
-        os.path.join(args.path_save_dir, 'run.log'), mode='a'
-    )
-    sh = logging.StreamHandler(sys.stdout)
-    fh.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
-    logger.addHandler(fh)
-    logger.addHandler(sh)
+    logger = init_logger(path_save=os.path.join(args.path_save_dir, 'run.log'))
 
     # Set random seed
     if args.seed is not None:
@@ -148,11 +126,7 @@ def main():
         logger.info('History loaded from: {:s}'.format(path_losses_csv))
     else:
         fnetlogger = fnet.FnetLogger(
-            columns=[
-                'num_iter',
-                'loss_train',
-                'loss_val',
-            ]
+            columns=['num_iter', 'loss_train', 'loss_val']
         )
 
     n_remaining_iterations = max(0, (args.n_iter - model.count_iter))
@@ -167,7 +141,7 @@ def main():
                   ((idx_iter + 1) == args.n_iter)
         loss_train = model.train_on_batch(x_batch, y_batch)
         loss_val = None
-        if do_save:
+        if do_save and dataloader_val is not None:
             loss_val = model.test_on_iterator(dataloader_val)
         fnetlogger.add(
             {

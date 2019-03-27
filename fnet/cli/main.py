@@ -20,7 +20,8 @@ def main():
     )
     init.add_parser_arguments(parser_init)
     train_model.add_parser_arguments(parser_train)
-    parser_init.set_defaults(func=init.init)
+    parser_init.set_defaults(func=init.main)
+    parser_train.set_defaults(func=train_model.main)
     args = parser.parse_args()
     args.func(args)
 

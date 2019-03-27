@@ -1,3 +1,4 @@
+from typing import Optional
 import argparse
 import json
 import os
@@ -88,8 +89,12 @@ def add_parser_arguments(parser: argparse.ArgumentParser) -> None:
     )
 
 
-def init(args: argparse.Namespace):
+def main(args: Optional[argparse.Namespace] = None) -> None:
     """Install default training options and example model training/prediction
     scripts into current directory."""
+    if args is None:
+        parser = argparse.ArgumentParser()
+        add_parser_arguments(parser)
+        args = parse_args()
     save_example_scripts(args.path_scripts_dir)
     save_default_train_options(args.path_train_template)

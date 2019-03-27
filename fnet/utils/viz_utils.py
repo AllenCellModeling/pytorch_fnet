@@ -64,8 +64,6 @@ def plot_loss(
     window_train = 128
     window_val = 32
     colors = {'idx': 0}  # maps model-content to colors; idx is COLORS index
-    if paths_model:
-        paths_model = (os.getcwd(), )
     fig, ax = plt.subplots()
     for idx_m, path_model in enumerate(paths_model):
         name_model = os.path.basename(os.path.normpath(path_model))

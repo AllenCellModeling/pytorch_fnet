@@ -65,7 +65,7 @@ def load_or_init_model(path_model: str, path_options: str):
     if not os.path.exists(path_model):
         with open(path_options, 'r') as fi:
             train_options = json.load(fi)
-        print('DEBUG: Initializing new model!')
+        print('Initializing new model!')
         fnet_model_class = train_options['fnet_model_class']
         fnet_model_kwargs = train_options['fnet_model_kwargs']
         return str_to_class(fnet_model_class)(**fnet_model_kwargs)
