@@ -95,6 +95,6 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
     if args is None:
         parser = argparse.ArgumentParser()
         add_parser_arguments(parser)
-        args = parse_args()
+        args = parser.parse_args()
     save_example_scripts(args.path_scripts_dir)
     save_default_train_options(args.path_train_template)
