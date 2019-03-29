@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 
+
 class FnetLogger(object):
     """Log values in a dict of lists."""
     def __init__(self, path_csv=None, columns=None):

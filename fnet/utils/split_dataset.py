@@ -3,6 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 
+
 def int_or_float(x):
     try:
         val = int(x)
@@ -11,6 +12,7 @@ def int_or_float(x):
         val = float(x)
         assert 0.0 <= val <= 1.0
     return val
+
 
 def main():
     parser = argparse.ArgumentParser()

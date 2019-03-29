@@ -1,2 +1,5 @@
+from fnet import models
 from fnet.fnetlogger import FnetLogger
-import fnet.models
+
+
+__all__ = ['models', 'FnetLogger']

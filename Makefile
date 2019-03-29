@@ -1,5 +1,5 @@
 check:
-	flake8 --ignore=E501 --max-complexity 10 fnet/cli
+	flake8 --extend-ignore=E501 --max-complexity 10 fnet
 
 test:
 	pytest --ignore tests/ignore tests
