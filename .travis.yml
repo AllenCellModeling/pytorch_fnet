@@ -12,8 +12,8 @@ install:
   - conda create -q -n test_env python=3.6
   - source $HOME/miniconda/etc/profile.d/conda.sh
   - conda activate test_env
-  - pip install -e .
+  - conda env list
+  - pip install -e .[dev]
 
 script:
-  - conda env list
-  - python -m pytest --ignore tests/ignore tests
+  - make test

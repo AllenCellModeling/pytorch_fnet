@@ -19,10 +19,16 @@ setuptools.setup(
         'matplotlib',
         'numpy',
         'pandas',
-        'pytest',
         'scipy',
         'tifffile',
         'torch==0.4',
         'tqdm',
-    ]
+    ],
+    extras_require={
+        'dev': [
+            'flake8',
+            'pylint',
+            'pytest',
+        ]
+    },
 )
