@@ -1,9 +1,33 @@
-from typing import Callable
+from typing import Callable, List, Optional, Sequence
 import importlib
 import inspect
-import pdb
+import os
 import time
+
 import pandas as pd
+
+
+def files_from_dir(
+        path_dir: str,
+        extensions: Optional[Sequence[str]] = None,
+) -> List[str]:
+    """Returns sorted list of files in a directory with optional extension(s).
+
+    Parameters
+    ----------
+    path_dir
+        Input directory.
+    extensions
+        Optional file extensions.
+
+    """
+    if extensions is None:
+        extensions = ['']  # Allows for all extensions
+    paths = []
+    for entry in os.scandir(path_dir):
+        if any(entry.path.endswith(ext) for ext in extensions):
+            paths.append(entry.path)
+    return sorted(paths)
 
 
 def str_to_object(str_o: str):

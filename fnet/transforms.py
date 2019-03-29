@@ -1,6 +1,8 @@
+from typing import Optional
+import warnings
+
 import numpy as np
 import scipy
-import warnings
 
 
 class Normalize:
@@ -279,3 +281,48 @@ def flip_x(ar: np.ndarray) -> np.ndarray:
 
     """
     return np.flip(ar, axis=-1)
+
+
+def norm_around_center(
+        ar: np.ndarray,
+        z_center: Optional[int] = None,
+):
+    """Returns normalized version of input array.
+
+    The array will be normalized with respect to the mean, std pixel intensity
+    of the sub-array of length 32 in the z-dimension centered around the
+    array's "z_center".
+
+    Parameters
+    ----------
+    ar
+        Input 3d array to be normalized.
+    z_center
+        Z-index of cell centers.
+
+    Returns
+    -------
+    np.ndarray
+       Nomralized array, dtype = float32
+
+    """
+    if ar.ndim != 3:
+        raise ValueError('Input array must be 3d')
+    if ar.shape[0] < 32:
+        raise ValueError(
+            'Input array must be at least length 32 in first dimension'
+        )
+    if z_center is None:
+        z_center = ar.shape[0]//2
+    chunk_zlen = 32
+    z_start = z_center - chunk_zlen//2
+    if z_start < 0:
+        z_start = 0
+        print(f'Warning: z_start set to {z_start}')
+    if (z_start + chunk_zlen) > ar.shape[0]:
+        z_start = ar.shape[0] - chunk_zlen
+        print(f'Warning: z_start set to {z_start}')
+    chunk = ar[z_start: z_start + chunk_zlen, :, :]
+    ar = ar - chunk.mean()
+    ar = ar/chunk.std()
+    return ar.astype(np.float32)

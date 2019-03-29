@@ -1,21 +1,25 @@
-from fnet.cli.init import save_default_train_options
+"""Trains a model."""
+
+
 from typing import Callable, Optional
-from fnet.utils.general_utils import str_to_object
 import argparse
-import inspect
 import copy
-import fnet
-import fnet.utils.viz_utils as vu
+import inspect
 import json
 import logging
-import numpy as np
 import os
-import pdb
 import pprint
 import sys
 import time
+
+import numpy as np
 import torch
 import torch.utils.data
+
+from fnet.cli.init import save_default_train_options
+from fnet.utils.general_utils import str_to_object
+import fnet
+import fnet.utils.viz_utils as vu
 
 
 def init_cuda(gpu: int) -> None:
@@ -84,13 +88,13 @@ def add_parser_arguments(parser) -> None:
     )
 
 
-def main(args: Optional[argparse.Namespace]) -> None:
+def main(args: Optional[argparse.Namespace] = None) -> None:
     """Trains a model."""
     time_start = time.time()
     if args is None:
         parser = argparse.ArgumentParser()
         add_parser_arguments(parser)
-        args = parse_args()
+        args = parser.parse_args()
     if not os.path.exists(args.json):
         save_default_train_options(args.json)
         return
@@ -98,10 +102,10 @@ def main(args: Optional[argparse.Namespace]) -> None:
         train_options = json.load(fi)
     args.__dict__.update(train_options)
     print('*** Training options ***')
-    pprint.pprint(args.__dict__)
+    pprint.pprint(vars(args))
 
     # Make checkpoint directory if necessary
-    if len(args.iter_checkpoint) > 0 or args.interval_checkpoint is not None:
+    if args.iter_checkpoint or args.interval_checkpoint:
         path_checkpoint_dir = os.path.join(args.path_save_dir, 'checkpoints')
         if not os.path.exists(path_checkpoint_dir):
             os.makedirs(path_checkpoint_dir)
@@ -157,7 +161,10 @@ def main(args: Optional[argparse.Namespace]) -> None:
         if do_save:
             model.save(path_model)
             fnetlogger.to_csv(path_losses_csv)
-            logger.info('BufferedPatchDataset buffer history: {}'.format(dataloader_train.dataset.get_buffer_history()))
+            logger.info(
+                'BufferedPatchDataset buffer history: %s',
+                dataloader_train.dataset.get_buffer_history(),
+            )
             logger.info('loss log saved to: {:s}'.format(path_losses_csv))
             logger.info('model saved to: {:s}'.format(path_model))
             logger.info('elapsed time: {:.1f} s'.format(time.time() - time_start))
@@ -165,7 +172,7 @@ def main(args: Optional[argparse.Namespace]) -> None:
            ((idx_iter + 1) % args.interval_checkpoint == 0):
             path_save_checkpoint = os.path.join(path_checkpoint_dir, 'model_{:06d}.p'.format(idx_iter + 1))
             model.save(path_save_checkpoint)
-            logger.info(f'Saved model checkpoint: {path_save_checkpoint}')
+            logger.info('Saved model checkpoint: %s', path_save_checkpoint)
             vu.plot_loss(
                 args.path_save_dir,
                 path_save=os.path.join(args.path_save_dir, 'loss_curves.png'),

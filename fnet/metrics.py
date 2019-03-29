@@ -1,4 +1,8 @@
+"""Model evaluation metrics."""
+
+
 from typing import Union
+
 import numpy as np
 import torch
 
@@ -59,6 +63,8 @@ def corr_coef_chan0(
         Pearson correlation coefficient between channel 0 of the inputs.
 
     """
+    if a is None or b is None:
+        return None
     a = a[0:1, ]
     b = b[0:1, ]
     return corr_coef(a, b)
