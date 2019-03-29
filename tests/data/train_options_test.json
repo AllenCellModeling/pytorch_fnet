@@ -1,0 +1,32 @@
+{
+    "batch_size": 2,
+    "bpds_kwargs": {
+        "buffer_size": 1,
+        "buffer_switch_frequency": -1,
+        "patch_size": [
+            16,
+            16,
+            16
+        ]
+    },
+    "dataset": "tests.data.testdataset",
+    "dataset_kwargs": {},
+    "fnet_model_class": "fnet.fnet_model.Model",
+    "fnet_model_kwargs": {
+        "betas": [
+            0.9,
+            0.999
+        ],
+        "criterion_class": "torch.nn.MSELoss",
+        "init_weights": false,
+        "lr": 0.001,
+        "nn_class": "fnet.nn_modules.fnet_nn_3d.Net",
+        "scheduler": null
+    },
+    "interval_checkpoint": 10,
+    "interval_save": 8,
+    "iter_checkpoint": [],
+    "n_iter": 16,
+    "path_save_dir": "test_model",
+    "seed": null
+}

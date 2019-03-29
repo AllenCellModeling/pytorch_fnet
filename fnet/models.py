@@ -1,15 +1,18 @@
-from fnet.fnet_ensemble import FnetEnsemble
-from fnet.fnet_model import Model
-from fnet.utils.general_utils import str_to_class
 from typing import List, Optional, Union
 import json
 import os
+
 import torch
+
+from fnet.fnet_ensemble import FnetEnsemble
+from fnet.fnet_model import Model
+from fnet.utils.general_utils import str_to_class
 
 
 def load_model(
         path_model: str,
         no_optim: bool = False,
+        checkpoint: Optional[str] = None,
         path_options: Optional[str] = None,
 ) -> Model:
     """Loaded saved FnetModel.
@@ -17,20 +20,42 @@ def load_model(
     Parameters
     ----------
     path_model
-        Path to model. If path is a directory, assumes directory contains an
-        ensemble of models.
+        Path to model as a directory or .p file.
     no_optim
         Set to not the model optimizer.
+    checkpoint
+        Optional string that identifies a model checkpoint
     path_options
         Path to training options json. For legacy saved models where the
         FnetModel class/kwargs are not not included in the model save file.
 
     Returns
     -------
-    Model or FnetEnsemble
+    Model
         Loaded model.
 
     """
+    if not os.path.exists(path_model):
+        raise ValueError(f'Model path does not exist: {path_model}')
+    if os.path.isdir(path_model):
+        if checkpoint is None:
+            path_model = os.path.join(path_model, 'model.p')
+            if not os.path.exists(path_model):
+                raise ValueError(f'Default model not found: {path_model}')
+        if checkpoint is not None:
+            paths = sorted(
+                [
+                    p.path for p in os.scandir(
+                        os.path.join(path_model, 'checkpoints')
+                    ) if p.path.endswith('.p')
+                ]
+            )
+            for path in paths:
+                if checkpoint in os.path.basename(path):
+                    path_model = path
+                    break
+            else:
+                raise ValueError(f'Model checkpoint not found: {checkpoint}')
     state = torch.load(path_model)
     if 'fnet_model_class' not in state:
         if path_options is not None:
@@ -65,7 +90,7 @@ def load_or_init_model(path_model: str, path_options: str):
     if not os.path.exists(path_model):
         with open(path_options, 'r') as fi:
             train_options = json.load(fi)
-        print('DEBUG: Initializing new model!')
+        print('Initializing new model!')
         fnet_model_class = train_options['fnet_model_class']
         fnet_model_kwargs = train_options['fnet_model_kwargs']
         return str_to_class(fnet_model_class)(**fnet_model_kwargs)

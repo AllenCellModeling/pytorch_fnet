@@ -1,14 +1,18 @@
+"""Module to define main fnet model wrapper class."""
+
+
+from typing import Union, Iterator, Optional, Tuple
+import math
+import os
+
+import numpy as np
+import torch
+
 from fnet.metrics import corr_coef
 from fnet.predict_piecewise import predict_piecewise as _predict_piecewise_fn
 from fnet.transforms import flip_y, flip_x
 from fnet.utils.general_utils import get_args, retry_if_oserror, str_to_class
 from fnet.utils.model_utils import move_optim
-from typing import Union, Iterator, Optional, Tuple
-import math
-import numpy as np
-import os
-import torch
-import pdb
 
 
 def _weights_init(m):
@@ -31,7 +35,7 @@ def get_per_param_options(module, wd):
     with_decay = list()
     without_decay = list()
     for idx_m, (name_m, module_sub) in enumerate(module.named_modules()):
-        if len(list(module_sub.named_children())) > 0:
+        if list(module_sub.named_children()):
             continue  # Skip "container" modules
         if isinstance(module_sub, torch.nn.modules.batchnorm._BatchNorm):
             for param in module_sub.parameters():
@@ -46,7 +50,7 @@ def get_per_param_options(module, wd):
     n_param_module = len(list(module.parameters()))
     n_param_lists = len(with_decay) + len(without_decay)
     n_elem_module = sum([p.numel() for p in module.parameters()])
-    n_elem_lists = sum([p.numel() for p in (with_decay + without_decay)])
+    n_elem_lists = sum([p.numel() for p in with_decay + without_decay])
     assert n_param_module == n_param_lists
     assert n_elem_module == n_elem_lists
     per_param_options = [
@@ -75,7 +79,6 @@ class Model:
             lr=0.001,
             nn_class='fnet.nn_modules.fnet_nn_3d.Net',
             nn_kwargs={},
-            nn_module=None,
             scheduler=None,
             weight_decay=0,
             gpu_ids=-1,
@@ -90,17 +93,13 @@ class Model:
         self.scheduler = scheduler
         self.weight_decay = weight_decay
 
-        # *** Legacy support ***
-        # self.nn_module might be specified in legacy saves.
-        # If so, override self.nn_class
-        if nn_module is not None:
-            self.nn_class = nn_module + '.Net'
         self.count_iter = 0
         self.device = (
             torch.device('cuda', self.gpu_ids[0])
             if self.gpu_ids[0] >= 0
             else torch.device('cpu')
         )
+        self.optimizer = None
         self._init_model()
         self.fnet_model_kwargs, self.fnet_model_posargs = get_args()
         self.fnet_model_kwargs.pop('self')
@@ -124,7 +123,7 @@ class Model:
                 period = self.scheduler[1]
                 self.scheduler = torch.optim.lr_scheduler.LambdaLR(
                     self.optimizer,
-                    lambda x: 0.01 + (1 - 0.01)*(0.5 + 0.5*math.cos(math.pi*(x % period)/period)),
+                    lambda x: (0.01 + (1 - 0.01)*(0.5 + 0.5*math.cos(math.pi*(x % period)/period))),
                 )
             elif self.scheduler[0] == 'step':
                 step_size = self.scheduler[1]
