@@ -9,6 +9,34 @@ from fnet.fnet_model import Model
 from fnet.utils.general_utils import str_to_class
 
 
+def _find_model_checkpoint(path_model_dir: str, checkpoint: str):
+    """Finds path to a specific model checkpoint.
+
+    Parameters
+    ----------
+    path_model_dir
+        Path to model as a directory.
+    checkpoint
+        String that identifies a model checkpoint
+
+    Returns
+    -------
+    str
+        Path to saved model file.
+
+    """
+    path_cp_dir = os.path.join(path_model_dir, 'checkpoints')
+    if not os.path.exists(path_cp_dir):
+        raise ValueError(f'Model ({path_cp_dir} has no checkpoints)')
+    paths_cp = sorted(
+        [p.path for p in os.scandir(path_cp_dir) if p.path.endswith('.p')]
+    )
+    for path_cp in paths_cp:
+        if checkpoint in os.path.basename(path_cp):
+            return path_cp
+    raise ValueError(f'Model checkpoint not found: {checkpoint}')
+
+
 def load_model(
         path_model: str,
         no_optim: bool = False,
@@ -43,19 +71,7 @@ def load_model(
             if not os.path.exists(path_model):
                 raise ValueError(f'Default model not found: {path_model}')
         if checkpoint is not None:
-            paths = sorted(
-                [
-                    p.path for p in os.scandir(
-                        os.path.join(path_model, 'checkpoints')
-                    ) if p.path.endswith('.p')
-                ]
-            )
-            for path in paths:
-                if checkpoint in os.path.basename(path):
-                    path_model = path
-                    break
-            else:
-                raise ValueError(f'Model checkpoint not found: {checkpoint}')
+            path_model = _find_model_checkpoint(path_model, checkpoint)
     state = torch.load(path_model)
     if 'fnet_model_class' not in state:
         if path_options is not None:
