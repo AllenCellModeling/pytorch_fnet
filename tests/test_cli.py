@@ -52,7 +52,7 @@ def test_train_model():
         os.getcwd(), os.pardir, 'data', 'train_options_test.json'
     )
     subprocess.run(
-        ['fnet', 'train', path_test_json],
+        ['fnet', 'train', path_test_json, '--gpu_ids', '-1'],
         check=True,
     )
     assert os.path.exists('test_model')
