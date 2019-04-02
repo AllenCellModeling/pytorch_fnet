@@ -52,8 +52,10 @@ def save_default_train_options(path_save: str) -> None:
             'buffer_switch_frequency': 2800,  # every 100 updates
             'patch_size': [32, 64, 64]
         },
-        'dataset': 'aics_x',
-        'dataset_kwargs': {},
+        'dataset_train': 'aics_x',
+        'dataset_train_kwargs': {},
+        'dataset_val': None,
+        'dataset_val_kwargs': {},
         'fnet_model_class': 'fnet.fnet_model.Model',
         'fnet_model_kwargs': {
             'betas': [0.9, 0.999],
@@ -67,7 +69,7 @@ def save_default_train_options(path_save: str) -> None:
         'interval_save': 1000,
         'iter_checkpoint': [],
         'n_iter': 250000,
-        'path_save_dir': 'saved_models/test',
+        'path_save_dir': dirname,
         'seed': None,
     }
     with open(path_save, 'w') as fo:
