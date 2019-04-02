@@ -1,7 +1,6 @@
-import os
 import fnet.fnet_model
 import torch
-import pdb
+
 
 class Model(fnet.fnet_model.Model):
     # Override
@@ -15,10 +14,7 @@ class Model(fnet.fnet_model.Model):
         assert len(signal.size()) == 5, 'expected 5d Tensor'
 
         if len(self.gpu_ids) > 1:
-            module = torch.nn.DataParallel(
-                self.net,
-                device_ids = self.gpu_ids,
-            )
+            module = torch.nn.DataParallel(self.net, device_ids=self.gpu_ids)
         else:
             module = self.net
         module.eval()

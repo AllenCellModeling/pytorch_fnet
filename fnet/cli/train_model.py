@@ -4,7 +4,6 @@
 from typing import Callable, Optional
 import argparse
 import copy
-import inspect
 import json
 import logging
 import os
@@ -22,6 +21,15 @@ import fnet
 import fnet.utils.viz_utils as vu
 
 
+def set_seeds(seed: Optional[int]) -> None:
+    """Sets random seeds"""
+    if seed is None:
+        return
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+
+
 def init_cuda(gpu: int) -> None:
     """Initialize Pytorch CUDA state."""
     if gpu < 0:
@@ -30,34 +38,38 @@ def init_cuda(gpu: int) -> None:
     torch.cuda.init()
 
 
-def get_dataloaders(
+def get_dataloader_train(
         args: argparse.Namespace,
         n_iter_remaining: int,
-        validation: bool = False,
-) -> Optional[torch.utils.data.DataLoader]:
-    """Creates DataLoader objects from specified dataset."""
-    assert 'dataset' not in args.bpds_kwargs
+) -> torch.utils.data.DataLoader:
+    """Creates DataLoader for training."""
     bpds_kwargs = copy.deepcopy(args.bpds_kwargs)
     bpds_kwargs['npatches'] = n_iter_remaining*args.batch_size
-    ds_fn = str_to_object(args.dataset)
-    assert isinstance(ds_fn, Callable)
-    if 'train' not in inspect.getfullargspec(ds_fn).args and validation:
-        # If 'train' if not a dataset function parameter, then assume there is
-        # no validation set.
+    ds_fn = str_to_object(args.dataset_train)
+    if not isinstance(ds_fn, Callable):
+        raise ValueError('Dataset function should be Callable')
+    ds = ds_fn(**args.dataset_train_kwargs)
+    bpds = fnet.data.BufferedPatchDataset(dataset=ds, **bpds_kwargs)
+    dataloader = torch.utils.data.DataLoader(bpds, batch_size=args.batch_size)
+    return dataloader
+
+
+def get_dataloader_val(
+        args: argparse.Namespace
+) -> Optional[torch.utils.data.DataLoader]:
+    """Creates DataLoader for validation."""
+    if args.dataset_val is None:
         return None
-    ds = ds_fn(train=not validation, **args.dataset_kwargs)
-    if validation:
-        bpds_kwargs['buffer_size'] = 4
-        bpds_kwargs['buffer_switch_frequency'] = -1
-        bpds_kwargs['npatches'] = 16*args.batch_size
-    print('bpds_kwargs', bpds_kwargs)
-    bpds = fnet.data.BufferedPatchDataset(
-        dataset=ds, **bpds_kwargs
-    )
-    dataloader = torch.utils.data.DataLoader(
-        bpds,
-        batch_size=args.batch_size,
-    )
+    bpds_kwargs = copy.deepcopy(args.bpds_kwargs)
+    ds_fn = str_to_object(args.dataset_val)
+    if not isinstance(ds_fn, Callable):
+        raise ValueError('Dataset function should be Callable')
+    ds = ds_fn(**args.dataset_val_kwargs)
+    bpds_kwargs['buffer_size'] = min(4, len(ds))
+    bpds_kwargs['buffer_switch_frequency'] = -1
+    bpds_kwargs['npatches'] = 16*args.batch_size
+    bpds = fnet.data.BufferedPatchDataset(dataset=ds, **bpds_kwargs)
+    dataloader = torch.utils.data.DataLoader(bpds, batch_size=args.batch_size)
     return dataloader
 
 
@@ -83,9 +95,7 @@ def init_logger(path_save: str) -> None:
 def add_parser_arguments(parser) -> None:
     """Add training script arguments to parser."""
     parser.add_argument('json', help='json with training options')
-    parser.add_argument(
-        '--gpu_ids', nargs='+', default=[-1], type=int, help='gpu_id(s)'
-    )
+    parser.add_argument('--gpu_ids', nargs='+', default=[0], type=int, help='gpu_id(s)')
 
 
 def main(args: Optional[argparse.Namespace] = None) -> None:
@@ -104,18 +114,8 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
     print('*** Training options ***')
     pprint.pprint(vars(args))
 
-    # Make checkpoint directory if necessary
-    if args.iter_checkpoint or args.interval_checkpoint:
-        path_checkpoint_dir = os.path.join(args.path_save_dir, 'checkpoints')
-        if not os.path.exists(path_checkpoint_dir):
-            os.makedirs(path_checkpoint_dir)
     logger = init_logger(path_save=os.path.join(args.path_save_dir, 'run.log'))
-
-    # Set random seed
-    if args.seed is not None:
-        np.random.seed(args.seed)
-        torch.manual_seed(args.seed)
-        torch.cuda.manual_seed_all(args.seed)
+    set_seeds(args.seed)
 
     # Instantiate Model
     path_model = os.path.join(args.path_save_dir, 'model.p')
@@ -133,11 +133,10 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
             columns=['num_iter', 'loss_train', 'loss_val']
         )
 
-    n_remaining_iterations = max(0, (args.n_iter - model.count_iter))
-    dataloader_train = get_dataloaders(args, n_remaining_iterations)
-    dataloader_val = get_dataloaders(
-        args, n_remaining_iterations, validation=True,
+    dataloader_train = get_dataloader_train(
+        args, n_iter_remaining=max(0, (args.n_iter - model.count_iter))
     )
+    dataloader_val = get_dataloader_val(args)
     for idx_iter, (x_batch, y_batch) in enumerate(
             dataloader_train, model.count_iter
     ):
@@ -170,9 +169,13 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
             logger.info('elapsed time: {:.1f} s'.format(time.time() - time_start))
         if ((idx_iter + 1) in args.iter_checkpoint) or \
            ((idx_iter + 1) % args.interval_checkpoint == 0):
-            path_save_checkpoint = os.path.join(path_checkpoint_dir, 'model_{:06d}.p'.format(idx_iter + 1))
-            model.save(path_save_checkpoint)
-            logger.info('Saved model checkpoint: %s', path_save_checkpoint)
+            path_checkpoint = os.path.join(
+                args.path_save_dir,
+                'checkpoints',
+                'model_{:06d}.p'.format(idx_iter + 1),
+            )
+            model.save(path_checkpoint)
+            logger.info('Saved model checkpoint: %s', path_checkpoint)
             vu.plot_loss(
                 args.path_save_dir,
                 path_save=os.path.join(args.path_save_dir, 'loss_curves.png'),

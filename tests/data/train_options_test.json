@@ -9,8 +9,14 @@
             16
         ]
     },
-    "dataset": "tests.data.testdataset",
-    "dataset_kwargs": {},
+    "dataset_train": "tests.data.testdataset",
+    "dataset_train_kwargs": {
+	"train": true
+    },
+    "dataset_val": "tests.data.testdataset",
+    "dataset_val_kwargs": {
+	"train": false
+    },
     "fnet_model_class": "fnet.fnet_model.Model",
     "fnet_model_kwargs": {
         "betas": [

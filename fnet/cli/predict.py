@@ -107,6 +107,10 @@ def save_csv(path_csv, df: pd.DataFrame) -> None:
         df_old = df_old.set_index(col_index)
         df = df.combine_first(df_old)
     df = df.sort_index(axis=1)
+    dirname = os.path.dirname(path_csv)
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+        print('Created:', dirname)
     retry_if_oserror(df.to_csv)(path_csv)
     print('Saved:', path_csv)
 
@@ -143,14 +147,13 @@ def save_args_as_json(path_save_dir: str, args: argparse.Namespace) -> None:
 def add_parser_arguments(parser) -> None:
     """Add training script arguments to parser."""
     parser.add_argument('path_model_dir', nargs='+', help='path(s) to model directory')
-    parser.add_argument('--add_sigmoid', action='store_true', help='pass model output through sigmoid layer')
     parser.add_argument('--dataset', help='dataset name')
     parser.add_argument('--dataset_kwargs', help='dataset kwargs')
     parser.add_argument('--gpu_ids', type=int, default=0, help='GPU ID')
     parser.add_argument('--idx_sel', nargs='+', type=int, help='specify dataset indices')
     parser.add_argument('--metric', default='fnet.metrics.corr_coef', help='evaluation metric')
     parser.add_argument('--n_images', type=int, default=-1, help='max number of images to test')
-    parser.add_argument('--no_prediction', action='store_true', help='set to not save prediction image')
+    parser.add_argument('--no_prediction', action='store_true', help='set to not save predicted image')
     parser.add_argument('--no_signal', action='store_true', help='set to not save signal image')
     parser.add_argument('--no_target', action='store_true', help='set to not save target image')
     parser.add_argument('--path_save_dir', default='predictions', help='path to output root directory')
@@ -165,9 +168,6 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
         args = parser.parse_args()
     metric = str_to_object(args.metric)
     dataset = get_dataset(args)
-    index_name = dataset.df.index.name or 'index'
-    if not os.path.exists(args.path_save_dir):
-        os.makedirs(args.path_save_dir)
     entries = []
     model = None
     indices = (
@@ -176,7 +176,7 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
     for count, idx in enumerate(indices, 1):
         print(f'Processing: {idx:3d} ({count}/{len(indices)})')
         entry = {}
-        entry[index_name] = idx
+        entry['index'] = idx
         data = dataset.loc[idx]
         signal = data[0]
         target = data[1] if len(data) > 1 else None
@@ -193,16 +193,14 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
                 model_def = parse_model(path_model_dir)
                 model = load_model(model_def['path'], no_optim=True)
                 model.to_gpu(args.gpu_ids)
-                print('Predicting with:', model_def['name'])
+                print('Loaded model:', model_def['name'])
             prediction = model.predict_piecewise(
                 signal,
                 tta=('no_tta' not in model_def['options']),
             )
-            if args.add_sigmoid:
-                prediction = torch.nn.functional.sigmoid(prediction)
             evaluation = metric(target, prediction)
             entry[args.metric + f'.{model_def["name"]}'] = evaluation
-            if not args.no_prediction and prediction is not None:
+            if not args.no_prediction:
                 for idx_c in range(prediction.size()[0]):
                     tag = f'prediction_c{idx_c}.{model_def["name"]}'
                     pred_c = prediction.numpy()[idx_c, ]
@@ -211,9 +209,14 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
                     )
         entries.append(entry)
         if ((count % 8) == 0) or (idx == indices[-1]):
+            df_pred = (
+                pd.DataFrame(entries)
+                .set_index('index')
+                .rename_axis(dataset.df.index.name)
+                .join(dataset.df)
+            )
             save_csv(
-                os.path.join(args.path_save_dir, 'predictions.csv'),
-                pd.DataFrame(entries).set_index(index_name),
+                os.path.join(args.path_save_dir, 'predictions.csv'), df_pred
             )
     save_args_as_json(args.path_save_dir, args)
 

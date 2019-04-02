@@ -41,7 +41,7 @@ class BufferedPatchDataset(FnetDataset):
             datum_size = datum[0].size()
             self.buffer_history.append(datum_index)
             self.buffer.append(datum)
-        self.remaining_to_be_in_buffer = shuffed_data_order[i + 1 :]
+        self.remaining_to_be_in_buffer = shuffed_data_order[i + 1:]
         assert len(patch_size) + 1 == len(datum_size)
         self.patch_size = [datum_size[0]] + list(patch_size)
 

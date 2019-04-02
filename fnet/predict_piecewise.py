@@ -1,9 +1,7 @@
-# import tifffile
 from scipy.signal import triang
 from typing import Union, List
 import numpy as np
 import torch
-import pdb
 
 
 def _get_weights(shape):
