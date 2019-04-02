@@ -182,7 +182,10 @@ class Model:
             Filename to which model is saved.
 
         """
-        assert not os.path.isdir(path_save)
+        dirname = os.path.dirname(path_save)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+            print('Created:', dirname)
         curr_gpu_ids = self.gpu_ids
         self.to_gpu(-1)
         retry_if_oserror(torch.save)(self.get_state(), path_save)
