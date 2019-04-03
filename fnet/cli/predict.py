@@ -1,7 +1,7 @@
 """Generates predictions from a model."""
 
 
-from typing import Callable, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 import argparse
 import json
 import os
@@ -11,7 +11,7 @@ import pandas as pd
 import tifffile
 import torch
 
-from fnet.data.tiffdataset import TiffDataset
+from fnet.data import FnetDataset, TiffDataset
 from fnet.models import load_model
 from fnet.transforms import norm_around_center
 from fnet.utils.general_utils import files_from_dir
@@ -51,6 +51,55 @@ def get_dataset(args: argparse.Namespace) -> torch.utils.data.Dataset:
         )
         return ds
     raise NotImplementedError
+
+
+def get_indices(args: argparse.Namespace, dataset: Any) -> List[int]:
+    """Returns indices of dataset items on which to perform predictions."""
+    indices = args.idx_sel
+    if indices is None:
+        if isinstance(dataset, FnetDataset):
+            indices = dataset.df.index
+        else:
+            indices = list(range(len(dataset)))
+    if args.n_images > 0:
+        return indices[:args.n_images]
+    return indices
+
+
+def item_from_dataset(
+        dataset: Any, idx: int
+) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+    """Returns signal-target image pair from dataset.
+
+    If the dataset is a FnetDataset, it will be indexed using 'loc'-style
+    indexing.
+
+    Parameters
+    ----------
+    dataset
+        Object with __getitem__ implemented.
+    idx
+        Index of data to be retrieved from dataset.
+
+    Returns
+    -------
+    Tuple[torch.Tensor, Optional[torch.Tensor]]
+        Signal-target data pair. Target can be None if dataset does not return
+        a target for the given index.
+
+    """
+    if isinstance(dataset, FnetDataset):
+        item = dataset.loc[idx]
+    else:
+        item = dataset[idx]
+    target = None
+    if isinstance(item, Tuple):
+        signal = item[0]
+        if len(item) > 1:
+            target = item[1]
+    else:
+        signal = item
+    return (signal, target)
 
 
 def save_tif(fname: str, ar: np.ndarray, path_root: str) -> str:
@@ -99,8 +148,27 @@ def parse_model(model_str: str) -> Dict:
     return model_def
 
 
-def save_csv(path_csv, df: pd.DataFrame) -> None:
-    """Saves dataframe as csv and merges with existing csv if necessary."""
+def save_predictions_csv(
+        path_csv: str,
+        pred_records: List[Dict],
+        dataset: Any,
+) -> None:
+    """Saves csv with metadata of predictions.
+
+    Parameters
+    ----------
+    path_csv
+        CSV save path.
+    pred_records
+        List of metadata for each prediction.
+    dataset
+        Dataset from where signal-target pairs were retrieved.
+
+    """
+    df = pd.DataFrame(pred_records).set_index('index')
+    if isinstance(dataset, FnetDataset):
+        # For FnetDataset, add additional metadata
+        df = df.rename_axis(dataset.df.index.name).join(dataset.df)
     if os.path.exists(path_csv):
         df_old = pd.read_csv(path_csv)
         col_index = df_old.columns[0]  # Assumes first col is index col
@@ -148,7 +216,7 @@ def add_parser_arguments(parser) -> None:
     """Add training script arguments to parser."""
     parser.add_argument('path_model_dir', nargs='+', help='path(s) to model directory')
     parser.add_argument('--dataset', help='dataset name')
-    parser.add_argument('--dataset_kwargs', help='dataset kwargs')
+    parser.add_argument('--dataset_kwargs', type=json.loads, default={}, help='dataset kwargs')
     parser.add_argument('--gpu_ids', type=int, default=0, help='GPU ID')
     parser.add_argument('--idx_sel', nargs='+', type=int, help='specify dataset indices')
     parser.add_argument('--metric', default='fnet.metrics.corr_coef', help='evaluation metric')
@@ -170,16 +238,12 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
     dataset = get_dataset(args)
     entries = []
     model = None
-    indices = (
-        args.idx_sel if args.idx_sel is not None else dataset.df.index
-    )[:args.n_images if args.n_images > 0 else None]
+    indices = get_indices(args, dataset)
     for count, idx in enumerate(indices, 1):
         print(f'Processing: {idx:3d} ({count}/{len(indices)})')
         entry = {}
         entry['index'] = idx
-        data = dataset.loc[idx]
-        signal = data[0]
-        target = data[1] if len(data) > 1 else None
+        signal, target = item_from_dataset(dataset, idx)
         if not args.no_signal:
             entry['path_signal'] = save_tif(
                 f'{idx}_signal.tif', signal.numpy()[0, ], args.path_save_dir
@@ -208,16 +272,11 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
                         f'{idx}_{tag}.tif', pred_c, args.path_save_dir
                     )
         entries.append(entry)
-        if ((count % 8) == 0) or (idx == indices[-1]):
-            df_pred = (
-                pd.DataFrame(entries)
-                .set_index('index')
-                .rename_axis(dataset.df.index.name)
-                .join(dataset.df)
-            )
-            save_csv(
-                os.path.join(args.path_save_dir, 'predictions.csv'), df_pred
-            )
+        save_predictions_csv(
+            path_csv=os.path.join(args.path_save_dir, 'predictions.csv'),
+            pred_records=entries,
+            dataset=dataset,
+        )
     save_args_as_json(args.path_save_dir, args)
 
 
