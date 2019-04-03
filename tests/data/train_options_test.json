@@ -26,7 +26,11 @@
         "criterion_class": "torch.nn.MSELoss",
         "init_weights": false,
         "lr": 0.001,
-        "nn_class": "fnet.nn_modules.fnet_nn_3d.Net",
+        "nn_class": "fnet.nn_modules.fnet_nn_3d_params.Net",
+	"nn_kwargs": {
+	    "depth": 0,
+	    "mult_chan": 2
+	},
         "scheduler": null
     },
     "interval_checkpoint": 10,
