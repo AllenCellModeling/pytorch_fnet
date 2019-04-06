@@ -11,7 +11,7 @@ dependencies:
   - pip
   - pytest
   - python=3.6
-  - pytorch=0.4
+  - pytorch=1.0.1
   - scipy
   - tifffile
   - torchvision
