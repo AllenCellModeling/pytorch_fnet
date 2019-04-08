@@ -1,6 +1,6 @@
 import torch.utils.data
 import skimage.external.tifffile as tifffile
-from fnet.data.fnetdataset import FnetDataset
+# from fnet.data.fnetdataset import FnetDataset
 import pandas as pd
 import numpy as np
 
@@ -8,7 +8,7 @@ import pdb
 
 import fnet.transforms as transforms
 
-class AICSTiffDataset(FnetDataset):
+class AICSTiffDataset():
     """Dataset for CZI files."""
 
     def __init__(self, dataframe: pd.DataFrame = None, path_csv: str = None, 
@@ -56,9 +56,9 @@ class AICSTiffDataset(FnetDataset):
         #unsqueeze to make the first dimension be the channel dimension
         im_out = [torch.unsqueeze(im, 0) for im in im_out]
         
-
         
-        return im_out
+        
+        return tuple(im_out)
     
     def __len__(self):
         return len(self.df)

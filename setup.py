@@ -23,6 +23,8 @@ setuptools.setup(
         'tifffile',
         'torch==1.0.1',
         'tqdm',
+        'scikit-image',
+        't4'
     ],
     extras_require={
         'dev': [
