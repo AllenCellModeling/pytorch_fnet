@@ -81,8 +81,11 @@ save_default_train_options(prefs_save_path)
 
 with open(prefs_save_path, 'r') as fp:
     prefs = json.load(fp)
+
     
-    
+prefs['n_iter'] = 50000 #takes about 16 hours, go up to 250,000 for full training
+prefs['interval_checkpoint'] = 10000
+
 prefs['dataset_train'] = 'fnet.data.AICSTiffDataset'
 prefs['dataset_train_kwargs'] = {'path_csv': data_save_path_train}
 prefs['dataset_val'] = 'fnet.data.AICSTiffDataset'
