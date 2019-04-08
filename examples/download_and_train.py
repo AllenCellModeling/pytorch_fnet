@@ -4,6 +4,8 @@ import tqdm
 import json
 import pandas as pd
 
+from fnet.cli.init import save_default_train_options
+
 ###################################################
 # Download the 3D multi-channel tiffs via Quilt/T4
 ###################################################
@@ -75,25 +77,16 @@ df_train.to_csv(data_save_path_train, index=False)
 ################################################
 
 
-N_ITER = 50000
-GPU_IDS=0
+save_default_train_options(prefs_save_path)
 
-DATASET_KWARGS="{\
-\"transform_signal\": [\"fnet.transforms.Normalize()\", \"fnet.transforms.Resizer((1, 0.37241, 0.37241))\"], \
-\"transform_target\": [\"fnet.transforms.Normalize()\", \"fnet.transforms.Resizer((1, 0.37241, 0.37241))\"] \
-}"
-BPDS_KWARGS="{\
-\"buffer_size\": 1 \
-}"
-
-prefs = {
-    'n_iter': N_ITER,
-    'path_dataset_csv': data_save_path_train,
-    'dataset_kwargs': DATASET_KWARGS,
-    'bpds_kwargs': BPDS_KWARGS,
-    'path_save_dir': model_save_dir,
-    }
-
+with open(prefs_save_path, 'r') as fp:
+    prefs = json.load(fp)
+    
+    
+prefs['dataset_train'] = 'fnet.data.AICSTiffDataset'
+prefs['dataset_train_kwargs'] = {'path_csv': data_save_path_train}
+prefs['dataset_val'] = 'fnet.data.AICSTiffDataset'
+prefs['dataset_val_kwargs'] = {'path_csv': data_save_path_test}
 
 
 with open(prefs_save_path, 'w') as fp:
