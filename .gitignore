@@ -6,3 +6,4 @@ data/*/
 !data/csvs/
 data/csvs/*/
 saved_models/
+*.ipynb_checkpoints/

@@ -16,5 +16,7 @@ dependencies:
   - tifffile
   - torchvision
   - tqdm
+  - scikit-image
   - pip:
     - czifile==0.1.5
+    - t4
