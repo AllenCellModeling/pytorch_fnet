@@ -168,7 +168,10 @@ def save_predictions_csv(
     df = pd.DataFrame(pred_records).set_index('index')
     if isinstance(dataset, FnetDataset):
         # For FnetDataset, add additional metadata
-        df = df.rename_axis(dataset.df.index.name).join(dataset.df)
+        df = (
+            df.rename_axis(dataset.df.index.name)
+            .join(dataset.df, lsuffix='_pre')
+        )
     if os.path.exists(path_csv):
         df_old = pd.read_csv(path_csv)
         col_index = df_old.columns[0]  # Assumes first col is index col
