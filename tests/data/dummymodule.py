@@ -10,7 +10,7 @@ import fnet
 def testdataset(train: bool = False) -> TiffDataset:
     """Dummy dataset for testing."""
     path_data_dir = os.path.join(
-        os.path.dirname(fnet.__file__), os.pardir, 'data'
+        os.path.dirname(__file__), os.pardir, os.pardir, 'data'
     )
     df = pd.DataFrame({
         'path_signal': [os.path.join(path_data_dir, 'EM_low.tif')],
