@@ -3,17 +3,7 @@ python:
   - "3.6"
 
 install:
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  - conda info -a
-  - conda create -q -n test_env python=3.6
-  - source $HOME/miniconda/etc/profile.d/conda.sh
-  - conda activate test_env
-  - conda env list
   - pip install -e .[dev]
 
 script:
-  - make test
+  - make prcheck
