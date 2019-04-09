@@ -7,10 +7,13 @@ TMP_DIR = '.tmp'
 
 
 def _init_test():
-    path_tmp = os.path.join(os.path.dirname(__file__), TMP_DIR)
+    path_test_dir = os.path.dirname(__file__)
+    path_tmp = os.path.join(path_test_dir, TMP_DIR)
     if os.path.exists(path_tmp):
         shutil.rmtree(path_tmp)
     os.makedirs(path_tmp)
+    path_ds_module = os.path.join(path_test_dir, 'data', 'dummymodule.py')
+    shutil.copy(path_ds_module, path_tmp)
     os.chdir(path_tmp)
 
 
@@ -65,7 +68,7 @@ def test_train_model_pred():
     subprocess.run(
         [
             'fnet', 'predict', 'test_model',
-            '--dataset', 'tests.data.testdataset',
+            '--dataset', 'dummymodule.testdataset',
             '--idx_sel', '0', '3',
             '--gpu_ids', '-1',
         ],

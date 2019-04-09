@@ -9,11 +9,11 @@
             16
         ]
     },
-    "dataset_train": "tests.data.testdataset",
+    "dataset_train": "dummymodule.testdataset",
     "dataset_train_kwargs": {
 	"train": true
     },
-    "dataset_val": "tests.data.testdataset",
+    "dataset_val": "dummymodule.testdataset",
     "dataset_val_kwargs": {
 	"train": false
     },

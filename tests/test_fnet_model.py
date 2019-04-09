@@ -55,14 +55,3 @@ def test_resume(tmpdir):
     path_model = tmpdir.mkdir('test_model').join('model.p').strpath
     train_new(path_model)
     train_more(path_model)
-
-
-if __name__ == '__main__':
-    import os
-    import py
-    import shutil
-    path_model_dir = '/tmp/pytest-of-chek/random'
-    if os.path.exists(path_model_dir):
-        shutil.rmtree(path_model_dir)
-    os.makedirs(path_model_dir)
-    test_resume(py.path.local(path_model_dir))
