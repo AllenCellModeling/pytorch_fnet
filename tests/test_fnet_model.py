@@ -30,7 +30,7 @@ def train_new(path_model):
     gpu_id = (1 if torch.cuda.is_available() else -1)
     x, y = get_data(gpu_id)
     model = Model(
-        nn_class='tests.test_fnet_model.DummyModel',
+        nn_class='test_fnet_model.DummyModel',
         nn_kwargs={'some_param': SOME_PARAM_TEST_VAL},
     )
     model.to_gpu(gpu_id)
