@@ -13,10 +13,8 @@
     "dataset_train_kwargs": {
 	"train": true
     },
-    "dataset_val": "dummymodule.dummy_fnet_dataset",
-    "dataset_val_kwargs": {
-	"train": false
-    },
+    "dataset_val": null,
+    "dataset_val_kwargs": null,
     "fnet_model_class": "fnet.fnet_model.Model",
     "fnet_model_kwargs": {
         "betas": [
@@ -33,8 +31,8 @@
 	},
         "scheduler": null
     },
-    "interval_checkpoint": 10,
-    "interval_save": 8,
+    "interval_checkpoint": 64,
+    "interval_save": 64,
     "iter_checkpoint": [],
     "n_iter": 16,
     "path_save_dir": "test_model",

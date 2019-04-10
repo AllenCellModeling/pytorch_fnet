@@ -73,6 +73,7 @@ def to_objects(slist):
 
 
 def retry_if_oserror(fn: Callable):
+    """Retries input function if an OSError is encountered."""
     def wrapper(*args, **kwargs):
         count = 0
         while True:
@@ -153,8 +154,12 @@ def add_augmentations(df: pd.DataFrame) -> pd.DataFrame:
     df_flip_y = df.assign(flip_y=1)
     df_flip_x = df.assign(flip_x=1)
     df_both = df.assign(flip_y=1, flip_x=1)
-    df_aug = pd.concat(
-        [df, df_flip_y, df_flip_x, df_both], ignore_index=True, sort=False
+    name_index = df.index.name
+    df_aug = (
+        pd.concat(
+            [df, df_flip_y, df_flip_x, df_both], ignore_index=True, sort=False
+        )
+        .rename_axis(name_index)
     )
     return df_aug
 

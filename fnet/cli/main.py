@@ -2,6 +2,8 @@
 
 
 import argparse
+import os
+import sys
 
 from fnet.cli import init
 from fnet.cli import predict
@@ -33,6 +35,7 @@ def main() -> None:
     # Remove 'func' from args so it is not passed to target script
     func = args.func
     delattr(args, 'func')
+    sys.path.append(os.getcwd())
     func(args)
 
 

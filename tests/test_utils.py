@@ -1,6 +1,6 @@
-from fnet.utils.general_utils import str_to_object
 import random
-import pdb
+
+from fnet.utils.general_utils import str_to_object
 
 
 def _dummy():
@@ -8,11 +8,8 @@ def _dummy():
 
 
 def test_str_to_object():
+    """Test string-to-object conversion."""
     exp = [_dummy, random.randrange]
     for idx_s, as_str in enumerate(['_dummy', 'random.randrange']):
         obj = str_to_object(as_str)
         assert obj is exp[idx_s], f'{obj} is not {exp[idx_s]}'
-
-
-if __name__ == '__main__':
-    test_str_to_object()

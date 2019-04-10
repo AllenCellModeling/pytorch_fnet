@@ -30,7 +30,7 @@ def train_new(path_model):
     gpu_id = (1 if torch.cuda.is_available() else -1)
     x, y = get_data(gpu_id)
     model = Model(
-        nn_class='tests.test_fnet_model.DummyModel',
+        nn_class='test_fnet_model.DummyModel',
         nn_kwargs={'some_param': SOME_PARAM_TEST_VAL},
     )
     model.to_gpu(gpu_id)
@@ -55,14 +55,3 @@ def test_resume(tmpdir):
     path_model = tmpdir.mkdir('test_model').join('model.p').strpath
     train_new(path_model)
     train_more(path_model)
-
-
-if __name__ == '__main__':
-    import os
-    import py
-    import shutil
-    path_model_dir = '/tmp/pytest-of-chek/random'
-    if os.path.exists(path_model_dir):
-        shutil.rmtree(path_model_dir)
-    os.makedirs(path_model_dir)
-    test_resume(py.path.local(path_model_dir))
