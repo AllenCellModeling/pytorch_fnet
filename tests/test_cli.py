@@ -5,14 +5,11 @@ import shutil
 import subprocess
 
 
-TMP_DIR = '.tmp'
-
-
 def _init_test(path_tmp: Optional[pathlib.Path] = None):
     path_test_dir = pathlib.Path(__file__).parent
     path_data_dir = path_test_dir.parent / 'data'
     if path_tmp is None:
-        path_tmp = path_test_dir / TMP_DIR
+        path_tmp = path_test_dir / '.tmp'
         if path_tmp.exists():
             shutil.rmtree(path_tmp)
         path_tmp.mkdir()
@@ -23,12 +20,6 @@ def _init_test(path_tmp: Optional[pathlib.Path] = None):
     for tif in ['EM_low.tif', 'MBP_low.tif']:
         shutil.copy(path_data_dir / tif, path_tmp_data)
     os.chdir(path_tmp)
-
-
-def _cleanup_test():
-    if os.path.basename(os.getcwd()) == TMP_DIR:
-        os.chdir(os.path.join(os.getcwd(), os.pardir))
-        shutil.rmtree(TMP_DIR)
 
 
 def test_init(tmp_path: pathlib.Path):
