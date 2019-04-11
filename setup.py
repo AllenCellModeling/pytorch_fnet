@@ -21,7 +21,7 @@ setuptools.setup(
         'pandas',
         'scipy',
         'tifffile',
-        'torch=1.0',
+        'torch==1.0',
         'tqdm',
     ],
     extras_require={
