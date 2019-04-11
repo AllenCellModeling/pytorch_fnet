@@ -3,6 +3,30 @@ import os
 import pathlib
 import shutil
 import subprocess
+import tempfile
+
+import pytest
+
+
+@pytest.fixture(scope='module')
+def project_dir():
+    """Creates a mock user directory in which fnet commands would be used.
+
+    Copies over example tifs to be used as test data and a dummy module
+    containing dataset definitions.
+
+    """
+    path_pre = pathlib.Path.cwd()
+    path_tmp = pathlib.Path(tempfile.mkdtemp())
+    path_test_dir = pathlib.Path(__file__).parent
+    path_data_dir = path_test_dir.parent / 'data'
+    pathlib.Path.mkdir(path_tmp / 'data')
+    for tif in ['EM_low.tif', 'MBP_low.tif']:
+        shutil.copy(path_data_dir / tif, path_tmp / 'data')
+    shutil.copy(path_test_dir / 'data' / 'dummymodule.py', path_tmp)
+    os.chdir(path_tmp)
+    yield path_tmp
+    os.chdir(path_pre)
 
 
 def _init_test(path_tmp: Optional[pathlib.Path] = None):
@@ -22,8 +46,8 @@ def _init_test(path_tmp: Optional[pathlib.Path] = None):
     os.chdir(path_tmp)
 
 
-def test_init(tmp_path: pathlib.Path):
-    _init_test(tmp_path)
+@pytest.mark.usefixtures('project_dir')
+def test_init():
     subprocess.run(['fnet init'], shell=True, check=True)
     path_json = os.path.join(
         'train_options_templates', 'default.json'
@@ -39,10 +63,10 @@ def test_init(tmp_path: pathlib.Path):
     assert os.path.exists(path_script_predict)
 
 
-def test_train_model_create(tmp_path: pathlib.Path):
+@pytest.mark.usefixtures('project_dir')
+def test_train_model_create():
     """Verify that 'fnet train' creates default jsons."""
-    _init_test(tmp_path)
-    path_create = os.path.join('test_model', 'train_options.json')
+    path_create = os.path.join('created', 'train_options.json')
     subprocess.run(
         ['fnet', 'train', path_create],
         check=True,
@@ -50,9 +74,9 @@ def test_train_model_create(tmp_path: pathlib.Path):
     assert os.path.exists(path_create)
 
 
-def test_train_model_pred(tmp_path: pathlib.Path):
+@pytest.mark.usefixtures('project_dir')
+def test_train_model_pred():
     """Verify 'fnet train', 'fnet predict' functionality on an FnetDataset."""
-    _init_test(tmp_path)
     path_test_json = (
         pathlib.Path(__file__).parent / 'data' / 'train_options_test.json'
     )
@@ -74,11 +98,11 @@ def test_train_model_pred(tmp_path: pathlib.Path):
         assert os.path.exists(os.path.join('predictions', fname))
 
 
-def test_train_model_pred_custom(tmp_path: pathlib.Path):
+@pytest.mark.usefixtures('project_dir')
+def test_train_model_pred_custom():
     """Verify 'fnet train', 'fnet predict' functionality on a custom dataset.
 
     """
-    _init_test(tmp_path)
     path_test_json = (
         pathlib.Path(__file__).parent / 'data' / 'train_options_custom.json'
     )
@@ -86,10 +110,10 @@ def test_train_model_pred_custom(tmp_path: pathlib.Path):
         ['fnet', 'train', str(path_test_json), '--gpu_ids', '-1'],
         check=True,
     )
-    assert os.path.exists('test_model')
+    assert os.path.exists('test_model_custom')
     subprocess.run(
         [
-            'fnet', 'predict', 'test_model',
+            'fnet', 'predict', 'test_model_custom',
             '--dataset', 'dummymodule.dummy_custom_dataset',
             '--idx_sel', '2',
             '--gpu_ids', '-1',

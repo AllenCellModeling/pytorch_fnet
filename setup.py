@@ -29,6 +29,7 @@ setuptools.setup(
             'flake8',
             'pylint',
             'pytest',
+            'pytest-cov',
         ]
     },
 )
