@@ -4,6 +4,7 @@
 from typing import Callable, Optional
 import argparse
 import copy
+import datetime
 import json
 import logging
 import os
@@ -82,13 +83,18 @@ def init_logger(path_save: str) -> None:
         Location to save training log.
 
     """
-    logger = logging.getLogger('model training')
+    dirname = os.path.dirname(path_save)
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+    logging.basicConfig(
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler(path_save, mode='a'),
+        ]
+    )
+    logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
-    fh = logging.FileHandler(path_save, mode='a')
-    sh = logging.StreamHandler(sys.stdout)
-    fh.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
-    logger.addHandler(fh)
-    logger.addHandler(sh)
+    logger.info('Started training at: %s', datetime.datetime.now())
     return logger
 
 
@@ -111,16 +117,18 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
     with open(args.json, 'r') as fi:
         train_options = json.load(fi)
     args.__dict__.update(train_options)
-    print('*** Training options ***')
-    pprint.pprint(vars(args))
 
     if not os.path.exists(args.path_save_dir):
         os.makedirs(args.path_save_dir)
     
     logger = init_logger(path_save=os.path.join(args.path_save_dir, 'run.log'))
     set_seeds(args.seed)
+    logger.info(
+        os.linesep.join(
+            ['*** Training options ***', pprint.pformat(vars(args))]
+        )
+    )
 
-    # Instantiate Model
     path_model = os.path.join(args.path_save_dir, 'model.p')
     model = fnet.models.load_or_init_model(path_model, args.json)
     init_cuda(args.gpu_ids[0])
