@@ -343,7 +343,8 @@ class Model:
             Model prediction.
 
         """
-        x = torch.tensor(x)
+        if isinstance(x, np.ndarray):
+            x = torch.from_numpy(x)
         if len(x.size()) == 4:
             dims_max = [None, 32, 512, 512]
         elif len(x.size()) == 3:

@@ -35,6 +35,6 @@
     "interval_save": 64,
     "iter_checkpoint": [],
     "n_iter": 16,
-    "path_save_dir": "test_model",
+    "path_save_dir": "test_model_custom",
     "seed": null
 }
