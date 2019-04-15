@@ -15,7 +15,7 @@ class MultiChTiffDataset(FnetDataset):
     """
 
     def __init__(self, dataframe: pd.DataFrame = None, path_csv: str = None,
-                 transform_signal=[transforms.normalize],
+                 transform_signal=None,
                  transform_target=None):
 
         super().__init__(dataframe, path_csv, transform_signal, transform_target)
