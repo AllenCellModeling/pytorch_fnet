@@ -24,7 +24,7 @@ pip install .
 ```
 - If you would like to instead install for development :
 ```shell
-pip install .[dev]
+pip install -e .[dev]
 ```
 or the needed libraries for the examples:
 ```shell
