@@ -21,16 +21,18 @@ setuptools.setup(
         'pandas',
         'scipy',
         'tifffile',
-        'torch==1.0.1',
+        'torch>=1.0.*',
         'tqdm',
-        'scikit-image',
-        't4'
     ],
     extras_require={
         'dev': [
             'flake8',
             'pylint',
             'pytest',
+        ],
+        'examples': [
+            'scikit-image==0.15.0',
+            't4==0.0.10',
         ]
     },
 )

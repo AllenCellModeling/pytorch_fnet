@@ -1,7 +1,7 @@
 # Ideas from "Automating Code Quality" talk by Kyle Knapp
 
 check:
-	flake8 --extend-ignore=E501 --max-complexity 10 --exclude=tests/ignore/* fnet tests
+	flake8 --extend-ignore=E501 --max-complexity 10 --exclude=tests/ignore/* fnet tests examples
 
 test:
 	pytest --ignore tests/ignore tests

@@ -8,3 +8,5 @@ data/csvs/*/
 saved_models/
 *.ipynb_checkpoints/
 examples/*
+*.vscode/
+pytorch_fnet.egg-info
