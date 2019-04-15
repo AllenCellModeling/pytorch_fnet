@@ -12,10 +12,10 @@ prefs_save_path = '{}/prefs.json'.format(os.getcwd())
 
 data_save_path_test = '{}/image_list_test.csv'.format(image_save_dir)
 
-command_str = 'python  ../fnet/cli/predict.py ./ ' \
-            '--dataset fnet.data.AICSTiffDataset ' \
-            '--dataset_kwargs \'{{"path_csv": "{}"}}\' ' \
-            '--gpu_ids {}'.format(data_save_path_test, gpu_id)
+command_str = 'fnet predict ./ ' \
+    '--dataset fnet.data.MultiChTiffDataset ' \
+    '--dataset_kwargs \'{{"path_csv": "{}"}}\' ' \
+    '--gpu_ids {}'.format(data_save_path_test, gpu_id)
 
 print(command_str)
 os.system(command_str)
