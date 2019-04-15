@@ -7,7 +7,7 @@ data/*/
 data/csvs/*/
 saved_models/
 *.ipynb_checkpoints/
-examples/*
+examples/*/
 *.vscode/
 .coverage
 htmlcov/
