@@ -23,7 +23,7 @@ setuptools.setup(
         'tifffile',
         'torch==1.0',
         'tqdm',
-        'scikit-image=>0.15.0',
+        'scikit-image>=0.15.0',
     ],
     extras_require={
         'dev': [
