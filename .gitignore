@@ -9,4 +9,6 @@ saved_models/
 *.ipynb_checkpoints/
 examples/*
 *.vscode/
-pytorch_fnet.egg-info
+.coverage
+htmlcov/
+*.egg-info/

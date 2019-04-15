@@ -21,7 +21,7 @@ setuptools.setup(
         'pandas',
         'scipy',
         'tifffile',
-        'torch>=1.0.*',
+        'torch==1.0',
         'tqdm',
     ],
     extras_require={
@@ -29,6 +29,7 @@ setuptools.setup(
             'flake8',
             'pylint',
             'pytest',
+            'pytest-cov',
         ],
         'examples': [
             'scikit-image==0.15.0',
