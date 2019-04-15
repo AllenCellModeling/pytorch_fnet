@@ -4,7 +4,6 @@ import numpy as np
 import torch
 
 from fnet.data.fnetdataset import FnetDataset
-import fnet.transforms as transforms
 
 
 class MultiChTiffDataset(FnetDataset):
