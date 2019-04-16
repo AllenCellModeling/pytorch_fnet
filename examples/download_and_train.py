@@ -17,7 +17,7 @@ train_fraction = 0.75
 
 image_save_dir = '{}/images/'.format(os.getcwd())
 model_save_dir = '{}/model/'.format(os.getcwd())
-prefs_save_path = '{}/prefs.json'.format(os.getcwd())
+prefs_save_path = '{}/prefs.json'.format(model_save_dir)
 
 data_save_path_train = '{}/image_list_train.csv'.format(image_save_dir)
 data_save_path_test = '{}/image_list_test.csv'.format(image_save_dir)
