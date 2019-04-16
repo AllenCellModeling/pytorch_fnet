@@ -118,9 +118,6 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
         train_options = json.load(fi)
     args.__dict__.update(train_options)
 
-    if not os.path.exists(args.path_save_dir):
-        os.makedirs(args.path_save_dir)
-
     logger = init_logger(path_save=os.path.join(args.path_save_dir, 'run.log'))
     set_seeds(args.seed)
     logger.info(
