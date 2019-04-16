@@ -23,6 +23,7 @@ setuptools.setup(
         'tifffile',
         'torch==1.0',
         'tqdm',
+        'scikit-image>=0.15.0',
     ],
     extras_require={
         'dev': [
@@ -30,6 +31,9 @@ setuptools.setup(
             'pylint',
             'pytest',
             'pytest-cov',
+        ],
+        'examples': [
+            't4==0.0.10',
         ]
     },
 )

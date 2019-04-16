@@ -15,20 +15,26 @@ An nVIDIA graphics card with >10GB of ram (we have used an nVIDIA Titan X Pascal
 
 ## Installation
 ### Environment setup
-- Install [Miniconda](https://conda.io/miniconda.html) if necessary.
-- Create a Conda environment for the platform:
+- Note: We no longer provide Conda files, but do recommend installing in a clean python 3.6 environment.
+- Clone and install the repo:
 ```shell
-conda env create -f environment.yml
+git clone https://github.com/AllenCellModeling/pytorch_fnet.git
+cd pytorch_fnet
+pip install .
+```
+- If you would like to instead install for development :
+```shell
+pip install -e .[dev]
+```
+or the needed libraries for the examples:
+```shell
+pip install .[examples]
 ```
 
-- Activate the environment:
+- If you installed for examples, try executing the test script:
 ```shell
-conda activate fnet
-```
-
-- Try executing the test script:
-```shell
-./scripts/test_run.sh
+cd examples
+python download_and_train.py
 ```
 
 The installation was successful if the script executes without errors.

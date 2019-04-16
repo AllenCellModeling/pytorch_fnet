@@ -93,6 +93,7 @@ def item_from_dataset(
     else:
         item = dataset[idx]
     target = None
+
     if isinstance(item, Tuple):
         signal = item[0]
         if len(item) > 1:

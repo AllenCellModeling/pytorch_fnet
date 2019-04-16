@@ -6,6 +6,9 @@ data/*/
 !data/csvs/
 data/csvs/*/
 saved_models/
+*.ipynb_checkpoints/
+examples/*/
+*.vscode/
 .coverage
 htmlcov/
 *.egg-info/
