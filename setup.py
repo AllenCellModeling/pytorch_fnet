@@ -10,7 +10,7 @@ setuptools.setup(
             'fnet = fnet.cli.main:main',
         ]
     },
-    name='pytorch_fnet',
+    name='fnet',
     packages=setuptools.find_packages(),
     python_requires='>=3.6',
     url='https://github.com/AllenCellModeling/pytorch_fnet',
