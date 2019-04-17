@@ -21,7 +21,7 @@ setuptools.setup(
         'pandas',
         'scipy',
         'tifffile',
-        'torch==1.0',
+        'torch>=1.0',
         'tqdm',
         'scikit-image>=0.15.0',
     ],
