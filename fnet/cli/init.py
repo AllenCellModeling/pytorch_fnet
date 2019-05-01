@@ -1,9 +1,14 @@
 from typing import Optional
+from pathlib import Path
 import argparse
 import json
+import logging
 import os
 import shutil
 import sys
+
+
+logger = logging.getLogger(__name__)
 
 
 def save_example_scripts(path_save_dir: str) -> None:
@@ -24,10 +29,10 @@ def save_example_scripts(path_save_dir: str) -> None:
         path_src = os.path.join(path_examples_dir, fname)
         path_dst = os.path.join(path_save_dir, fname)
         if os.path.exists(path_dst):
-            print('Example script already exists:', path_dst)
+            logger.info(f'Example script already exists: {path_dst}')
             continue
         shutil.copy(path_src, path_dst)
-        print('Saved:', path_dst)
+        logger.info(f'Saved: {path_dst}')
 
 
 def save_default_train_options(path_save: str) -> None:
@@ -39,12 +44,11 @@ def save_default_train_options(path_save: str) -> None:
         Save path for default training options json.
 
     """
+    path_save = Path(path_save)
     if os.path.exists(path_save):
-        print('Training options file already exists:', path_save)
+        logger.info(f'Training options file already exists: {path_save}')
         return
-    dirname = os.path.dirname(path_save)
-    if not os.path.exists(dirname):
-        os.makedirs(dirname)
+    path_save.parent.mkdir(parents=True, exist_ok=True)
     train_options = {
         'batch_size': 28,
         'bpds_kwargs': {
@@ -69,12 +73,12 @@ def save_default_train_options(path_save: str) -> None:
         'interval_save': 1000,
         'iter_checkpoint': [],
         'n_iter': 250000,
-        'path_save_dir': dirname,
+        'path_save_dir': str(path_save.parent),
         'seed': None,
     }
-    with open(path_save, 'w') as fo:
+    with path_save.open('w') as fo:
         json.dump(train_options, fo, indent=4, sort_keys=True)
-        print('Saved:', path_save)
+        logger.info(f'Saved: {path_save}')
 
 
 def add_parser_arguments(parser: argparse.ArgumentParser) -> None:

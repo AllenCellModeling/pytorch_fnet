@@ -1,8 +1,11 @@
 from typing import Optional
-import warnings
+import logging
 
 import numpy as np
 import scipy
+
+
+logger = logging.getLogger(__name__)
 
 
 class Normalize:
@@ -171,7 +174,7 @@ class Cropper(object):
         for i in range(len(shape_in)):
             offset = (shape_in[i] - shape_crop[i])//2 if offsets[i] == 'mid' else offsets[i]
             if offset + shape_crop[i] > shape_in[i]:
-                warnings.warn('Cannot crop outsize image dimensions ({}:{} for dim {}).'.format(offset, offset + shape_crop[i], i))
+                logger.error('Cannot crop outsize image dimensions ({}:{} for dim {}).'.format(offset, offset + shape_crop[i], i))
                 raise AttributeError
             offsets_crop.append(offset)
         self.crops[shape_in]['offsets_crop'] = offsets_crop
@@ -318,10 +321,10 @@ def norm_around_center(
     z_start = z_center - chunk_zlen//2
     if z_start < 0:
         z_start = 0
-        print(f'Warning: z_start set to {z_start}')
+        logger.warn(f'Warning: z_start set to {z_start}')
     if (z_start + chunk_zlen) > ar.shape[0]:
         z_start = ar.shape[0] - chunk_zlen
-        print(f'Warning: z_start set to {z_start}')
+        logger.warn(f'Warning: z_start set to {z_start}')
     chunk = ar[z_start: z_start + chunk_zlen, :, :]
     ar = ar - chunk.mean()
     ar = ar/chunk.std()

@@ -112,12 +112,6 @@ def predict_piecewise(
     # Remove restrictions on channel dimension.
     dims_max[0] = None
     overlaps[0] = None
-
-    print('*** Predicting piecewise ***')
-    print('tensor_in.size():', tensor_in.size())
-    print('dims_max:', dims_max)
-    print('overlaps:', overlaps)
-
     ar_in = tensor_in.numpy()
     ar_out, ar_weight = _predict_piecewise_recurse(
         predictor,

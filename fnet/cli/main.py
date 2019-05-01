@@ -8,10 +8,12 @@ import sys
 from fnet.cli import init
 from fnet.cli import predict
 from fnet.cli import train_model
+from fnet.utils.general_utils import init_fnet_logging
 
 
 def main() -> None:
     """Main function for command-line 'fnet' command."""
+    init_fnet_logging()
     parser = argparse.ArgumentParser(prog='fnet')
     subparser = parser.add_subparsers(title='command')
     parser_init = subparser.add_parser(

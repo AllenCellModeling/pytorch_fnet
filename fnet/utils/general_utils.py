@@ -1,10 +1,16 @@
+from pathlib import Path
 from typing import Callable, List, Optional, Sequence
 import importlib
 import inspect
+import logging
 import os
+import sys
 import time
 
 import pandas as pd
+
+
+logger = logging.getLogger(__name__)
 
 
 def files_from_dir(
@@ -83,8 +89,9 @@ def retry_if_oserror(fn: Callable):
                 break
             except OSError as err:
                 wait = 2**min(count, 5)
-                print(f'Attempt {count}:', err,
-                      f'| waiting {wait} seconds....')
+                logger.info(
+                    f'Attempt {count} failed: {err}. Waiting {wait} seconds.'
+                )
                 time.sleep(wait)
 
     return wrapper
@@ -167,3 +174,53 @@ def add_augmentations(df: pd.DataFrame) -> pd.DataFrame:
 def whats_my_name(obj: object):
     """Returns object's name."""
     return obj.__module__ + '.' + obj.__qualname__
+
+
+def create_formatter():
+    """Creates a default logging Formatter."""
+    return logging.Formatter('%(levelname)s:%(name)s: %(message)s')
+
+
+def add_logging_file_handler(path_save: Path) -> None:
+    """Adds a file handler to fnet logger.
+
+    Parameters
+    ----------
+    path_save
+        Location to save logging records.
+
+    Returns
+    -------
+    None
+
+    """
+    path_save.parent.mkdir(parents=True, exist_ok=True)
+    fh = logging.FileHandler(path_save, mode='a')
+    fh.setFormatter(create_formatter())
+    logging.getLogger('fnet').addHandler(fh)
+
+
+def init_fnet_logging() -> None:
+    """Initializes logging for fnet.
+
+    Parameters
+    ----------
+    path_save
+        Location to save logging records.
+
+    Returns
+    -------
+    None
+
+    """
+    # Remove root logger handlers potentially set by third-party packages
+    logger_root = logging.getLogger()
+    for handler in logger_root.handlers:
+        logger_root.removeHandler(handler)
+    # Init fnet logger
+    logger_fnet = logging.getLogger('fnet')
+    if logger_fnet.hasHandlers():  # avoids redundant handlers
+        return
+    sh = logging.StreamHandler(sys.stdout)
+    sh.setFormatter(create_formatter())
+    logger_fnet.addHandler(sh)

@@ -2,12 +2,15 @@
 
 
 from typing import List, Optional, Union
+import logging
 import os
+
 import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 
 
+logger = logging.getLogger(__name__)
 plt.style.use('seaborn')
 COLORS = matplotlib.rcParams['axes.prop_cycle'].by_key()['color']
 
@@ -68,7 +71,6 @@ def plot_loss(
     for idx_m, path_model in enumerate(paths_model):
         name_model = os.path.basename(os.path.normpath(path_model))
         model_label = None if len(paths_model) == 1 else name_model
-        print(f'Model {name_model}:', path_model)
         path_loss = os.path.join(path_model, 'losses.csv')
         df = pd.read_csv(path_loss, index_col='num_iter')
         if train:
@@ -79,7 +81,6 @@ def plot_loss(
             df_train_rmean = df_train.rolling(window=window_train).mean()
             _plot_df(df_train_rmean, ax, model_label, colors, linestyle='-')
         if val:
-            print('doing val')
             cols_val = [
                 col for col in df.columns if col.lower().endswith('_val')
             ]
@@ -94,7 +95,7 @@ def plot_loss(
     ax.legend()
     if path_save is not None:
         fig.savefig(path_save, bbox_inches='tight')
-        print('Saved:', path_save)
+        logger.info(f'Saved: {path_save}')
         return
     plt.show()
 
@@ -140,6 +141,6 @@ def plot_metric(
     ax.set_ylabel('Pearson correlation coefficient (r)')
     if path_save is not None:
         fig.savefig(path_save, bbox_inches='tight')
-        print('Saved:', path_save)
+        logger.info(f'Saved: {path_save}')
         return
     plt.show()

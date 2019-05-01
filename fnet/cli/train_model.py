@@ -1,7 +1,8 @@
 """Trains a model."""
 
 
-from typing import Callable, Optional
+from pathlib import Path
+from typing import Callable, Dict, Optional
 import argparse
 import copy
 import datetime
@@ -9,7 +10,6 @@ import json
 import logging
 import os
 import pprint
-import sys
 import time
 
 import numpy as np
@@ -17,9 +17,22 @@ import torch
 import torch.utils.data
 
 from fnet.cli.init import save_default_train_options
+from fnet.utils.general_utils import add_logging_file_handler
 from fnet.utils.general_utils import str_to_object
 import fnet
 import fnet.utils.viz_utils as vu
+
+
+logger = logging.getLogger(__name__)
+
+
+def log_training_options(options: Dict) -> None:
+    """Logs training options."""
+    for line in (
+            ['*** Training options ***']
+            + pprint.pformat(options).split(os.linesep)
+    ):
+        logger.info(line)
 
 
 def set_seeds(seed: Optional[int]) -> None:
@@ -35,8 +48,11 @@ def init_cuda(gpu: int) -> None:
     """Initialize Pytorch CUDA state."""
     if gpu < 0:
         return
-    torch.cuda.set_device(gpu)
-    torch.cuda.init()
+    try:
+        torch.cuda.set_device(gpu)
+        torch.cuda.init()
+    except RuntimeError:
+        logger.exception('Failed to init CUDA')
 
 
 def get_dataloader_train(
@@ -74,30 +90,6 @@ def get_dataloader_val(
     return dataloader
 
 
-def init_logger(path_save: str) -> None:
-    """Initialize training logger.
-
-    Parameters
-    ----------
-    path_save
-        Location to save training log.
-
-    """
-    dirname = os.path.dirname(path_save)
-    if not os.path.exists(dirname):
-        os.makedirs(dirname)
-    logging.basicConfig(
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler(path_save, mode='a'),
-        ]
-    )
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-    logger.info('Started training at: %s', datetime.datetime.now())
-    return logger
-
-
 def add_parser_arguments(parser) -> None:
     """Add training script arguments to parser."""
     parser.add_argument('json', help='json with training options')
@@ -117,15 +109,11 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
     with open(args.json, 'r') as fi:
         train_options = json.load(fi)
     args.__dict__.update(train_options)
+    add_logging_file_handler(Path(args.path_save_dir, 'train_model.log'))
+    logger.info('Started training at: %s', datetime.datetime.now())
 
-    logger = init_logger(path_save=os.path.join(args.path_save_dir, 'run.log'))
     set_seeds(args.seed)
-    logger.info(
-        os.linesep.join(
-            ['*** Training options ***', pprint.pformat(vars(args))]
-        )
-    )
-
+    log_training_options(vars(args))
     path_model = os.path.join(args.path_save_dir, 'model.p')
     model = fnet.models.load_or_init_model(path_model, args.json)
     init_cuda(args.gpu_ids[0])
