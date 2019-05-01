@@ -219,6 +219,7 @@ def init_fnet_logging() -> None:
         logger_root.removeHandler(handler)
     # Init fnet logger
     logger_fnet = logging.getLogger('fnet')
+    logger_fnet.setLevel(logging.INFO)
     if logger_fnet.hasHandlers():  # avoids redundant handlers
         return
     sh = logging.StreamHandler(sys.stdout)
