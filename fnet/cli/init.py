@@ -45,7 +45,7 @@ def save_default_train_options(path_save: str) -> None:
 
     """
     path_save = Path(path_save)
-    if os.path.exists(path_save):
+    if path_save.exists():
         logger.info(f'Training options file already exists: {path_save}')
         return
     path_save.parent.mkdir(parents=True, exist_ok=True)

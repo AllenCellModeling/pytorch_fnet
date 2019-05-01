@@ -174,7 +174,7 @@ class Cropper(object):
         for i in range(len(shape_in)):
             offset = (shape_in[i] - shape_crop[i])//2 if offsets[i] == 'mid' else offsets[i]
             if offset + shape_crop[i] > shape_in[i]:
-                logger.error('Cannot crop outsize image dimensions ({}:{} for dim {}).'.format(offset, offset + shape_crop[i], i))
+                logger.error(f'Cannot crop outsize image dimensions ({offset}:{offset + shape_crop[i]} for dim {i})')
                 raise AttributeError
             offsets_crop.append(offset)
         self.crops[shape_in]['offsets_crop'] = offsets_crop
