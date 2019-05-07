@@ -217,7 +217,7 @@ def save_args_as_json(path_save_dir: str, args: argparse.Namespace) -> None:
         )
     with open(path_json, 'w') as fo:
         json.dump(vars(args), fo, indent=4, sort_keys=True)
-        logger.info('Saved: {path_json}')
+    logger.info('Saved: {path_json}')
 
 
 def add_parser_arguments(parser) -> None:
