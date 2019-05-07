@@ -19,6 +19,7 @@ We recommend installation on Linux and an NVIDIA graphics card with 10+ GB of RA
 
 - We recommend an environment manager such as [Conda](https://docs.conda.io/en/latest/miniconda.html).
 - Install Python 3.6+ if necessary.
+- All commands listed below assume the bash shell.
 - Clone and install the repo:
 
 ```shell
