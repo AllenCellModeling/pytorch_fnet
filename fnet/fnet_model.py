@@ -2,6 +2,7 @@
 
 
 from typing import Union, Iterator, Optional, Tuple
+import logging
 import math
 import os
 
@@ -13,6 +14,9 @@ from fnet.predict_piecewise import predict_piecewise as _predict_piecewise_fn
 from fnet.transforms import flip_y, flip_x
 from fnet.utils.general_utils import get_args, retry_if_oserror, str_to_class
 from fnet.utils.model_utils import move_optim
+
+
+logger = logging.getLogger(__name__)
 
 
 def _weights_init(m):
@@ -185,7 +189,7 @@ class Model:
         dirname = os.path.dirname(path_save)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
-            print('Created:', dirname)
+            logger.info('Created: {dirname}')
         curr_gpu_ids = self.gpu_ids
         self.to_gpu(-1)
         retry_if_oserror(torch.save)(self.get_state(), path_save)

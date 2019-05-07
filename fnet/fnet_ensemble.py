@@ -1,9 +1,15 @@
+from typing import Union, List
+import logging
+import os
+
+import numpy as np
+import torch
+
 from fnet.fnet_model import Model
 from fnet.utils.general_utils import str_to_class
-from typing import Union, List
-import numpy as np
-import os
-import torch
+
+
+logger = logging.info(__name__)
 
 
 def _load_model(path_model: str) -> Model:
@@ -89,7 +95,6 @@ class FnetEnsemble(Model):
         for path_model in self.paths_model:
             model = _load_model(path_model)
             model.to_gpu(self.gpu_ids)
-            print(model)
             y_hat = model.predict(x=x, tta=tta)
             if y_hat_mean is None:
                 y_hat_mean = torch.zeros(*y_hat.size())
@@ -116,7 +121,7 @@ class FnetEnsemble(Model):
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         torch.save(state, path_save)
-        print('Ensemble model saved to:', path_save)
+        logger.info(f'Ensemble model saved to: {path_save}')
 
     # Override
     def load_state(self, state: dict, no_optim: bool = False):

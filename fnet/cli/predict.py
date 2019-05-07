@@ -4,6 +4,7 @@
 from typing import Any, Callable, Dict, List, Optional, Tuple
 import argparse
 import json
+import logging
 import os
 
 import numpy as np
@@ -17,6 +18,9 @@ from fnet.transforms import norm_around_center
 from fnet.utils.general_utils import files_from_dir
 from fnet.utils.general_utils import retry_if_oserror
 from fnet.utils.general_utils import str_to_object
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_dataset(args: argparse.Namespace) -> torch.utils.data.Dataset:
@@ -126,10 +130,10 @@ def save_tif(fname: str, ar: np.ndarray, path_root: str) -> str:
     path_tif_dir = os.path.join(path_root, 'tifs')
     if not os.path.exists(path_tif_dir):
         os.makedirs(path_tif_dir)
-        print('Created:', path_tif_dir)
+        logger.info(f'Created: {path_tif_dir}')
     path_save = os.path.join(path_tif_dir, fname)
     tifffile.imsave(path_save, ar, compress=2)
-    print('Saved:', path_save)
+    logger.info('Saved: {path_save}')
     return os.path.relpath(path_save, path_root)
 
 
@@ -182,9 +186,9 @@ def save_predictions_csv(
     dirname = os.path.dirname(path_csv)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
-        print('Created:', dirname)
+        logger.info('Created: {dirname}')
     retry_if_oserror(df.to_csv)(path_csv)
-    print('Saved:', path_csv)
+    logger.info('Saved: {path_csv}')
 
 
 def save_args_as_json(path_save_dir: str, args: argparse.Namespace) -> None:
@@ -213,7 +217,7 @@ def save_args_as_json(path_save_dir: str, args: argparse.Namespace) -> None:
         )
     with open(path_json, 'w') as fo:
         json.dump(vars(args), fo, indent=4, sort_keys=True)
-        print('Saved:', path_json)
+    logger.info('Saved: {path_json}')
 
 
 def add_parser_arguments(parser) -> None:
@@ -244,7 +248,7 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
     model = None
     indices = get_indices(args, dataset)
     for count, idx in enumerate(indices, 1):
-        print(f'Processing: {idx:3d} ({count}/{len(indices)})')
+        logger.info(f'Processing: {idx:3d} ({count}/{len(indices)})')
         entry = {}
         entry['index'] = idx
         signal, target = item_from_dataset(dataset, idx)
@@ -261,7 +265,7 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
                 model_def = parse_model(path_model_dir)
                 model = load_model(model_def['path'], no_optim=True)
                 model.to_gpu(args.gpu_ids)
-                print('Loaded model:', model_def['name'])
+                logger.info(f'Loaded model: {model_def["name"]}')
             prediction = model.predict_piecewise(
                 signal,
                 tta=('no_tta' not in model_def['options']),

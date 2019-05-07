@@ -1,5 +1,6 @@
 from typing import List, Optional, Union
 import json
+import logging
 import os
 
 import torch
@@ -7,6 +8,9 @@ import torch
 from fnet.fnet_ensemble import FnetEnsemble
 from fnet.fnet_model import Model
 from fnet.utils.general_utils import str_to_class
+
+
+logger = logging.getLogger(__name__)
 
 
 def _find_model_checkpoint(path_model_dir: str, checkpoint: str):
@@ -106,7 +110,7 @@ def load_or_init_model(path_model: str, path_options: str):
     if not os.path.exists(path_model):
         with open(path_options, 'r') as fi:
             train_options = json.load(fi)
-        print('Initializing new model!')
+        logger.info('Initializing new model!')
         fnet_model_class = train_options['fnet_model_class']
         fnet_model_kwargs = train_options['fnet_model_kwargs']
         return str_to_class(fnet_model_class)(**fnet_model_kwargs)

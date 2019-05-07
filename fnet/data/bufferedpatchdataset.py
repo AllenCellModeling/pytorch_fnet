@@ -1,7 +1,13 @@
-from fnet.data.fnetdataset import FnetDataset
+import logging
+
 from tqdm import tqdm
 import numpy as np
 import torch
+
+from fnet.data.fnetdataset import FnetDataset
+
+
+logger = logging.getLogger(__name__)
 
 
 class BufferedPatchDataset(FnetDataset):
@@ -54,7 +60,7 @@ class BufferedPatchDataset(FnetDataset):
             self.counter % self.buffer_switch_frequency == 0
         ):
             if self.verbose:
-                print("Inserting new item into buffer")
+                logger.info("Inserting new item into buffer")
             self.insert_new_element_into_buffer()
         return self.get_random_patch()
 
@@ -81,7 +87,7 @@ class BufferedPatchDataset(FnetDataset):
         self.buffer.append(self.dataset[new_datum_index])
 
         if self.verbose:
-            print("Added item {0}".format(new_datum_index))
+            logger.info(f"Added item {new_datum_index}")
 
     def get_random_patch(self):
         buffer_index = np.random.randint(len(self.buffer))
