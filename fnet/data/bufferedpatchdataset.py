@@ -23,6 +23,7 @@ class BufferedPatchDataset:
         self.buffer_size = min(len(self.dataset), buffer_size)
         self.buffer_switch_frequency = buffer_switch_frequency
         self.patch_size = patch_size
+        self.epochs = 0
         self.buffer = list()
         self.shuffle_images = shuffle_images
         shuffed_data_order = np.arange(0, len(dataset))
@@ -45,41 +46,26 @@ class BufferedPatchDataset:
         patch = self.get_random_patch()
         self.counter += 1
         if (self.buffer_switch_frequency > 0) and (
-            self.counter % self.buffer_switch_frequency == 0
+                self.counter % self.buffer_switch_frequency == 0
         ):
             self.insert_new_element_into_buffer()
         return patch
 
-    def __getitem__(self, index):
-        self.counter += 1
-        if (self.buffer_switch_frequency > 0) and (
-            self.counter % self.buffer_switch_frequency == 0
-        ):
-            self.insert_new_element_into_buffer()
-        return self.get_random_patch()
-
     def insert_new_element_into_buffer(self):
-        # sample with replacement
-        self.buffer.pop(0)
-        if self.shuffle_images:
-
-            if len(self.remaining_to_be_in_buffer) == 0:
-                self.remaining_to_be_in_buffer = np.arange(
-                    0, len(self.dataset)
-                )
-                np.random.shuffle(self.remaining_to_be_in_buffer)
-
-            new_datum_index = self.remaining_to_be_in_buffer[0]
-            self.remaining_to_be_in_buffer = self.remaining_to_be_in_buffer[1:]
-
-        else:
-            new_datum_index = self.buffer_history[-1] + 1
-            if new_datum_index == len(self.dataset):
-                new_datum_index = 0
-
+        """Inserts new dataset item into buffer."""
+        new_datum_index = self.remaining_to_be_in_buffer[0]
         self.buffer_history.append(new_datum_index)
+        self.buffer.pop(0)
         self.buffer.append(self.dataset[new_datum_index])
-        logger.info(f"Added item {new_datum_index} into buffer")
+        logger.info(f'Added item {new_datum_index} into buffer')
+        self.remaining_to_be_in_buffer = self.remaining_to_be_in_buffer[1:]
+        if len(self.remaining_to_be_in_buffer) == 0:
+            self.epochs += 1
+            self.remaining_to_be_in_buffer = np.arange(
+                0, len(self.dataset)
+            )
+            if self.shuffle_images:
+                np.random.shuffle(self.remaining_to_be_in_buffer)
 
     def get_random_patch(self):
         """Samples random patch from an item in the buffer.
