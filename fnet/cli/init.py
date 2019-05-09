@@ -56,8 +56,15 @@ def save_default_train_options(path_save: str) -> None:
             'buffer_switch_frequency': 2800,  # every 100 updates
             'patch_size': [32, 64, 64]
         },
-        'dataset_train': 'aics_x',
-        'dataset_train_kwargs': {},
+        'dataset_train': 'fnet.data.TiffDataset',
+        'dataset_train_kwargs': {
+            "path_csv": "some_training_set.csv",
+            "col_index": "some_id_col",
+            "col_signal": "some_signal_col",
+            "col_target": "some_target_col",
+            "transform_signal": ["fnet.transforms.norm_around_center"],
+            "transform_target": ["fnet.transforms.norm_around_center"]
+        },
         'dataset_val': None,
         'dataset_val_kwargs': {},
         'fnet_model_class': 'fnet.fnet_model.Model',
@@ -72,7 +79,7 @@ def save_default_train_options(path_save: str) -> None:
         'interval_checkpoint': 50000,
         'interval_save': 1000,
         'iter_checkpoint': [],
-        'n_iter': 250000,
+        'n_iter': 50000,
         'path_save_dir': str(path_save.parent),
         'seed': None,
     }
