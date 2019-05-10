@@ -1,7 +1,9 @@
+from typing import Sequence
 import logging
 
 from tqdm import tqdm
 import numpy as np
+import torch
 
 
 logger = logging.getLogger(__name__)
@@ -111,6 +113,26 @@ class BufferedPatchDataset:
             slices_pad = (slice(None),)*(len(part.shape) - len(shape_spatial))
             patch.append(part[slices_pad + slices])
         return patch
+
+    def get_batch(self, batch_size: int) -> Sequence[torch.Tensor]:
+        """Returns a batch of patches.
+
+        Parameters
+        ----------
+        batch_size
+            Number of patches in batch.
+
+        Returns
+        -------
+        Sequence[torch.Tensor]
+            Batch of patches.
+
+        """
+        return tuple(
+            torch.stack(part) for part in zip(
+                *[next(self) for _ in range(batch_size)]
+            )
+        )
 
     def get_buffer_history(self):
         return self.buffer_history
