@@ -133,7 +133,7 @@ def save_tif(fname: str, ar: np.ndarray, path_root: str) -> str:
         logger.info(f'Created: {path_tif_dir}')
     path_save = os.path.join(path_tif_dir, fname)
     tifffile.imsave(path_save, ar, compress=2)
-    logger.info('Saved: {path_save}')
+    logger.info(f'Saved: {path_save}')
     return os.path.relpath(path_save, path_root)
 
 
@@ -186,9 +186,9 @@ def save_predictions_csv(
     dirname = os.path.dirname(path_csv)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
-        logger.info('Created: {dirname}')
+        logger.info(f'Created: {dirname}')
     retry_if_oserror(df.to_csv)(path_csv)
-    logger.info('Saved: {path_csv}')
+    logger.info(f'Saved: {path_csv}')
 
 
 def save_args_as_json(path_save_dir: str, args: argparse.Namespace) -> None:
@@ -217,7 +217,7 @@ def save_args_as_json(path_save_dir: str, args: argparse.Namespace) -> None:
         )
     with open(path_json, 'w') as fo:
         json.dump(vars(args), fo, indent=4, sort_keys=True)
-    logger.info('Saved: {path_json}')
+    logger.info(f'Saved: {path_json}')
 
 
 def add_parser_arguments(parser) -> None:

@@ -110,7 +110,7 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
         train_options = json.load(fi)
     args.__dict__.update(train_options)
     add_logging_file_handler(Path(args.path_save_dir, 'train_model.log'))
-    logger.info('Started training at: %s', datetime.datetime.now())
+    logger.info(f'Started training at: {datetime.datetime.now()}')
 
     set_seeds(args.seed)
     log_training_options(vars(args))
@@ -123,7 +123,7 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
     path_losses_csv = os.path.join(args.path_save_dir, 'losses.csv')
     if os.path.exists(path_losses_csv):
         fnetlogger = fnet.FnetLogger(path_losses_csv)
-        logger.info('History loaded from: {:s}'.format(path_losses_csv))
+        logger.info(f'History loaded from: {path_losses_csv}')
     else:
         fnetlogger = fnet.FnetLogger(
             columns=['num_iter', 'loss_train', 'loss_val']
@@ -160,9 +160,9 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
                 'BufferedPatchDataset buffer history: %s',
                 dataloader_train.dataset.get_buffer_history(),
             )
-            logger.info('loss log saved to: {:s}'.format(path_losses_csv))
-            logger.info('model saved to: {:s}'.format(path_model))
-            logger.info('elapsed time: {:.1f} s'.format(time.time() - time_start))
+            logger.info(f'Loss log saved to: {path_losses_csv}')
+            logger.info(f'Model saved to: {path_model}')
+            logger.info(f'Elapsed time: {time.time() - time_start:.1f} s')
         if ((idx_iter + 1) in args.iter_checkpoint) or \
            ((idx_iter + 1) % args.interval_checkpoint == 0):
             path_checkpoint = os.path.join(
@@ -171,7 +171,7 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
                 'model_{:06d}.p'.format(idx_iter + 1),
             )
             model.save(path_checkpoint)
-            logger.info('Saved model checkpoint: %s', path_checkpoint)
+            logger.info(f'Saved model checkpoint: {path_checkpoint}')
             vu.plot_loss(
                 args.path_save_dir,
                 path_save=os.path.join(args.path_save_dir, 'loss_curves.png'),
