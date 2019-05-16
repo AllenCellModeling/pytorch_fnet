@@ -50,7 +50,7 @@ def test_train_model_create():
     """Verify that 'fnet train' creates default jsons."""
     path_create = os.path.join('created', 'train_options.json')
     subprocess.run(
-        ['fnet', 'train', path_create],
+        ['fnet', 'train', '--json', path_create],
         check=True,
     )
     assert os.path.exists(path_create)
@@ -63,13 +63,14 @@ def test_train_model_pred():
         pathlib.Path(__file__).parent / 'data' / 'train_options_test.json'
     )
     subprocess.run(
-        ['fnet', 'train', path_test_json, '--gpu_ids', '-1'],
+        ['fnet', 'train', '--json', path_test_json, '--gpu_ids', '-1'],
         check=True,
     )
     assert os.path.exists('test_model')
     subprocess.run(
         [
-            'fnet', 'predict', 'test_model',
+            'fnet', 'predict',
+            '--path_model_dir', 'test_model',
             '--dataset', 'dummymodule.dummy_fnet_dataset',
             '--idx_sel', '0', '3',
             '--gpu_ids', '-1',
@@ -89,13 +90,14 @@ def test_train_model_pred_custom():
         pathlib.Path(__file__).parent / 'data' / 'train_options_custom.json'
     )
     subprocess.run(
-        ['fnet', 'train', str(path_test_json), '--gpu_ids', '-1'],
+        ['fnet', 'train', '--json', str(path_test_json), '--gpu_ids', '-1'],
         check=True,
     )
     assert os.path.exists('test_model_custom')
     subprocess.run(
         [
-            'fnet', 'predict', 'test_model_custom',
+            'fnet', 'predict',
+            '--path_model_dir', 'test_model_custom',
             '--dataset', 'dummymodule.dummy_custom_dataset',
             '--idx_sel', '2',
             '--gpu_ids', '-1',
