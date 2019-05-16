@@ -1,6 +1,7 @@
 """Generates predictions from a model."""
 
 
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 import argparse
 import json
@@ -12,6 +13,7 @@ import pandas as pd
 import tifffile
 import torch
 
+from fnet.cli.init import save_default_predict_options
 from fnet.data import FnetDataset, TiffDataset
 from fnet.models import load_model
 from fnet.transforms import norm_around_center
@@ -194,9 +196,11 @@ def save_predictions_csv(
 def save_args_as_json(path_save_dir: str, args: argparse.Namespace) -> None:
     """Saves script arguments as json in save directory.
 
-    By default, tries to save arguments are predict_options.json within the
-    save directory. If that file already exists, appends a digit to uniquify
-    the save path.
+    A json is saved only if the "--json" option was not specified.
+
+    By default, this function tries to save arguments as predict_options.json
+    within the save directory. If that file already exists, appends a digit to
+    uniquify the save path.
 
     Parameters
     ----------
@@ -206,6 +210,9 @@ def save_args_as_json(path_save_dir: str, args: argparse.Namespace) -> None:
         Script arguments.
 
     """
+    if args.json is not None:
+        return
+    args.__dict__.pop('json')
     path_json = os.path.join(path_save_dir, 'predict_options.json')
     while os.path.exists(path_json):
         number = path_json.split('.')[-2]
@@ -220,18 +227,28 @@ def save_args_as_json(path_save_dir: str, args: argparse.Namespace) -> None:
     logger.info(f'Saved: {path_json}')
 
 
+def load_from_json(args: argparse.Namespace) -> None:
+    """Loads arguments from if a json is specified."""
+    if args.json is None:
+        return
+    with args.json.open(mode='r') as fi:
+        predict_options = json.load(fi)
+    args.__dict__.update(predict_options)
+
+
 def add_parser_arguments(parser) -> None:
     """Add training script arguments to parser."""
-    parser.add_argument('path_model_dir', nargs='+', help='path(s) to model directory')
     parser.add_argument('--dataset', help='dataset name')
     parser.add_argument('--dataset_kwargs', type=json.loads, default={}, help='dataset kwargs')
     parser.add_argument('--gpu_ids', type=int, default=0, help='GPU ID')
     parser.add_argument('--idx_sel', nargs='+', type=int, help='specify dataset indices')
+    parser.add_argument('--json', type=Path, help='path to prediction options json')
     parser.add_argument('--metric', default='fnet.metrics.corr_coef', help='evaluation metric')
     parser.add_argument('--n_images', type=int, default=-1, help='max number of images to test')
     parser.add_argument('--no_prediction', action='store_true', help='set to not save predicted image')
     parser.add_argument('--no_signal', action='store_true', help='set to not save signal image')
     parser.add_argument('--no_target', action='store_true', help='set to not save target image')
+    parser.add_argument('--path_model_dir', nargs='+', help='path(s) to model directory')
     parser.add_argument('--path_save_dir', default='predictions', help='path to output root directory')
     parser.add_argument('--path_tif', help='path(s) to input tif(s)')
 
@@ -242,6 +259,10 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
         parser = argparse.ArgumentParser()
         add_parser_arguments(parser)
         args = parser.parse_args()
+    if (args.json is not None) and (not args.json.exists()):
+        save_default_predict_options(args.json)
+        return
+    load_from_json(args)
     metric = str_to_object(args.metric)
     dataset = get_dataset(args)
     entries = []
