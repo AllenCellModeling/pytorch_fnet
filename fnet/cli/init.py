@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Dict, Optional
 from pathlib import Path
 import argparse
 import json
@@ -35,7 +35,31 @@ def save_example_scripts(path_save_dir: str) -> None:
         logger.info(f'Saved: {path_dst}')
 
 
-def save_default_train_options(path_save: str) -> None:
+def save_options_json(path_save: Path, options: Dict) -> None:
+    """Saves options dictionary as a json.
+
+    Parameters
+    ----------
+    path_save
+        JSON save path.
+    options
+        Options dictionary.
+
+    Returns
+    -------
+    None
+
+    """
+    if path_save.exists():
+        logger.info(f'Options json already exists: {path_save}')
+        return
+    path_save.parent.mkdir(parents=True, exist_ok=True)
+    with path_save.open('w') as fo:
+        json.dump(options, fo, indent=4, sort_keys=True)
+    logger.info(f'Saved: {path_save}')
+
+
+def save_default_train_options(path_save: Path) -> None:
     """Save default training options json.
 
     Parameters
@@ -44,11 +68,6 @@ def save_default_train_options(path_save: str) -> None:
         Save path for default training options json.
 
     """
-    path_save = Path(path_save)
-    if path_save.exists():
-        logger.info(f'Training options file already exists: {path_save}')
-        return
-    path_save.parent.mkdir(parents=True, exist_ok=True)
     train_options = {
         'batch_size': 28,
         'bpds_kwargs': {
@@ -83,9 +102,46 @@ def save_default_train_options(path_save: str) -> None:
         'path_save_dir': str(path_save.parent),
         'seed': None,
     }
-    with path_save.open('w') as fo:
-        json.dump(train_options, fo, indent=4, sort_keys=True)
-        logger.info(f'Saved: {path_save}')
+    save_options_json(path_save, train_options)
+
+
+def save_default_predict_options(path_save: Path) -> None:
+    """Save default prediction options json.
+
+    Parameters
+    ----------
+    path_save
+        Save path for default prediction options json.
+
+    """
+    predict_options = {
+        'dataset': 'fnet.data.TiffDataset',
+        'dataset_kwargs': {
+            'col_index': 'some_id_col',
+            'col_signal': 'some_signal_col',
+            'col_target': 'some_target_col',
+            'path_csv': 'some_test_set.csv',
+            'transform_signal': [
+                'fnet.transforms.norm_around_center'
+            ],
+            'transform_target': [
+                'fnet.transforms.norm_around_center'
+            ]
+        },
+        'gpu_ids': 0,
+        'idx_sel': None,
+        'metric': 'fnet.metrics.corr_coef',
+        'n_images': -1,
+        'no_prediction': False,
+        'no_signal': False,
+        'no_target': False,
+        'path_model_dir': [
+            'some_model'
+        ],
+        'path_save_dir': str(path_save.parent),
+        'path_tif': None,
+    }
+    save_options_json(path_save, predict_options)
 
 
 def add_parser_arguments(parser: argparse.ArgumentParser) -> None:
@@ -98,6 +154,7 @@ def add_parser_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         '--path_train_template',
         default='train_options_templates/default.json',
+        type=Path,
         help='Path to where training options template should be saved.'
     )
 
