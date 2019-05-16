@@ -92,7 +92,7 @@ def get_dataloader_val(
 
 def add_parser_arguments(parser) -> None:
     """Add training script arguments to parser."""
-    parser.add_argument('json', help='json with training options')
+    parser.add_argument('--json', type=Path, required=True, help='json with training options')
     parser.add_argument('--gpu_ids', nargs='+', default=[0], type=int, help='gpu_id(s)')
 
 
@@ -103,7 +103,7 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
         parser = argparse.ArgumentParser()
         add_parser_arguments(parser)
         args = parser.parse_args()
-    if not os.path.exists(args.json):
+    if not args.json.exists():
         save_default_train_options(args.json)
         return
     with open(args.json, 'r') as fi:
