@@ -33,7 +33,7 @@ setuptools.setup(
             'pytest-cov',
         ],
         'examples': [
-            't4==0.0.10',
+            't4==0.1.3',
         ]
     },
 )
