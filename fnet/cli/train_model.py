@@ -73,7 +73,7 @@ def get_bpds_val(args: argparse.Namespace):
         raise ValueError('Dataset function should be Callable')
     ds = ds_fn(**args.dataset_val_kwargs)
     bpds_kwargs['buffer_size'] = min(4, len(ds))
-    bpds_kwargs['buffer_switch_frequency'] = -1
+    bpds_kwargs['buffer_switch_interval'] = -1
     return fnet.data.BufferedPatchDataset(dataset=ds, **bpds_kwargs)
 
 

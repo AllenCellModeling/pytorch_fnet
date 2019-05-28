@@ -2,8 +2,8 @@
     "batch_size": 2,
     "bpds_kwargs": {
         "buffer_size": 1,
-        "buffer_switch_frequency": -1,
-        "patch_size": [
+        "buffer_switch_interval": -1,
+        "patch_shape": [
             16,
             16,
             16

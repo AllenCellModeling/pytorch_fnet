@@ -30,13 +30,13 @@ class _DummyDataset:
 def test_bad_input():
     ds = _DummyDataset()
 
-    # Too many patch_size dimensions
+    # Too many patch_shape dimensions
     bpds = BufferedPatchDataset(ds)
     with pytest.raises(ValueError):
         next(bpds)
 
-    # patch_size too big
-    bpds = BufferedPatchDataset(ds, patch_size=(9,))
+    # patch_shape too big
+    bpds = BufferedPatchDataset(ds, patch_shape=(9,))
     with pytest.raises(ValueError):
         next(bpds)
 
@@ -44,7 +44,7 @@ def test_bad_input():
     bad = [part for part in ds.data[0]]
     bad[0] = bad[0][1:]
     ds.data[0] = tuple(bad)
-    bpds = BufferedPatchDataset(ds, patch_size=(4,), shuffle_images=False)
+    bpds = BufferedPatchDataset(ds, patch_shape=(4,), shuffle_images=False)
     with pytest.raises(ValueError):
         next(bpds)
 
@@ -61,20 +61,20 @@ def test_nd(nd: int):
 
     """
     ds = _DummyDataset(nd)
-    patch_size = tuple(range(2, nd + 2))
+    patch_shape = tuple(range(2, nd + 2))
     interval = 3
-    buffer_size = 2
+    buffer_size = 4
     bpds = BufferedPatchDataset(
         ds,
-        patch_size=patch_size,
+        patch_shape=patch_shape,
         buffer_size=buffer_size,
-        buffer_switch_frequency=interval,
+        buffer_switch_interval=interval,
     )
     # Sample enough patches such that the entire dataset is used twice
     n_swaps = 2*len(ds) - buffer_size
     for _idx in range(n_swaps*interval):
         x, y = next(bpds)
-        assert x.shape == patch_size
+        assert x.shape == patch_shape
         npt.assert_array_equal(y, x**2)
         assert bpds.get_buffer_history() == ds.accessed
     counts = Counter(ds.accessed)
@@ -88,9 +88,9 @@ def test_sampling():
     y_low, y_hi = float('inf'), float('-inf')
     bpds = BufferedPatchDataset(
         ds,
-        patch_size=(7, 7, 7),
+        patch_shape=(7, 7, 7),
         buffer_size=1,
-        buffer_switch_frequency=-1,
+        buffer_switch_interval=-1,
         shuffle_images=False,
     )
     # Patch locations are randomized, so look at many patches and check that
@@ -113,13 +113,13 @@ def test_smaller_patch():
     """
     nd = 4
     ds = _DummyDataset(nd=nd)
-    patch_size = (4,)*(nd - 1)
+    patch_shape = (4,)*(nd - 1)
     bpds = BufferedPatchDataset(
         ds,
-        patch_size=patch_size,
+        patch_shape=patch_shape,
         buffer_size=1,
-        buffer_switch_frequency=-1,
+        buffer_switch_interval=-1,
         shuffle_images=False,
     )
     x, y = next(bpds)
-    assert x.shape == y.shape == ((8,) + patch_size)
+    assert x.shape == y.shape == ((8,) + patch_shape)
