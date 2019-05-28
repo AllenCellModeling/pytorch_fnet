@@ -31,22 +31,19 @@ def test_bad_input():
     ds = _DummyDataset()
 
     # Too many patch_shape dimensions
-    bpds = BufferedPatchDataset(ds)
     with pytest.raises(ValueError):
-        next(bpds)
+        BufferedPatchDataset(ds)
 
     # patch_shape too big
-    bpds = BufferedPatchDataset(ds, patch_shape=(9,))
     with pytest.raises(ValueError):
-        next(bpds)
+        BufferedPatchDataset(ds, patch_shape=(9,))
 
     # Inconsistant spatial shape
     bad = [part for part in ds.data[0]]
     bad[0] = bad[0][1:]
     ds.data[0] = tuple(bad)
-    bpds = BufferedPatchDataset(ds, patch_shape=(4,), shuffle_images=False)
     with pytest.raises(ValueError):
-        next(bpds)
+        BufferedPatchDataset(ds, patch_shape=(4,), shuffle_images=False)
 
 
 @pytest.mark.parametrize('nd', [2, 3])

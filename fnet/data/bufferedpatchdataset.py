@@ -9,6 +9,7 @@ import torch
 
 
 logger = logging.getLogger(__name__)
+ArrayLike = Union[np.ndarray, torch.Tensor]
 
 
 class BufferedPatchDataset:
@@ -66,6 +67,33 @@ class BufferedPatchDataset:
             self.insert_new_element_into_buffer()
         return patch
 
+    def _check_last_datum(self) -> None:
+        """Checks last dataset item added to buffer."""
+        nd = len(self.patch_shape)
+        idx_buf = self.buffer_history[-1]
+        shape_spatial = None
+        for idx_c, component in enumerate(self.buffer[-1]):
+            if shape_spatial is None:
+                shape_spatial = component.shape[-nd:]
+            elif component.shape[-nd:] != shape_spatial:
+                raise ValueError(
+                    f'Dataset item {idx_buf}, component {idx_c} shape '
+                    f'{component.shape} incompatible with first component '
+                    f'shape {self.buffer[-1][0].shape}'
+                )
+            if (
+                    nd > len(component.shape) or
+                    any(
+                        self.patch_shape[d] > shape_spatial[d]
+                        for d in range(nd)
+                    )
+            ):
+                raise ValueError(
+                    f'Dataset item {idx_buf}, component {idx_c} shape '
+                    f'{component.shape} incompatible with patch_shape '
+                    f'{self.patch_shape}'
+                )
+
     def insert_new_element_into_buffer(self) -> None:
         """Inserts new dataset item into buffer.
 
@@ -85,8 +113,9 @@ class BufferedPatchDataset:
         self.buffer_history.append(new_datum_index)
         self.buffer.append(self.dataset[new_datum_index])
         logger.info(f'Added item {new_datum_index} into buffer')
+        self._check_last_datum()
 
-    def get_random_patch(self) -> List[Union[np.ndarray, torch.Tensor]]:
+    def get_random_patch(self) -> List[ArrayLike]:
         """Samples random patch from an item in the buffer.
 
         Let nd be the number of dimensions of the patch. If the item has more
@@ -95,7 +124,7 @@ class BufferedPatchDataset:
 
         Returns
         -------
-        List[Union[np.ndarray, torch.Tensor]]
+        List[ArrayLike]
             Random patch sampled from a dataset item.
 
         """
@@ -103,25 +132,9 @@ class BufferedPatchDataset:
         buffer_index = np.random.randint(len(self.buffer))
         datum = self.buffer[buffer_index]
         shape_spatial = datum[0].shape[-nd:]
-        if (
-                nd > len(shape_spatial)
-                or any(
-                    self.patch_shape[d] > shape_spatial[d] for d in range(nd)
-                )
-        ):
-            raise ValueError(
-                f'Incompatible patch size {self.patch_shape} and dataset '
-                f'item shape (index: {buffer_index}, shape: {shape_spatial})'
-            )
         patch = []
         slices = None
-        for idx_p, part in enumerate(datum):
-            if part.shape[-nd:] != shape_spatial:
-                raise ValueError(
-                    f'Datum component {idx_p} spatial shape '
-                    f'{part.shape[-nd:]} incompatible with first component '
-                    f'spatial shape {shape_spatial}'
-                )
+        for part in datum:
             if slices is None:
                 starts = np.array(
                     [
