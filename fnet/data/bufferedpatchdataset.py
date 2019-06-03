@@ -50,9 +50,7 @@ class BufferedPatchDataset:
         self.buffer = deque()
         self.remaining_to_be_in_buffer = deque()
         self.buffer_history = []
-        pbar = tqdm(range(self.buffer_size))
-        pbar.set_description('Buffering images')
-        for _ in pbar:
+        for _ in tqdm(range(self.buffer_size), desc='Buffering images'):
             self.insert_new_element_into_buffer()
 
     def __iter__(self):
