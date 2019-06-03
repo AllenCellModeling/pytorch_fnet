@@ -16,6 +16,7 @@ import numpy as np
 import torch
 
 from fnet.cli.init import save_default_train_options
+from fnet.data import BufferedPatchDataset
 from fnet.utils.general_utils import add_logging_file_handler
 from fnet.utils.general_utils import str_to_object
 import fnet
@@ -54,16 +55,16 @@ def init_cuda(gpu: int) -> None:
         logger.exception('Failed to init CUDA')
 
 
-def get_bpds_train(args: argparse.Namespace):
+def get_bpds_train(args: argparse.Namespace) -> BufferedPatchDataset:
     """Creates data provider for training."""
     ds_fn = str_to_object(args.dataset_train)
     if not isinstance(ds_fn, Callable):
         raise ValueError('Dataset function should be Callable')
     ds = ds_fn(**args.dataset_train_kwargs)
-    return fnet.data.BufferedPatchDataset(dataset=ds, **args.bpds_kwargs)
+    return BufferedPatchDataset(dataset=ds, **args.bpds_kwargs)
 
 
-def get_bpds_val(args: argparse.Namespace):
+def get_bpds_val(args: argparse.Namespace) -> Optional[BufferedPatchDataset]:
     """Creates data provider for validation."""
     if args.dataset_val is None:
         return None
@@ -74,7 +75,7 @@ def get_bpds_val(args: argparse.Namespace):
     ds = ds_fn(**args.dataset_val_kwargs)
     bpds_kwargs['buffer_size'] = min(4, len(ds))
     bpds_kwargs['buffer_switch_interval'] = -1
-    return fnet.data.BufferedPatchDataset(dataset=ds, **bpds_kwargs)
+    return BufferedPatchDataset(dataset=ds, **bpds_kwargs)
 
 
 def add_parser_arguments(parser) -> None:
