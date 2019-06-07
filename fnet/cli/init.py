@@ -53,8 +53,8 @@ def save_default_train_options(path_save: str) -> None:
         'batch_size': 28,
         'bpds_kwargs': {
             'buffer_size': 16,
-            'buffer_switch_frequency': 2800,  # every 100 updates
-            'patch_size': [32, 64, 64]
+            'buffer_switch_interval': 2800,  # every 100 updates
+            'patch_shape': [32, 64, 64]
         },
         'dataset_train': 'aics_x',
         'dataset_train_kwargs': {},
