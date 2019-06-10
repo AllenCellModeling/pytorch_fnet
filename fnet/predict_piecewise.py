@@ -1,5 +1,6 @@
-from scipy.signal import triang
 from typing import Union, List
+
+from scipy.signal import triang
 import numpy as np
 import torch
 
@@ -83,7 +84,7 @@ def predict_piecewise(
          An object with a predict() method.
     tensor_in
          Tensor to be input into predictor piecewise. Should be 3d or 4d with
-         with the first dimension channel.
+         with channel being the first dimension.
     dims_max
          Specifies dimensions of each sub prediction.
     overlaps
@@ -97,15 +98,18 @@ def predict_piecewise(
          Prediction with size tensor_in.size().
 
     """
-    assert isinstance(tensor_in, torch.Tensor)
-    assert len(tensor_in.size()) > 2
+    if (
+            not isinstance(tensor_in, torch.Tensor)
+            or len(tensor_in.size()) not in (3, 4)
+    ):
+        raise TypeError('tensor_in must be a 3- or 4-d torch.Tensor')
     shape_in = tuple(tensor_in.size())
     n_dim = len(shape_in)
     if isinstance(dims_max, int):
         dims_max = [dims_max]*n_dim
     for idx_d in range(1, n_dim):
         if dims_max[idx_d] > shape_in[idx_d]:
-            dims_max[idx_d] = shape_in[idx_d]
+            dims_max[idx_d] = shape_in[idx_d]//16*16
     if isinstance(overlaps, int):
         overlaps = [overlaps]*n_dim
     assert len(dims_max) == len(overlaps) == n_dim
@@ -120,9 +124,6 @@ def predict_piecewise(
         overlaps=overlaps,
         **predict_kwargs,
     )
-    # tifffile.imsave('debug/ar_sum.tif', ar_out)
     mask = ar_weight > 0.0
     ar_out[mask] = ar_out[mask]/ar_weight[mask]
-    # tifffile.imsave('debug/ar_weight.tif', ar_weight)
-    # tifffile.imsave('debug/ar_out.tif', ar_out)
     return torch.tensor(ar_out)

@@ -6,13 +6,14 @@ import torch
 
 class FakePredictor:
     def predict(self, x, tta=False):
+        assert all(dim % 16 == 0 for dim in x.shape[1:])
         y_hat = x.copy() + 0.42
         return torch.tensor(y_hat)
 
 
 def test_predict_piecewise():
     # Create pretty gradient image as test input
-    shape = (1, 32, 512, 256)
+    shape = (1, 32, 510, 270)
     ar_in = 1
     for idx in range(1, len(shape)):
         slices = [None]*len(shape)
@@ -30,8 +31,13 @@ def test_predict_piecewise():
     )
     got = ar_out.numpy()
     expected = ar_in.numpy() + 0.42
-    npt.assert_almost_equal(got, expected)
+    npt.assert_almost_equal(got, expected, decimal=5)
 
-
-if __name__ == '__main__':
-    test_predict_piecewise()
+    # Test case where dims_max dimensions larger than input image dimensions
+    got = predict_piecewise(
+        predictor,
+        ar_in,
+        dims_max=[None, 44, 128, 512],
+        overlaps=16,
+    ).numpy()
+    npt.assert_almost_equal(got, expected, decimal=5)
