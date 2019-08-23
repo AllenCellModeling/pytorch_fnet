@@ -26,7 +26,13 @@ def _plot_df(df, ax, model_label, colors, **kwargs):
             colors[key] = COLORS[colors['idx']]
             colors['idx'] = (colors['idx'] + 1) % len(COLORS)
         color = colors[key]
-        ax.plot(df.index, df[col], color=color, label=label, **kwargs)
+        ax.plot(
+            df.index.to_numpy(),
+            df[col].to_numpy(),
+            color=color,
+            label=label,
+            **kwargs,
+        )
 
 
 def plot_loss(
