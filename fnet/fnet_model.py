@@ -2,7 +2,7 @@
 
 
 from pathlib import Path
-from typing import Callable, Iterator, Optional, Sequence, Tuple, Union
+from typing import Callable, Iterator, List, Optional, Sequence, Tuple, Union
 import logging
 import math
 import os
@@ -160,7 +160,7 @@ class Model:
             'count_iter': self.count_iter,
         }
 
-    def to_gpu(self, gpu_ids: Union[int, list, ]) -> None:
+    def to_gpu(self, gpu_ids: Union[int, List[int]]) -> None:
         """Move network to specified GPU(s).
 
         Parameters
@@ -476,6 +476,9 @@ class Model:
             cutoff: Optional[float] = None,
     ) -> np.ndarray:
         """Applies model to a single z-stack input.
+
+        This assumes the loaded network architecture can receive 3d grayscale
+        images as input.
 
         Parameters
         ----------
