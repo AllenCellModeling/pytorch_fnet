@@ -1,9 +1,11 @@
-from fnet.data.fnetdataset import FnetDataset
-from fnet.utils.general_utils import add_augmentations
 from typing import Optional
+
 import numpy as np
 import tifffile
 import torch
+
+from fnet.data.fnetdataset import FnetDataset
+from fnet.utils.general_utils import add_augmentations
 
 
 def _flip_y(ar):
@@ -27,8 +29,9 @@ def _flip_x(ar):
 class TiffDataset(FnetDataset):
     """Dataset where each row is a signal-target pairing from TIFF files.
 
-    Dataset items will be 2-item tuples:
-        (signal image, target image)
+    Dataset items will be 2-item or 3-item tuples:
+        (signal image, target image) or
+        (signal image, target image, cost map)
 
     Parameters
     ----------
@@ -42,20 +45,30 @@ class TiffDataset(FnetDataset):
             col_index: Optional[str] = None,
             col_signal: str = 'path_signal',
             col_target: str = 'path_target',
+            col_weight_map: str = 'path_weight_map',
             augment: bool = False,
             **kwargs,
     ):
         super().__init__(**kwargs)
-        assert col_signal in self.df.columns
-        assert col_target in self.df.columns
         self.col_index = col_index
         self.col_signal = col_signal
         self.col_target = col_target
+        self.col_weight_map = col_weight_map
         self.augment = augment
         if self.col_index is not None:
             self.df = self.df.set_index(self.col_index)
         if self.augment:
             self.df = add_augmentations(self.df)
+        if self.col_weight_map not in self.df.columns:
+            self.col_weight_map = None
+
+        for col in [
+                self.col_signal,
+                self.col_target,
+                self.col_weight_map,
+        ]:
+            if col is not None and col not in self.df.columns:
+                raise ValueError(f'{col} not a dataset DataFrame column')
 
     def __len__(self):
         return self.df.shape[0]
@@ -67,7 +80,10 @@ class TiffDataset(FnetDataset):
         for col, transforms in [
                 [self.col_signal, self.transform_signal],
                 [self.col_target, self.transform_target],
+                [self.col_weight_map, None],  # optional weight maps
         ]:
+            if col is None:
+                continue
             path_read = self.df.loc[self.df.index[idx], col]
             if not isinstance(path_read, str):
                 datum.append(None)
