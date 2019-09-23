@@ -162,7 +162,7 @@ class BufferedPatchDataset:
 
         """
         return tuple(
-            torch.stack(part) for part in zip(
+            torch.tensor(np.stack(part)) for part in zip(
                 *[next(self) for _ in range(batch_size)]
             )
         )
