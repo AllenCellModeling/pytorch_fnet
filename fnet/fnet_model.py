@@ -15,7 +15,7 @@ import torch
 from fnet.metrics import corr_coef
 from fnet.predict_piecewise import predict_piecewise as _predict_piecewise_fn
 from fnet.transforms import flip_y, flip_x, norm_around_center
-from fnet.utils.general_utils import get_args, retry_if_oserror, str_to_class
+from fnet.utils.general_utils import get_args, retry_if_oserror, str_to_object
 from fnet.utils.model_utils import move_optim
 
 
@@ -81,7 +81,7 @@ class Model:
     def __init__(
             self,
             betas=(0.5, 0.999),
-            criterion_class='torch.nn.MSELoss',
+            criterion_class='fnet.losses.WeightedMSE',
             init_weights=True,
             lr=0.001,
             nn_class='fnet.nn_modules.fnet_nn_3d.Net',
@@ -91,7 +91,7 @@ class Model:
             gpu_ids=-1,
     ):
         self.betas = betas
-        self.criterion = str_to_class(criterion_class)()
+        self.criterion = str_to_object(criterion_class)()
         self.gpu_ids = [gpu_ids] if isinstance(gpu_ids, int) else gpu_ids
         self.init_weights = init_weights
         self.lr = lr
@@ -112,7 +112,7 @@ class Model:
         self.fnet_model_kwargs.pop('self')
 
     def _init_model(self):
-        self.net = str_to_class(self.nn_class)(
+        self.net = str_to_object(self.nn_class)(
             **self.nn_kwargs
         )
         if self.init_weights:
@@ -210,6 +210,7 @@ class Model:
             self,
             x_batch: torch.Tensor,
             y_batch: torch.Tensor,
+            weight_map_batch: Optional[torch.Tensor] = None,
     ) -> float:
         """Update model using a batch of inputs and targets.
 
@@ -219,6 +220,8 @@ class Model:
             Batched input.
         y_batch
             Batched target.
+        weight_map_batch
+            Optional batched weight map.
 
         Returns
         -------
@@ -237,7 +240,10 @@ class Model:
             module = self.net
         self.optimizer.zero_grad()
         y_hat_batch = module(x_batch)
-        loss = self.criterion(y_hat_batch, y_batch)
+        args = [y_hat_batch, y_batch]
+        if weight_map_batch is not None:
+            args.append(weight_map_batch)
+        loss = self.criterion(*args)
         loss.backward()
         self.optimizer.step()
         self.count_iter += 1
@@ -367,17 +373,20 @@ class Model:
 
     def test_on_batch(
             self,
-            x: torch.Tensor,
-            y: torch.Tensor,
+            x_batch: torch.Tensor,
+            y_batch: torch.Tensor,
+            weight_map_batch: Optional[torch.Tensor] = None,
     ) -> float:
         """Test model on a batch of inputs and targets.
 
         Parameters
         ----------
-        x
+        x_batch
             Batched input.
-        y
+        y_batch
             Batched target.
+        weight_map_batch
+            Optional batched weight map.
 
         Returns
         -------
@@ -390,10 +399,13 @@ class Model:
         else:
             network = self.net
         network.eval()
-        x = x.to(dtype=torch.float32, device=self.device)
+        x_batch = x_batch.to(dtype=torch.float32, device=self.device)
         with torch.no_grad():
-            y_hat = network(x).cpu()
-        loss = self.criterion(y_hat, y)
+            y_hat_batch = network(x_batch).cpu()
+        args = [y_hat_batch, y_batch]
+        if weight_map_batch is not None:
+            args.append(weight_map_batch)
+        loss = self.criterion(*args)
         network.train()
         return loss.item()
 
