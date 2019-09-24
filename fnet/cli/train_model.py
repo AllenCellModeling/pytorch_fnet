@@ -23,7 +23,7 @@ import fnet
 import fnet.utils.viz_utils as vu
 
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 def log_training_options(options: Dict) -> None:
@@ -32,7 +32,7 @@ def log_training_options(options: Dict) -> None:
             ['*** Training options ***']
             + pprint.pformat(options).split(os.linesep)
     ):
-        logger.info(line)
+        LOGGER.info(line)
 
 
 def set_seeds(seed: Optional[int]) -> None:
@@ -52,7 +52,7 @@ def init_cuda(gpu: int) -> None:
         torch.cuda.set_device(gpu)
         torch.cuda.init()
     except RuntimeError:
-        logger.exception('Failed to init CUDA')
+        LOGGER.exception('Failed to init CUDA')
 
 
 def get_bpds_train(args: argparse.Namespace) -> BufferedPatchDataset:
@@ -98,7 +98,7 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
         train_options = json.load(fi)
     args.__dict__.update(train_options)
     add_logging_file_handler(Path(args.path_save_dir, 'train_model.log'))
-    logger.info('Started training at: %s', datetime.datetime.now())
+    LOGGER.info('Started training at: %s', datetime.datetime.now())
 
     set_seeds(args.seed)
     log_training_options(vars(args))
@@ -106,12 +106,12 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
     model = fnet.models.load_or_init_model(path_model, args.json)
     init_cuda(args.gpu_ids[0])
     model.to_gpu(args.gpu_ids)
-    logger.info(model)
+    LOGGER.info(model)
 
     path_losses_csv = os.path.join(args.path_save_dir, 'losses.csv')
     if os.path.exists(path_losses_csv):
         fnetlogger = fnet.FnetLogger(path_losses_csv)
-        logger.info('History loaded from: {:s}'.format(path_losses_csv))
+        LOGGER.info('History loaded from: {:s}'.format(path_losses_csv))
     else:
         fnetlogger = fnet.FnetLogger(
             columns=['num_iter', 'loss_train', 'loss_val']
@@ -121,10 +121,11 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
     bpds_val = get_bpds_val(args)
 
     for idx_iter in range(model.count_iter, args.n_iter):
-        x_batch, y_batch = bpds_train.get_batch(args.batch_size)
         do_save = ((idx_iter + 1) % args.interval_save == 0) or \
                   ((idx_iter + 1) == args.n_iter)
-        loss_train = model.train_on_batch(x_batch, y_batch)
+        loss_train = model.train_on_batch(
+            *bpds_train.get_batch(args.batch_size)
+        )
         loss_val = None
         if do_save and bpds_val is not None:
             loss_val = model.test_on_iterator(
@@ -144,13 +145,9 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
         if do_save:
             model.save(path_model)
             fnetlogger.to_csv(path_losses_csv)
-            logger.info(
-                'BufferedPatchDataset buffer history: %s',
-                bpds_train.get_buffer_history(),
-            )
-            logger.info('loss log saved to: {:s}'.format(path_losses_csv))
-            logger.info('model saved to: {:s}'.format(path_model))
-            logger.info('elapsed time: {:.1f} s'.format(time.time() - time_start))
+            LOGGER.info('loss log saved to: {:s}'.format(path_losses_csv))
+            LOGGER.info('model saved to: {:s}'.format(path_model))
+            LOGGER.info('elapsed time: {:.1f} s'.format(time.time() - time_start))
         if ((idx_iter + 1) in args.iter_checkpoint) or \
            ((idx_iter + 1) % args.interval_checkpoint == 0):
             path_checkpoint = os.path.join(
@@ -159,7 +156,7 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
                 'model_{:06d}.p'.format(idx_iter + 1),
             )
             model.save(path_checkpoint)
-            logger.info('Saved model checkpoint: %s', path_checkpoint)
+            LOGGER.info('Saved model checkpoint: %s', path_checkpoint)
             vu.plot_loss(
                 args.path_save_dir,
                 path_save=os.path.join(args.path_save_dir, 'loss_curves.png'),

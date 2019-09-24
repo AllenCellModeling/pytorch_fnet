@@ -6,7 +6,7 @@ python:
   - "3.6"
 
 install:
-  - pip install --progress-bar off .[dev]
+  - pip install --progress-bar off -e .[dev]
 
 script:
   - make prcheck

@@ -4,19 +4,33 @@ from typing import Tuple
 import numpy as np
 import numpy.testing as npt
 import pytest
+import torch
 
 from fnet.data import BufferedPatchDataset
 
 
 class _DummyDataset:
+    """Dummy dataset class.
 
-    def __init__(self, nd: int = 1):
+    Parameters
+    ----------
+    nd
+        Number of dimensions of dataset items.
+    weights
+        Set to include weight map.
+
+    """
+
+    def __init__(self, nd: int = 1, weights: bool = False):
         self.data = []
         shape = (8,)*nd
         for idx in range(8):
             x = np.arange(idx, idx + 8**nd).reshape(shape)
             y = x**2
-            self.data.append((x, y))
+            datum = [x, y]
+            if weights:
+                datum.append(-x)
+            self.data.append(tuple(datum))
         self.accessed = []
 
     def __len__(self) -> int:
@@ -120,3 +134,25 @@ def test_smaller_patch():
     )
     x, y = next(bpds)
     assert x.shape == y.shape == ((8,) + patch_shape)
+
+
+def test_weights():
+    """Tests bpds when underlying dataset includes target weight maps."""
+    ds = _DummyDataset(nd=3, weights=True)
+    patch_shape = (7, 5)
+    batch_size = 4
+    bpds = BufferedPatchDataset(
+        ds,
+        patch_shape=patch_shape,
+        buffer_size=len(ds),
+        buffer_switch_interval=-1,
+        shuffle_images=False,
+    )
+    shape_exp = (batch_size, 8) + patch_shape
+    for _ in range(4):
+        batch = bpds.get_batch(batch_size=batch_size)
+        assert len(batch) == 3
+        for part in batch:
+            assert isinstance(part, torch.Tensor)
+            assert tuple(part.shape) == shape_exp
+        npt.assert_array_almost_equal(batch[-1], -batch[0])
