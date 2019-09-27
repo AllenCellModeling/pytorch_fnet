@@ -56,14 +56,14 @@ def save_default_train_options(path_save: str) -> None:
             'buffer_switch_interval': 2800,  # every 100 updates
             'patch_shape': [32, 64, 64]
         },
-        'dataset_train': 'aics_x',
-        'dataset_train_kwargs': {},
+        'dataset_train': 'fnet.data.TiffDataset',
+        'dataset_train_kwargs': {'path_csv': 'some/path.csv'},
         'dataset_val': None,
         'dataset_val_kwargs': {},
         'fnet_model_class': 'fnet.fnet_model.Model',
         'fnet_model_kwargs': {
             'betas': [0.9, 0.999],
-            'criterion_class': 'torch.nn.MSELoss',
+            'criterion_class': 'fnet.losses.WeightedMSE',
             'init_weights': False,
             'lr': 0.001,
             'nn_class': 'fnet.nn_modules.fnet_nn_3d.Net',

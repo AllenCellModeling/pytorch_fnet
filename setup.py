@@ -14,7 +14,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     python_requires='>=3.6',
     url='https://github.com/AllenCellModeling/pytorch_fnet',
-    version="1.0",
+    version="1.1",
     install_requires=[
         'matplotlib',
         'numpy',

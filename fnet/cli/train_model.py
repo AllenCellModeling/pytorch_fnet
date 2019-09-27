@@ -2,10 +2,11 @@
 
 
 from pathlib import Path
-from typing import Callable, Dict, Optional
+from typing import Callable, Dict, List, Optional
 import argparse
 import copy
 import datetime
+import inspect
 import json
 import logging
 import os
@@ -163,5 +164,59 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
             )
 
 
-if __name__ == '__main__':
-    main()
+def train_model(
+        batch_size: int = 28,
+        bpds_kwargs: Optional[Dict] = None,
+        dataset_train: str = 'fnet.data.TiffDataset',
+        dataset_train_kwargs: Optional[Dict] = None,
+        dataset_val: Optional[str] = None,
+        dataset_val_kwargs: Optional[Dict] = None,
+        fnet_model_class: str = 'fnet.fnet_model.Model',
+        fnet_model_kwargs: Optional[Dict] = None,
+        interval_checkpoint: int = 50000,
+        interval_save: int = 1000,
+        iter_checkpoint: Optional[List] = None,
+        n_iter: int = 250000,
+        path_save_dir: str = 'models/some_model',
+        seed: Optional[int] = None,
+        json: Optional[str] = None,
+        gpu_ids: Optional[List[int]] = None
+) -> None:
+    """Python API for training."""
+    bpds_kwargs = bpds_kwargs or {
+        'buffer_size': 16,
+        'buffer_switch_interval': 2800,  # every 100 updates
+        'patch_shape': [32, 64, 64],
+    }
+    dataset_train_kwargs = dataset_train_kwargs or {}
+    dataset_val_kwargs = dataset_val_kwargs or {}
+    fnet_model_kwargs = fnet_model_kwargs or {
+        'betas': [0.9, 0.999],
+        'criterion_class': 'fnet.losses.WeightedMSE',
+        'init_weights': False,
+        'lr': 0.001,
+        'nn_class': 'fnet.nn_modules.fnet_nn_3d.Net',
+        'scheduler': None,
+    }
+    iter_checkpoint = iter_checkpoint or []
+    gpu_ids = gpu_ids or [0]
+    json = json or str(Path(path_save_dir, 'train_options.json'))
+
+    pnames, _, _, locs = inspect.getargvalues(inspect.currentframe())
+    train_options = {k: locs[k] for k in pnames}
+
+    path_json = Path(json)
+    if path_json.exists():
+        LOGGER.warning(f'Overwriting existing json: {path_json}')
+    if not path_json.parent.exists():
+        LOGGER.info(f'Created: {path_json.parent}')
+        path_json.parent.mkdir(parents=True)
+
+    json = globals()['json']  # retrieve global module
+    with path_json.open('w') as fo:
+        json.dump(train_options, fo, indent=4, sort_keys=True)
+        LOGGER.info(f'Saved: {path_json}')
+
+    args = argparse.Namespace()
+    args.__dict__.update(train_options)
+    main(args)
