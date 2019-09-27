@@ -180,7 +180,7 @@ def train_model(
         path_save_dir: str = 'models/some_model',
         seed: Optional[int] = None,
         json: Optional[str] = None,
-        gpu_ids: Optional[List] = None
+        gpu_ids: Optional[List[int]] = None
 ) -> None:
     """Python API for training."""
     bpds_kwargs = bpds_kwargs or {
