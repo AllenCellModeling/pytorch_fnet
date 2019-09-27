@@ -185,19 +185,12 @@ def save_predictions_csv(
         df_old = df_old.set_index(col_index)
         df = df.combine_first(df_old)
     df = df.sort_index(axis=1)
-    if not path_csv.parent:
-        path_csv.parent.mkdir(parents=True)
-        LOGGER.info(f'Created: {path_csv.parent}')
     retry_if_oserror(df.to_csv)(path_csv)
     LOGGER.info(f'Saved: {path_csv}')
 
 
-def save_args_as_json(path_save_dir: str, args: argparse.Namespace) -> None:
-    """Saves script arguments as json in save directory.
-
-    By default, tries to save arguments are predict_options.json within the
-    save directory. If that file already exists, appends a digit to uniquify
-    the save path.
+def save_args_as_json(args: argparse.Namespace) -> None:
+    """Saves predict arguments as json in save directory.
 
     Parameters
     ----------
@@ -207,18 +200,41 @@ def save_args_as_json(path_save_dir: str, args: argparse.Namespace) -> None:
         Script arguments.
 
     """
-    path_json = os.path.join(path_save_dir, 'predict_options.json')
-    while os.path.exists(path_json):
-        number = path_json.split('.')[-2]
-        if not number.isdigit():
-            number = '-1'
-        number = str(int(number) + 1)
-        path_json = os.path.join(
-            path_save_dir, '.'.join(['predict_options', number, 'json'])
-        )
-    with open(path_json, 'w') as fo:
+    path_save_dir = Path(args.path_save_dir)
+    if not path_save_dir.exists():
+        path_save_dir.mkdir(parents=True)
+        LOGGER.info(f'Created: {path_save_dir}')
+    path_json = Path(args.path_save_dir, 'predict_options.json')
+    if path_json.exists():
+        LOGGER.warning(f'Overwriting existing json: {path_json}')
+    with path_json.open('w') as fo:
         json.dump(vars(args), fo, indent=4, sort_keys=True)
     LOGGER.info(f'Saved: {path_json}')
+
+
+def aggregate_results(path_pred_csv: Path, metric: str) -> Dict[str, float]:
+    """Calculates mean metric score for each model.
+
+    Parameters
+    ----------
+    path_pred_csv
+        Path to prediction results CSV.
+    metric
+        Name of metric.
+
+    Returns
+    -------
+    Dict[str, float]
+        Mean metric score for each model.
+
+    """
+    df = pd.read_csv(path_pred_csv)
+    cols_keep = [c for c in df.columns if c.startswith(metric)]
+    return (
+        df.filter(cols_keep)
+        .mean(axis=0)
+        .to_dict()
+    )
 
 
 def add_parser_arguments(parser) -> None:
@@ -255,12 +271,16 @@ def main(args: Optional[argparse.Namespace] = None) -> Dict[str, float]:
         parser = argparse.ArgumentParser()
         add_parser_arguments(parser)
         args = parser.parse_args()
+    path_pred_csv = Path(args.path_save_dir, 'predictions.csv')
+    if path_pred_csv.exists():
+        LOGGER.info(f'Using existing prediction results: {path_pred_csv}')
+        return aggregate_results(path_pred_csv, args.metric)
     metric = str_to_object(args.metric)
     dataset = get_dataset(args)
     entries = []
     model = None
     indices = get_indices(args, dataset)
-    results = {p: 0 for p in args.path_model_dir}
+    save_args_as_json(args)
     for count, idx in enumerate(indices, 1):
         LOGGER.info(f'Processing: {idx:3d} ({count}/{len(indices)})')
         entry = {}
@@ -286,10 +306,6 @@ def main(args: Optional[argparse.Namespace] = None) -> Dict[str, float]:
             )
             evaluation = metric(target, prediction)
             entry[args.metric + f'.{model_def["name"]}'] = evaluation
-            if results[path_model_dir] is not None and evaluation is not None:
-                results[path_model_dir] += evaluation
-            else:  # if evaluation is None, aggregation no longer possible
-                results[path_model_dir] = None
             if not args.no_prediction:
                 for idx_c in range(prediction.size()[0]):
                     tag = f'prediction_c{idx_c}.{model_def["name"]}'
@@ -299,13 +315,11 @@ def main(args: Optional[argparse.Namespace] = None) -> Dict[str, float]:
                     )
         entries.append(entry)
     save_predictions_csv(
-        path_csv=Path(args.path_save_dir, 'predictions.csv'),
+        path_csv=path_pred_csv,
         pred_records=entries,
         dataset=dataset,
     )
-    save_args_as_json(args.path_save_dir, args)
-    results = {k: v / (len(indices) or 1) for k, v in results.items()}
-    return results
+    return aggregate_results(path_pred_csv, args.metric)
 
 
 def predict(
