@@ -7,7 +7,7 @@ pylint:
 	pylint -d c0111,c0103 tests/*.py tests/data/*.py
 
 test:
-	pytest --ignore=tests/ignore tests
+	pytest tests
 
 coverage:
 	pytest --cov=fnet --ignore=tests/ignore tests
