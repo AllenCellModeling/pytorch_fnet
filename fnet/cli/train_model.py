@@ -118,9 +118,13 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
             columns=['num_iter', 'loss_train', 'loss_val']
         )
 
+    if (args.n_iter - model.count_iter) <= 0:
+        # Stop if no more iterations needed
+        return
+
+    # Get patch pair providers
     bpds_train = get_bpds_train(args)
     bpds_val = get_bpds_val(args)
-
     for idx_iter in range(model.count_iter, args.n_iter):
         do_save = ((idx_iter + 1) % args.interval_save == 0) or \
                   ((idx_iter + 1) == args.n_iter)
