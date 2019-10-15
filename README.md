@@ -80,10 +80,32 @@ Since this time the json already exists, training should commence.
 User can perform predictions using a trained model with the `fnet predict` command. A path to a saved model and a data source must be specified. For example:
 
 ```shell
-fnet predict models/dna --dataset some.dataset
+fnet predict --json path/to/predict_options.json
+```
+
+As above, users are expected to modify this json to suit their needs. At a minimum, populate the following fields and/or copy and paste corresponding dataset values from `/path/to/train_options.json`
+
+e.g.:
+```shell
+    "dataset_kwargs": {
+        "col_index": "Index",
+        "col_signal": "signal",
+        "col_target": "target",
+        "path_csv": "path/to/my/train.csv",
+    ...
+    "path_model_dir": [
+        "models/model_0"
+    ],
+    "path_save_dir": "path/to/predictions/dir",
 ```
 
 This will use the model save `models/dna` to perform predictions on the `some.dataset` dataset. To see additional command options, use `fnet predict -h`.
+
+Once any modifications are complete, initiate training by repeating the above command:
+
+```shell
+fnet predict --json path/to/predict_options.json
+```
 
 ## Citation
 
