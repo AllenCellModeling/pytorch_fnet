@@ -20,10 +20,17 @@ setuptools.setup(
         "torch>=1.0",
         "tqdm",
         "scikit-image>=0.15.0",
-        "aicsimageio==3.0.4",
+        "aicsimageio==3.0.7",
     ],
     extras_require={
-        "dev": ["flake8", "pylint", "pytest", "pytest-cov"],
-        "examples": ["quilt3==3.1.4"],
+        "dev": [
+            "flake8",
+            "pylint",
+            "pytest",
+            "pytest-cov",
+            "quilt3==3.1.4",
+            "python-dateutil==2.8.0",
+        ],
+        "examples": ["quilt3==3.1.4", "python-dateutil==2.8.0"],
     },
 )

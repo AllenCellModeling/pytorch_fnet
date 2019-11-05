@@ -1,4 +1,4 @@
-from aicsimageio import imread
+from aicsimageio import AICSImage
 import pandas as pd
 import numpy as np
 import torch
@@ -36,7 +36,8 @@ class MultiChTiffDataset(FnetDataset):
         has_target = not np.isnan(element["channel_target"])
 
         # aicsimageio.imread loads as STCZYX, so we load only CZYX
-        im_tmp = imread(element["path_tiff"])[0, 0]
+        with AICSImage(element["path_tiff"]) as img:
+            im_tmp = img.get_image_data(S=0, T=0)[0][0]
 
         im_out = list()
         im_out.append(im_tmp[element["channel_signal"]])
