@@ -24,6 +24,6 @@ setuptools.setup(
     ],
     extras_require={
         "dev": ["flake8", "pylint", "pytest", "pytest-cov"],
-        "examples": ["t4==0.1.3"],
+        "examples": ["quilt3==3.1.4"],
     },
 )

@@ -34,10 +34,21 @@ pip install .
 pip install -e .[dev]
 ```
 
-- If you need the libraries for the examples:
+- If you want to run the demos in the examples directory:
 
 ```shell
 pip install .[examples]
+```
+
+## Demo on Canned AICS Data
+This will download some images from our [Integrated Cell Quilt repository](https://open.quiltdata.com/b/allencell/tree/aics/pipeline_integrated_cell/) and start training a model 
+```shell
+cd examples
+python download_and_train.py
+```
+When training is complete, you can predict on the held-out data with
+```shell
+python predict.py
 ```
 
 ## Command-line tool
