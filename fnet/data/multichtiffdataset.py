@@ -1,8 +1,8 @@
-from aicsimageio import AICSImage
-import pandas as pd
 import numpy as np
+import pandas as pd
 import torch
 
+from aicsimageio import AICSImage
 from fnet.data.fnetdataset import FnetDataset
 
 
