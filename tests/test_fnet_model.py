@@ -6,21 +6,10 @@ import pytest
 import tifffile
 import torch
 
-from fnet.fnet_model import Model
 import fnet
-
+from fnet.fnet_model import Model
 
 SOME_PARAM_TEST_VAL = 123
-
-
-class DummyModel(torch.nn.Module):
-    def __init__(self, some_param=42):
-        super().__init__()
-        self.some_param = some_param
-        self.network = torch.nn.Conv3d(1, 1, kernel_size=3, padding=1)
-
-    def __call__(self, x):
-        return self.network(x)
 
 
 def get_data(device: Union[int, torch.device]) -> tuple:
@@ -36,7 +25,7 @@ def train_new(path_model):
     gpu_id = (1 if torch.cuda.is_available() else -1)
     x, y = get_data(gpu_id)
     model = Model(
-        nn_class='test_fnet_model.DummyModel',
+        nn_class='fnet.nn_modules.dummy.DummyModel',
         nn_kwargs={'some_param': SOME_PARAM_TEST_VAL},
     )
     model.to_gpu(gpu_id)
@@ -63,7 +52,7 @@ def test_resume(tmpdir):
 
 def test_apply_on_single_zstack(tmp_path):
     """Tests the apply_on_single_zstack() method in fnet_model.Model."""
-    model = Model(nn_class='test_fnet_model.DummyModel')
+    model = Model(nn_class='fnet.nn_modules.dummy.DummyModel')
 
     # Test bad inputs
     ar_in = np.random.random(size=(3, 32, 64, 128))
