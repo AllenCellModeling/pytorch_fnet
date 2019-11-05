@@ -37,7 +37,7 @@ class MultiChTiffDataset(FnetDataset):
 
         # aicsimageio.imread loads as STCZYX, so we load only CZYX
         with AICSImage(element["path_tiff"]) as img:
-            im_tmp = img.get_image_data(S=0, T=0)[0][0]
+            im_tmp = img.get_image_data("CZYX", S=0, T=0)
 
         im_out = list()
         im_out.append(im_tmp[element["channel_signal"]])
