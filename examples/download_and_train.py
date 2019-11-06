@@ -1,4 +1,4 @@
-import t4
+import quilt3
 import os
 import json
 import pandas as pd
@@ -15,7 +15,7 @@ gpu_id = 0
 n_images_to_download = 40  # more images the better
 train_fraction = 0.75
 
-image_save_dir = "{}/images/".format(os.getcwd())
+image_save_dir = "{}/".format(os.getcwd())
 model_save_dir = "{}/model/".format(os.getcwd())
 prefs_save_path = "{}/prefs.json".format(model_save_dir)
 
@@ -26,25 +26,29 @@ if not os.path.exists(image_save_dir):
     os.makedirs(image_save_dir)
 
 
-aics_pipeline = t4.Package.browse(
-    "aics/pipeline_integrated_cell", registry="s3://quilt-aics"
+aics_pipeline = quilt3.Package.browse(
+    "aics/pipeline_integrated_cell", registry="s3://allencell"
 )
 
-image_ids = [k for k in aics_pipeline["fov"]][:n_images_to_download]
+data_manifest = aics_pipeline["metadata.csv"]()
 
-metadata = {}
-for image_id in image_ids:
-    metadata[image_id] = aics_pipeline["fov"][image_id].meta
+# SELECT THE FIRST N_IMAGES_TO_DOWNLOAD
+data_manifest = data_manifest.iloc[0:n_images_to_download]
 
-image_save_paths = ["{}/{}".format(image_save_dir, image_id) for image_id in image_ids]
+image_source_paths = data_manifest["SourceReadPath"]
 
-for image_id, image_save_path in zip(image_ids, image_save_paths):
-    if os.path.exists(image_save_path):
+image_target_paths = [
+    "{}/{}".format(image_save_dir, image_source_path)
+    for image_source_path in image_source_paths
+]
+
+for image_source_path, image_target_path in zip(image_source_paths, image_target_paths):
+    if os.path.exists(image_target_path):
         continue
 
     # We only do this because T4 hates our filesystem. It probably wont affect you.
     try:
-        aics_pipeline["fov"][image_id].fetch(image_save_path)
+        aics_pipeline[image_source_path].fetch(image_target_path)
     except OSError:
         pass
 
@@ -54,20 +58,12 @@ for image_id, image_save_path in zip(image_ids, image_save_paths):
 
 df = pd.DataFrame(columns=["path_tiff", "channel_signal", "channel_target"])
 
-rows = [
-    {
-        "path_tiff": image_path,
-        "channel_signal": metadata[image_id]["user_meta"]["content_info"][
-            "brightfield_channel"
-        ],
-        "channel_target": metadata[image_id]["user_meta"]["content_info"][
-            "dna_channel"
-        ],
-    }
-    for image_id, image_path in zip(image_ids, image_save_paths)
-]
+df["path_tiff"] = image_target_paths
+df["channel_signal"] = data_manifest["ChannelNumberBrightfield"]
+df["channel_target"] = data_manifest[
+    "ChannelNumber405"
+]  # this is the DNA channel for all FOVs
 
-df = pd.DataFrame(rows)
 n_train_images = int(n_images_to_download * train_fraction)
 df_train = df[:n_train_images]
 df_test = df[n_train_images:]
