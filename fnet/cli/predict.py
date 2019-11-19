@@ -2,9 +2,8 @@
 
 
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple
 import argparse
-import inspect
 import json
 import logging
 import os
@@ -14,6 +13,7 @@ import pandas as pd
 import tifffile
 import torch
 
+from fnet.cli.init import save_default_predict_options
 from fnet.data import FnetDataset, TiffDataset
 from fnet.models import load_model
 from fnet.transforms import norm_around_center
@@ -22,7 +22,7 @@ from fnet.utils.general_utils import retry_if_oserror
 from fnet.utils.general_utils import str_to_object
 
 
-LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def get_dataset(args: argparse.Namespace) -> torch.utils.data.Dataset:
@@ -132,10 +132,10 @@ def save_tif(fname: str, ar: np.ndarray, path_root: str) -> str:
     path_tif_dir = os.path.join(path_root, 'tifs')
     if not os.path.exists(path_tif_dir):
         os.makedirs(path_tif_dir)
-        LOGGER.info(f'Created: {path_tif_dir}')
+        logger.info(f'Created: {path_tif_dir}')
     path_save = os.path.join(path_tif_dir, fname)
     tifffile.imsave(path_save, ar, compress=2)
-    LOGGER.info(f'Saved: {path_save}')
+    logger.info(f'Saved: {path_save}')
     return os.path.relpath(path_save, path_root)
 
 
@@ -179,18 +179,28 @@ def save_predictions_csv(
             df.rename_axis(dataset.df.index.name)
             .join(dataset.df, lsuffix='_pre')
         )
-    if path_csv.exists():
+    if os.path.exists(path_csv):
         df_old = pd.read_csv(path_csv)
         col_index = df_old.columns[0]  # Assumes first col is index col
         df_old = df_old.set_index(col_index)
         df = df.combine_first(df_old)
     df = df.sort_index(axis=1)
+    dirname = os.path.dirname(path_csv)
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+        logger.info(f'Created: {dirname}')
     retry_if_oserror(df.to_csv)(path_csv)
-    LOGGER.info(f'Saved: {path_csv}')
+    logger.info(f'Saved: {path_csv}')
 
 
-def save_args_as_json(args: argparse.Namespace) -> None:
-    """Saves predict arguments as json in save directory.
+def save_args_as_json(path_save_dir: str, args: argparse.Namespace) -> None:
+    """Saves script arguments as json in save directory.
+
+    A json is saved only if the "--json" option was not specified.
+
+    By default, this function tries to save arguments as predict_options.json
+    within the save directory. If that file already exists, appends a digit to
+    uniquify the save path.
 
     Parameters
     ----------
@@ -200,89 +210,76 @@ def save_args_as_json(args: argparse.Namespace) -> None:
         Script arguments.
 
     """
-    path_save_dir = Path(args.path_save_dir)
-    if not path_save_dir.exists():
-        path_save_dir.mkdir(parents=True)
-        LOGGER.info(f'Created: {path_save_dir}')
-    path_json = Path(args.path_save_dir, 'predict_options.json')
-    if path_json.exists():
-        LOGGER.warning(f'Overwriting existing json: {path_json}')
-    with path_json.open('w') as fo:
+    if args.json is not None:
+        return
+    args.__dict__.pop('json')
+    path_json = os.path.join(path_save_dir, 'predict_options.json')
+    while os.path.exists(path_json):
+        number = path_json.split('.')[-2]
+        if not number.isdigit():
+            number = '-1'
+        number = str(int(number) + 1)
+        path_json = os.path.join(
+            path_save_dir, '.'.join(['predict_options', number, 'json'])
+        )
+    with open(path_json, 'w') as fo:
         json.dump(vars(args), fo, indent=4, sort_keys=True)
-    LOGGER.info(f'Saved: {path_json}')
+    logger.info(f'Saved: {path_json}')
 
 
-def aggregate_results(path_pred_csv: Path, metric: str) -> Dict[str, float]:
-    """Calculates mean metric score for each model.
-
-    Parameters
-    ----------
-    path_pred_csv
-        Path to prediction results CSV.
-    metric
-        Name of metric.
-
-    Returns
-    -------
-    Dict[str, float]
-        Mean metric score for each model.
-
-    """
-    df = pd.read_csv(path_pred_csv)
-    cols_keep = [c for c in df.columns if c.startswith(metric)]
-    return (
-        df.filter(cols_keep)
-        .mean(axis=0)
-        .to_dict()
-    )
+def load_from_json(args: argparse.Namespace) -> None:
+    """Loads arguments from if a json is specified."""
+    if args.json is None:
+        return
+    with args.json.open(mode='r') as fi:
+        predict_options = json.load(fi)
+    args.__dict__.update(predict_options)
 
 
 def add_parser_arguments(parser) -> None:
     """Add training script arguments to parser."""
-    parser.add_argument('path_model_dir', nargs='+', help='path(s) to model directory')
     parser.add_argument('--dataset', help='dataset name')
-    parser.add_argument('--dataset_kwargs', type=json.loads, default={}, help='dataset kwargs')
-    parser.add_argument('--gpu_ids', nargs='+', type=int, default=[0], help='GPU ID')
-    parser.add_argument('--idx_sel', nargs='+', type=int, help='specify dataset indices')
-    parser.add_argument('--metric', default='fnet.metrics.corr_coef', help='evaluation metric')
-    parser.add_argument('--n_images', type=int, default=-1, help='max number of images to test')
-    parser.add_argument('--no_prediction', action='store_true', help='set to not save predicted image')
-    parser.add_argument('--no_signal', action='store_true', help='set to not save signal image')
-    parser.add_argument('--no_target', action='store_true', help='set to not save target image')
-    parser.add_argument('--path_save_dir', default='predictions', help='path to output root directory')
+    parser.add_argument('--dataset_kwargs', type=json.loads,
+                        default={}, help='dataset kwargs')
+    parser.add_argument('--gpu_ids', type=int, default=0, help='GPU ID')
+    parser.add_argument('--idx_sel', nargs='+', type=int,
+                        help='specify dataset indices')
+    parser.add_argument('--json', type=Path,
+                        help='path to prediction options json')
+    parser.add_argument(
+        '--metric', default='fnet.metrics.corr_coef', help='evaluation metric')
+    parser.add_argument('--n_images', type=int, default=-1,
+                        help='max number of images to test')
+    parser.add_argument('--no_prediction', action='store_true',
+                        help='set to not save predicted image')
+    parser.add_argument('--no_signal', action='store_true',
+                        help='set to not save signal image')
+    parser.add_argument('--no_target', action='store_true',
+                        help='set to not save target image')
+    parser.add_argument('--path_model_dir', nargs='+',
+                        help='path(s) to model directory')
+    parser.add_argument('--path_save_dir', default='predictions',
+                        help='path to output root directory')
     parser.add_argument('--path_tif', help='path(s) to input tif(s)')
 
 
-def main(args: Optional[argparse.Namespace] = None) -> Dict[str, float]:
-    """Predicts using model.
-
-    Parameters
-    ----------
-    args
-        Predict arguments.
-
-    Returns
-    -------
-    Dict[str, float]
-        Mean metric score for each model.
-
-    """
+def main(args: Optional[argparse.Namespace] = None) -> None:
+    """Predicts using model."""
     if args is None:
         parser = argparse.ArgumentParser()
         add_parser_arguments(parser)
         args = parser.parse_args()
-    path_pred_csv = Path(args.path_save_dir, 'predictions.csv')
-    if path_pred_csv.exists():
-        LOGGER.info(f'Using existing prediction results: {path_pred_csv}')
-        return aggregate_results(path_pred_csv, args.metric)
+    if args.json and not args.json.exists():
+        save_default_predict_options(args.json)
+        return
+    load_from_json(args)
     metric = str_to_object(args.metric)
     dataset = get_dataset(args)
     entries = []
     model = None
     indices = get_indices(args, dataset)
-    save_args_as_json(args)
     for count, idx in enumerate(indices, 1):
-        LOGGER.info(f'Processing: {idx:3d} ({count}/{len(indices)})')
+        logger.info(f'Processing: {idx:3d} ({count}/{len(indices)})')
         entry = {}
         entry['index'] = idx
         signal, target = item_from_dataset(dataset, idx)
@@ -299,7 +296,7 @@ def main(args: Optional[argparse.Namespace] = None) -> Dict[str, float]:
                 model_def = parse_model(path_model_dir)
                 model = load_model(model_def['path'], no_optim=True)
                 model.to_gpu(args.gpu_ids)
-                LOGGER.info(f'Loaded model: {model_def["name"]}')
+                logger.info(f'Loaded model: {model_def["name"]}')
             prediction = model.predict_piecewise(
                 signal,
                 tta=('no_tta' not in model_def['options']),
@@ -314,43 +311,13 @@ def main(args: Optional[argparse.Namespace] = None) -> Dict[str, float]:
                         f'{idx}_{tag}.tif', pred_c, args.path_save_dir
                     )
         entries.append(entry)
-    save_predictions_csv(
-        path_csv=path_pred_csv,
-        pred_records=entries,
-        dataset=dataset,
-    )
-    return aggregate_results(path_pred_csv, args.metric)
+        save_predictions_csv(
+            path_csv=os.path.join(args.path_save_dir, 'predictions.csv'),
+            pred_records=entries,
+            dataset=dataset,
+        )
+    save_args_as_json(args.path_save_dir, args)
 
 
-def predict(
-        path_model_dir: Union[str, List[str]],
-        dataset: str = 'fnet.data.TiffDataset',
-        dataset_kwargs: Optional[Dict] = None,
-        gpu_ids: Optional[List[int]] = None,
-        idx_sel: Optional[List[int]] = None,
-        metric: str = 'fnet.metrics.corr_coef',
-        n_images: int = -1,
-        no_prediction: bool = False,
-        no_signal: bool = False,
-        no_target: bool = False,
-        path_save_dir: str = 'predictions',
-        path_tif: Optional[str] = None,
-) -> Dict[str, float]:
-    """Predicts using model(s).
-
-    Returns
-    -------
-    Dict[str, float]
-        Mean metric score for each model.
-
-    """
-    if isinstance(path_model_dir, str):
-        path_model_dir = [path_model_dir]
-    dataset_kwargs = dataset_kwargs or {}
-    gpu_ids = gpu_ids or [0]
-
-    pnames, _, _, locs = inspect.getargvalues(inspect.currentframe())
-    predict_options = {k: locs[k] for k in pnames}
-    args = argparse.Namespace()
-    args.__dict__.update(predict_options)
-    return main(args)
+if __name__ == '__main__':
+    main()

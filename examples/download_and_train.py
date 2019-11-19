@@ -2,6 +2,7 @@ import quilt3
 import os
 import json
 import pandas as pd
+from pathlib import Path
 
 
 from fnet.cli.init import save_default_train_options
@@ -75,6 +76,8 @@ df_train.to_csv(data_save_path_train, index=False)
 # Run the label-free stuff (dont change this)
 ################################################
 
+prefs_save_path = Path(prefs_save_path)
+
 save_default_train_options(prefs_save_path)
 
 with open(prefs_save_path, "r") as fp:
@@ -93,7 +96,7 @@ prefs["dataset_val_kwargs"] = {"path_csv": data_save_path_test}
 with open(prefs_save_path, "w") as fp:
     json.dump(prefs, fp)
 
-command_str = "fnet train {} --gpu_ids {}".format(prefs_save_path, gpu_id)
+command_str = f"fnet train --json {prefs_save_path} --gpu_ids {gpu_id}"
 
 print(command_str)
 os.system(command_str)

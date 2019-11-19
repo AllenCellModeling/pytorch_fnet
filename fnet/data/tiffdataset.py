@@ -98,7 +98,9 @@ class TiffDataset(FnetDataset):
             for transform in transforms:
                 ar = transform(ar)
             datum.append(
-                torch.tensor(ar[np.newaxis, ].copy(), dtype=torch.float32)
+                torch.tensor(
+                    ar[np.newaxis, ].astype(np.float32), dtype=torch.float32
+                )
             )
         return tuple(datum)
 

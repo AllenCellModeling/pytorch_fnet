@@ -9,9 +9,9 @@
             16
         ]
     },
-    "dataset_train": "dummymodule.dummy_fnet_dataset",
+    "dataset_train": "fnet.data.DummyCustomFnetDataset",
     "dataset_train_kwargs": {
-	"train": true
+        "train": true
     },
     "dataset_val": null,
     "dataset_val_kwargs": null,
@@ -25,10 +25,10 @@
         "init_weights": false,
         "lr": 0.001,
         "nn_class": "fnet.nn_modules.fnet_nn_3d_params.Net",
-	"nn_kwargs": {
-	    "depth": 0,
-	    "mult_chan": 2
-	},
+        "nn_kwargs": {
+            "depth": 0,
+            "mult_chan": 2
+        },
         "scheduler": null
     },
     "interval_checkpoint": 64,

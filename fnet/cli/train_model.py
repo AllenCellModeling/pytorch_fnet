@@ -24,7 +24,7 @@ import fnet
 import fnet.utils.viz_utils as vu
 
 
-LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def log_training_options(options: Dict) -> None:
@@ -33,7 +33,7 @@ def log_training_options(options: Dict) -> None:
             ['*** Training options ***']
             + pprint.pformat(options).split(os.linesep)
     ):
-        LOGGER.info(line)
+        logger.info(line)
 
 
 def set_seeds(seed: Optional[int]) -> None:
@@ -53,7 +53,7 @@ def init_cuda(gpu: int) -> None:
         torch.cuda.set_device(gpu)
         torch.cuda.init()
     except RuntimeError:
-        LOGGER.exception('Failed to init CUDA')
+        logger.exception('Failed to init CUDA')
 
 
 def get_bpds_train(args: argparse.Namespace) -> BufferedPatchDataset:
@@ -81,7 +81,7 @@ def get_bpds_val(args: argparse.Namespace) -> Optional[BufferedPatchDataset]:
 
 def add_parser_arguments(parser) -> None:
     """Add training script arguments to parser."""
-    parser.add_argument('json', help='json with training options')
+    parser.add_argument('--json', type=Path, required=True, help='json with training options')
     parser.add_argument('--gpu_ids', nargs='+', default=[0], type=int, help='gpu_id(s)')
 
 
@@ -92,14 +92,14 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
         parser = argparse.ArgumentParser()
         add_parser_arguments(parser)
         args = parser.parse_args()
-    if not os.path.exists(args.json):
+    if args.json and not args.json.exists():
         save_default_train_options(args.json)
         return
     with open(args.json, 'r') as fi:
         train_options = json.load(fi)
     args.__dict__.update(train_options)
     add_logging_file_handler(Path(args.path_save_dir, 'train_model.log'))
-    LOGGER.info('Started training at: %s', datetime.datetime.now())
+    logger.info(f'Started training at: {datetime.datetime.now()}')
 
     set_seeds(args.seed)
     log_training_options(vars(args))
@@ -107,12 +107,12 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
     model = fnet.models.load_or_init_model(path_model, args.json)
     init_cuda(args.gpu_ids[0])
     model.to_gpu(args.gpu_ids)
-    LOGGER.info(model)
+    logger.info(model)
 
     path_losses_csv = os.path.join(args.path_save_dir, 'losses.csv')
     if os.path.exists(path_losses_csv):
         fnetlogger = fnet.FnetLogger(path_losses_csv)
-        LOGGER.info('History loaded from: {:s}'.format(path_losses_csv))
+        logger.info(f'History loaded from: {path_losses_csv}')
     else:
         fnetlogger = fnet.FnetLogger(
             columns=['num_iter', 'loss_train', 'loss_val']
@@ -150,9 +150,13 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
         if do_save:
             model.save(path_model)
             fnetlogger.to_csv(path_losses_csv)
-            LOGGER.info('loss log saved to: {:s}'.format(path_losses_csv))
-            LOGGER.info('model saved to: {:s}'.format(path_model))
-            LOGGER.info('elapsed time: {:.1f} s'.format(time.time() - time_start))
+            logger.info(
+                'BufferedPatchDataset buffer history: %s',
+                bpds_train.get_buffer_history(),
+            )
+            logger.info(f'Loss log saved to: {path_losses_csv}')
+            logger.info(f'Model saved to: {path_model}')
+            logger.info(f'Elapsed time: {time.time() - time_start:.1f} s')
         if ((idx_iter + 1) in args.iter_checkpoint) or \
            ((idx_iter + 1) % args.interval_checkpoint == 0):
             path_checkpoint = os.path.join(
@@ -161,7 +165,7 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
                 'model_{:06d}.p'.format(idx_iter + 1),
             )
             model.save(path_checkpoint)
-            LOGGER.info('Saved model checkpoint: %s', path_checkpoint)
+            logger.info(f'Saved model checkpoint: {path_checkpoint}')
             vu.plot_loss(
                 args.path_save_dir,
                 path_save=os.path.join(args.path_save_dir, 'loss_curves.png'),
@@ -211,15 +215,15 @@ def train_model(
 
     path_json = Path(json)
     if path_json.exists():
-        LOGGER.warning(f'Overwriting existing json: {path_json}')
+        logger.warning(f'Overwriting existing json: {path_json}')
     if not path_json.parent.exists():
-        LOGGER.info(f'Created: {path_json.parent}')
+        logger.info(f'Created: {path_json.parent}')
         path_json.parent.mkdir(parents=True)
 
     json = globals()['json']  # retrieve global module
     with path_json.open('w') as fo:
         json.dump(train_options, fo, indent=4, sort_keys=True)
-        LOGGER.info(f'Saved: {path_json}')
+        logger.info(f'Saved: {path_json}')
 
     args = argparse.Namespace()
     args.__dict__.update(train_options)
