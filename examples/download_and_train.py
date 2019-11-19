@@ -11,7 +11,7 @@ from fnet.cli.init import save_default_train_options
 # Download the 3D multi-channel tiffs via Quilt/T4
 ###################################################
 
-gpu_id = 7
+gpu_id = 0
 
 n_images_to_download = 40  # more images the better
 train_fraction = 0.75

@@ -9,13 +9,13 @@
             16
         ]
     },
-    "dataset_train": "dummymodule.dummy_fnet_dataset",
+    "dataset_train": "fnet.data.DummyFnetDataset",
     "dataset_train_kwargs": {
-	"train": true
+        "train": true
     },
-    "dataset_val": "dummymodule.dummy_fnet_dataset",
+    "dataset_val": "fnet.data.DummyFnetDataset",
     "dataset_val_kwargs": {
-	"train": false
+        "train": false
     },
     "fnet_model_class": "fnet.fnet_model.Model",
     "fnet_model_kwargs": {
@@ -27,10 +27,10 @@
         "init_weights": false,
         "lr": 0.001,
         "nn_class": "fnet.nn_modules.fnet_nn_3d_params.Net",
-	"nn_kwargs": {
-	    "depth": 0,
-	    "mult_chan": 2
-	},
+        "nn_kwargs": {
+            "depth": 0,
+            "mult_chan": 2
+        },
         "scheduler": null
     },
     "interval_checkpoint": 10,

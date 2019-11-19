@@ -81,6 +81,7 @@ def test_train_model_pred():
     path_test_json = (
         Path(__file__).parent / 'data' / 'train_options_test.json'
     )
+
     subprocess.run(
         ['fnet', 'train', '--json', path_test_json, '--gpu_ids', '-1'],
         check=True,

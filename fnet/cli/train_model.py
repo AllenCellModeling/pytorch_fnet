@@ -152,7 +152,7 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
             fnetlogger.to_csv(path_losses_csv)
             logger.info(
                 'BufferedPatchDataset buffer history: %s',
-                dataloader_train.dataset.get_buffer_history(),
+                bpds_train.get_buffer_history(),
             )
             logger.info(f'Loss log saved to: {path_losses_csv}')
             logger.info(f'Model saved to: {path_model}')
