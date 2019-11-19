@@ -239,17 +239,27 @@ def load_from_json(args: argparse.Namespace) -> None:
 def add_parser_arguments(parser) -> None:
     """Add training script arguments to parser."""
     parser.add_argument('--dataset', help='dataset name')
-    parser.add_argument('--dataset_kwargs', type=json.loads, default={}, help='dataset kwargs')
+    parser.add_argument('--dataset_kwargs', type=json.loads,
+                        default={}, help='dataset kwargs')
     parser.add_argument('--gpu_ids', type=int, default=0, help='GPU ID')
-    parser.add_argument('--idx_sel', nargs='+', type=int, help='specify dataset indices')
-    parser.add_argument('--json', type=Path, help='path to prediction options json')
-    parser.add_argument('--metric', default='fnet.metrics.corr_coef', help='evaluation metric')
-    parser.add_argument('--n_images', type=int, default=-1, help='max number of images to test')
-    parser.add_argument('--no_prediction', action='store_true', help='set to not save predicted image')
-    parser.add_argument('--no_signal', action='store_true', help='set to not save signal image')
-    parser.add_argument('--no_target', action='store_true', help='set to not save target image')
-    parser.add_argument('--path_model_dir', nargs='+', help='path(s) to model directory')
-    parser.add_argument('--path_save_dir', default='predictions', help='path to output root directory')
+    parser.add_argument('--idx_sel', nargs='+', type=int,
+                        help='specify dataset indices')
+    parser.add_argument('--json', type=Path,
+                        help='path to prediction options json')
+    parser.add_argument(
+        '--metric', default='fnet.metrics.corr_coef', help='evaluation metric')
+    parser.add_argument('--n_images', type=int, default=-1,
+                        help='max number of images to test')
+    parser.add_argument('--no_prediction', action='store_true',
+                        help='set to not save predicted image')
+    parser.add_argument('--no_signal', action='store_true',
+                        help='set to not save signal image')
+    parser.add_argument('--no_target', action='store_true',
+                        help='set to not save target image')
+    parser.add_argument('--path_model_dir', nargs='+',
+                        help='path(s) to model directory')
+    parser.add_argument('--path_save_dir', default='predictions',
+                        help='path to output root directory')
     parser.add_argument('--path_tif', help='path(s) to input tif(s)')
 
 
