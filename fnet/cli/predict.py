@@ -156,7 +156,7 @@ def parse_model(model_str: str) -> Dict:
 
 
 def save_predictions_csv(
-        path_csv: str,
+        path_csv: Path,
         pred_records: List[Dict],
         dataset: Any,
 ) -> None:

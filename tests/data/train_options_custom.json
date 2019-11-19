@@ -9,7 +9,7 @@
             16
         ]
     },
-    "dataset_train": "fnet.data.DummyFnetDataset",
+    "dataset_train": "fnet.data.DummyCustomFnetDataset",
     "dataset_train_kwargs": {
         "train": true
     },
