@@ -269,7 +269,7 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
         parser = argparse.ArgumentParser()
         add_parser_arguments(parser)
         args = parser.parse_args()
-    if (args.json is not None) and (not args.json.exists()):
+    if args.json and not args.json.exists():
         save_default_predict_options(args.json)
         return
     load_from_json(args)

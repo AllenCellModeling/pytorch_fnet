@@ -96,7 +96,7 @@ prefs["dataset_val_kwargs"] = {"path_csv": data_save_path_test}
 with open(prefs_save_path, "w") as fp:
     json.dump(prefs, fp)
 
-command_str = "fnet train --json {} --gpu_ids {}".format(prefs_save_path, gpu_id)
+command_str = f"fnet train --json {prefs_save_path} --gpu_ids {gpu_id}"
 
 print(command_str)
 os.system(command_str)
