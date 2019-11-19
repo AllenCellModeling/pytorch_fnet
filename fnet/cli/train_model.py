@@ -92,7 +92,7 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
         parser = argparse.ArgumentParser()
         add_parser_arguments(parser)
         args = parser.parse_args()
-    if not args.json.exists():
+    if args.json and not args.json.exists():
         save_default_train_options(args.json)
         return
     with open(args.json, 'r') as fi:
