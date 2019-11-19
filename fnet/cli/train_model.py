@@ -2,10 +2,11 @@
 
 
 from pathlib import Path
-from typing import Callable, Dict, Optional
+from typing import Callable, Dict, List, Optional
 import argparse
 import copy
 import datetime
+import inspect
 import json
 import logging
 import os
@@ -14,9 +15,9 @@ import time
 
 import numpy as np
 import torch
-import torch.utils.data
 
 from fnet.cli.init import save_default_train_options
+from fnet.data import BufferedPatchDataset
 from fnet.utils.general_utils import add_logging_file_handler
 from fnet.utils.general_utils import str_to_object
 import fnet
@@ -55,26 +56,17 @@ def init_cuda(gpu: int) -> None:
         logger.exception('Failed to init CUDA')
 
 
-def get_dataloader_train(
-        args: argparse.Namespace,
-        n_iter_remaining: int,
-) -> torch.utils.data.DataLoader:
-    """Creates DataLoader for training."""
-    bpds_kwargs = copy.deepcopy(args.bpds_kwargs)
-    bpds_kwargs['npatches'] = n_iter_remaining*args.batch_size
+def get_bpds_train(args: argparse.Namespace) -> BufferedPatchDataset:
+    """Creates data provider for training."""
     ds_fn = str_to_object(args.dataset_train)
     if not isinstance(ds_fn, Callable):
         raise ValueError('Dataset function should be Callable')
     ds = ds_fn(**args.dataset_train_kwargs)
-    bpds = fnet.data.BufferedPatchDataset(dataset=ds, **bpds_kwargs)
-    dataloader = torch.utils.data.DataLoader(bpds, batch_size=args.batch_size)
-    return dataloader
+    return BufferedPatchDataset(dataset=ds, **args.bpds_kwargs)
 
 
-def get_dataloader_val(
-        args: argparse.Namespace
-) -> Optional[torch.utils.data.DataLoader]:
-    """Creates DataLoader for validation."""
+def get_bpds_val(args: argparse.Namespace) -> Optional[BufferedPatchDataset]:
+    """Creates data provider for validation."""
     if args.dataset_val is None:
         return None
     bpds_kwargs = copy.deepcopy(args.bpds_kwargs)
@@ -83,11 +75,8 @@ def get_dataloader_val(
         raise ValueError('Dataset function should be Callable')
     ds = ds_fn(**args.dataset_val_kwargs)
     bpds_kwargs['buffer_size'] = min(4, len(ds))
-    bpds_kwargs['buffer_switch_frequency'] = -1
-    bpds_kwargs['npatches'] = 16*args.batch_size
-    bpds = fnet.data.BufferedPatchDataset(dataset=ds, **bpds_kwargs)
-    dataloader = torch.utils.data.DataLoader(bpds, batch_size=args.batch_size)
-    return dataloader
+    bpds_kwargs['buffer_switch_interval'] = -1
+    return BufferedPatchDataset(dataset=ds, **bpds_kwargs)
 
 
 def add_parser_arguments(parser) -> None:
@@ -129,19 +118,24 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
             columns=['num_iter', 'loss_train', 'loss_val']
         )
 
-    dataloader_train = get_dataloader_train(
-        args, n_iter_remaining=max(0, (args.n_iter - model.count_iter))
-    )
-    dataloader_val = get_dataloader_val(args)
-    for idx_iter, (x_batch, y_batch) in enumerate(
-            dataloader_train, model.count_iter
-    ):
+    if (args.n_iter - model.count_iter) <= 0:
+        # Stop if no more iterations needed
+        return
+
+    # Get patch pair providers
+    bpds_train = get_bpds_train(args)
+    bpds_val = get_bpds_val(args)
+    for idx_iter in range(model.count_iter, args.n_iter):
         do_save = ((idx_iter + 1) % args.interval_save == 0) or \
                   ((idx_iter + 1) == args.n_iter)
-        loss_train = model.train_on_batch(x_batch, y_batch)
+        loss_train = model.train_on_batch(
+            *bpds_train.get_batch(args.batch_size)
+        )
         loss_val = None
-        if do_save and dataloader_val is not None:
-            loss_val = model.test_on_iterator(dataloader_val)
+        if do_save and bpds_val is not None:
+            loss_val = model.test_on_iterator(
+                [bpds_val.get_batch(args.batch_size) for _ in range(4)]
+            )
         fnetlogger.add(
             {
                 'num_iter': idx_iter + 1,
