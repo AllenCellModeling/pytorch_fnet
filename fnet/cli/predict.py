@@ -179,16 +179,19 @@ def save_predictions_csv(
             df.rename_axis(dataset.df.index.name)
             .join(dataset.df, lsuffix='_pre')
         )
-    if os.path.exists(path_csv):
+      
+    if path_csv.exists():
         df_old = pd.read_csv(path_csv)
         col_index = df_old.columns[0]  # Assumes first col is index col
         df_old = df_old.set_index(col_index)
         df = df.combine_first(df_old)
     df = df.sort_index(axis=1)
     dirname = os.path.dirname(path_csv)
+
     if not os.path.exists(dirname):
         os.makedirs(dirname)
         logger.info(f'Created: {dirname}')
+
     retry_if_oserror(df.to_csv)(path_csv)
     logger.info(f'Saved: {path_csv}')
 
@@ -259,10 +262,23 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
         parser = argparse.ArgumentParser()
         add_parser_arguments(parser)
         args = parser.parse_args()
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+    path_pred_csv = Path(args.path_save_dir, 'predictions.csv')
+    if path_pred_csv.exists():
+        logger.info(f'Using existing prediction results: {path_pred_csv}')
+        return aggregate_results(path_pred_csv, args.metric)
+=======
+>>>>>>> Stashed changes
     if (args.json is not None) and (not args.json.exists()):
         save_default_predict_options(args.json)
         return
     load_from_json(args)
+<<<<<<< Updated upstream
+=======
+>>>>>>> cec1c0587ac7e09040b04cb5a085d437e174c796
+>>>>>>> Stashed changes
     metric = str_to_object(args.metric)
     dataset = get_dataset(args)
     entries = []
