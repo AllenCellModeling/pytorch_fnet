@@ -10,7 +10,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     python_requires=">=3.6",
     url="https://github.com/AllenCellModeling/pytorch_fnet",
-    version="1.1",
+    version="1.2",
     install_requires=[
         "matplotlib",
         "numpy",
@@ -28,9 +28,9 @@ setuptools.setup(
             "pylint",
             "pytest",
             "pytest-cov",
-            "quilt3==3.1.4",
+            "quilt3==3.1.5",
             "python-dateutil==2.8.0",
         ],
-        "examples": ["quilt3==3.1.4", "python-dateutil==2.8.0"],
+        "examples": ["quilt3==3.1.5", "python-dateutil==2.8.0"],
     },
 )
