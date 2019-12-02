@@ -1,19 +1,49 @@
-import quilt3
+import argparse
 import os
 import json
+
+import quilt3
 import pandas as pd
 from pathlib import Path
 
-
 from fnet.cli.init import save_default_train_options
+
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument(
+    "--gpu_id",
+    default=0,
+    type=int,
+    help="GPU to use.",
+)
+parser.add_argument(
+    "--n_imgs",
+    default=40,
+    type=int,
+    help="Number of images to use.",
+)
+parser.add_argument(
+    "--n_iterations",
+    default=5E4,
+    type=int,
+    help="Number of training iterations.",
+)
+parser.add_argument(
+    "--interval_checkpoint",
+    default=1E4,
+    type=int,
+    help="Number of training iterations between checkpoints.",
+)
+
+args = parser.parse_args()
 
 ###################################################
 # Download the 3D multi-channel tiffs via Quilt/T4
 ###################################################
 
-gpu_id = 0
-
-n_images_to_download = 40  # more images the better
+gpu_id = args.gpu_id
+n_images_to_download = args.n_imgs  # more images the better
 train_fraction = 0.75
 
 image_save_dir = "{}/".format(os.getcwd())
@@ -83,8 +113,9 @@ save_default_train_options(prefs_save_path)
 with open(prefs_save_path, "r") as fp:
     prefs = json.load(fp)
 
-prefs["n_iter"] = 50000  # takes about 16 hours, go up to 250,000 for full training
-prefs["interval_checkpoint"] = 10000
+# takes about 16 hours, go up to 250,000 for full training
+prefs["n_iter"] = args.n_iterations
+prefs["interval_checkpoint"] = args.interval_checkpoint
 
 prefs["dataset_train"] = "fnet.data.MultiChTiffDataset"
 prefs["dataset_train_kwargs"] = {"path_csv": data_save_path_train}
