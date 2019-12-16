@@ -13,7 +13,7 @@ For the code corresponding to our Nature Methods paper, please use the `release_
 
 ## System requirements
 
-We recommend installation on Linux and an NVIDIA graphics card with 10+ GB of RAM (e.g., NVIDIA Titan X Pascal) with the latest drivers installed.
+We recommend installation on Linux and an NVIDIA graphics card with 12+ GB of RAM (e.g., NVIDIA Titan X Pascal) with the latest drivers installed.
 
 ## Installation
 
