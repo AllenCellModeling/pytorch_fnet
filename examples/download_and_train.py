@@ -1,3 +1,4 @@
+import pdb
 import argparse
 import os
 import json
@@ -25,13 +26,13 @@ parser.add_argument(
 )
 parser.add_argument(
     "--n_iterations",
-    default=5E4,
+    default=50000,
     type=int,
     help="Number of training iterations.",
 )
 parser.add_argument(
     "--interval_checkpoint",
-    default=1E4,
+    default=10000,
     type=int,
     help="Number of training iterations between checkpoints.",
 )
