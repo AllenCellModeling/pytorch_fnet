@@ -13,3 +13,4 @@ htmlcov/
 *.egg-info/
 examples/*/
 examples/*.csv
+test_model/
