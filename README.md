@@ -120,7 +120,7 @@ fnet predict --json path/to/predict_options.json
 
 ## Citation
 
-If you find this code useful in your research, please consider citing our pre-publication manuscript:
+If you find this code useful in your research, please consider citing our manuscript in Nature Methods:
 
 ```
 @article{Ounkomol2018,
