@@ -14,3 +14,4 @@ htmlcov/
 examples/*/
 examples/*.csv
 test_model/
+.editorconfig
