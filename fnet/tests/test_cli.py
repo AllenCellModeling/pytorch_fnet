@@ -7,7 +7,7 @@ import tempfile
 
 import pytest
 
-from tests.data.testlib import create_tif_data
+from .data.testlib import create_tif_data
 
 
 def _update_json(path_json: Path, **kwargs):
@@ -37,7 +37,7 @@ def project_dir():
     path_pre = Path.cwd()
     path_tmp = Path(tempfile.mkdtemp())
     path_test_dir = Path(__file__).parent
-    path_data_dir = path_test_dir.parent / 'data'
+    path_data_dir = path_test_dir.parent.parent / 'data'
     Path.mkdir(path_tmp / 'data')
     for tif in ['EM_low.tif', 'MBP_low.tif']:
         shutil.copy(path_data_dir / tif, path_tmp / 'data')

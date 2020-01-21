@@ -17,7 +17,7 @@ def get_data(device: Union[int, torch.device]) -> tuple:
         device = (torch.device('cuda', device) if device >= 0 else
                   torch.device('cpu'))
     x = torch.rand(1, 1, 8, 16, 16, device=device)
-    y = x*2 + 1
+    y = x * 2 + 1
     return x, y
 
 
@@ -77,20 +77,20 @@ def test_apply_on_single_zstack(tmp_path):
 
     # Test resized
     factors = (1, .5, .3)
-    shape_exp = tuple(round(ar_in.shape[i]*factors[i]) for i in range(3))
+    shape_exp = tuple(round(ar_in.shape[i] * factors[i]) for i in range(3))
     yhat_resized = model.apply_on_single_zstack(ar_in, ResizeRatio=factors)
     assert yhat_resized.shape == shape_exp
 
     # Test cutoff
     cutoff = 0.1
-    yhat_exp = (yhat >= cutoff).astype(np.uint8)*255
+    yhat_exp = (yhat >= cutoff).astype(np.uint8) * 255
     yhat_cutoff = model.apply_on_single_zstack(ar_in, cutoff=cutoff)
     assert np.issubdtype(yhat_cutoff.dtype, np.unsignedinteger)
     assert np.array_equal(yhat_cutoff, yhat_exp)
 
 
 def test_train_on_batch():
-    model = Model(nn_class='tests.data.nn_test.Net', lr=0.01)
+    model = Model(nn_class='fnet.tests.data.nn_test.Net', lr=0.01)
     shape_item = (1, 2, 4, 8)
     batch_size = 9
     shape_batch = (batch_size,) + shape_item
@@ -103,14 +103,14 @@ def test_train_on_batch():
         cost_prev = cost
 
     # Test target weight maps
-    model = Model(nn_class='tests.data.nn_test.Net', lr=0.)  # disable learning
+    model = Model(nn_class='fnet.tests.data.nn_test.Net', lr=0.)  # disable learning
     cost_norm = model.train_on_batch(x_batch, y_batch)
     # Test uniform weight map
     weight_map_batch = (
         (torch.ones(shape_item) / np.prod(shape_item)).expand(shape_batch)
     )
     cost_weighted = model.train_on_batch(x_batch, y_batch, weight_map_batch)
-    npt.assert_approx_equal(cost_weighted, cost_norm)
+    npt.assert_approx_equal(cost_weighted, cost_norm, significant=6)
     # Test all-zero weight map
     cost_weighted = model.train_on_batch(
         x_batch, y_batch, torch.zeros(x_batch.size())
@@ -130,7 +130,7 @@ def test_train_on_batch():
 
 
 def test_test_on_batch():
-    model = Model(nn_class='tests.data.nn_test.Net', lr=0.01)
+    model = Model(nn_class='fnet.tests.data.nn_test.Net', lr=0.01)
     shape_item = (1, 2, 4, 8)
     batch_size = 1
     shape_batch = (batch_size,) + shape_item

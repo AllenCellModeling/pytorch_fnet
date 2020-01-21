@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from fnet.data import tiffdataset
-from tests.data.testlib import create_tif_data
+from .data.testlib import create_tif_data
 
 
 @pytest.mark.parametrize(
