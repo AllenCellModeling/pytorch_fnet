@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/AllenCellModeling/pytorch_fnet/workflows/Build%20Master/badge.svg)](https://github.com/AllenCellModeling/pytorch_fnet/actions)
 [![Documentation](https://github.com/AllenCellModeling/pytorch_fnet/workflows/Documentation/badge.svg)](https://allencellmodeling.github.io/pytorch_fnet/)
-![Combined outputs](./docs/_static/PredictingStructures-1.jpg?raw=true "Combined outputs")
+![Combined outputs](./_static/PredictingStructures-1.jpg?raw=true "Combined outputs")
 
 ## Support
 
