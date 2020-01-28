@@ -32,12 +32,12 @@ class BufferedPatchDataset:
     """
 
     def __init__(
-            self,
-            dataset: collections.abc.Sequence,
-            patch_shape: Sequence[int] = (32, 64, 64),
-            buffer_size: int = 1,
-            buffer_switch_interval: int = -1,
-            shuffle_images: bool = True,
+        self,
+        dataset: collections.abc.Sequence,
+        patch_shape: Sequence[int] = (32, 64, 64),
+        buffer_size: int = 1,
+        buffer_switch_interval: int = -1,
+        shuffle_images: bool = True,
     ):
         self.dataset = dataset
         self.patch_shape = patch_shape
@@ -50,7 +50,7 @@ class BufferedPatchDataset:
         self.buffer = deque()
         self.remaining_to_be_in_buffer = deque()
         self.buffer_history = []
-        for _ in tqdm(range(self.buffer_size), desc='Buffering images'):
+        for _ in tqdm(range(self.buffer_size), desc="Buffering images"):
             self.insert_new_element_into_buffer()
 
     def __iter__(self):
@@ -60,7 +60,7 @@ class BufferedPatchDataset:
         patch = self.get_random_patch()
         self.counter += 1
         if (self.buffer_switch_interval > 0) and (
-                self.counter % self.buffer_switch_interval == 0
+            self.counter % self.buffer_switch_interval == 0
         ):
             self.insert_new_element_into_buffer()
         return patch
@@ -75,21 +75,17 @@ class BufferedPatchDataset:
                 shape_spatial = component.shape[-nd:]
             elif component.shape[-nd:] != shape_spatial:
                 raise ValueError(
-                    f'Dataset item {idx_buf}, component {idx_c} shape '
-                    f'{component.shape} incompatible with first component '
-                    f'shape {self.buffer[-1][0].shape}'
+                    f"Dataset item {idx_buf}, component {idx_c} shape "
+                    f"{component.shape} incompatible with first component "
+                    f"shape {self.buffer[-1][0].shape}"
                 )
-            if (
-                    nd > len(component.shape) or
-                    any(
-                        self.patch_shape[d] > shape_spatial[d]
-                        for d in range(nd)
-                    )
+            if nd > len(component.shape) or any(
+                self.patch_shape[d] > shape_spatial[d] for d in range(nd)
             ):
                 raise ValueError(
-                    f'Dataset item {idx_buf}, component {idx_c} shape '
-                    f'{component.shape} incompatible with patch_shape '
-                    f'{self.patch_shape}'
+                    f"Dataset item {idx_buf}, component {idx_c} shape "
+                    f"{component.shape} incompatible with patch_shape "
+                    f"{self.patch_shape}"
                 )
 
     def insert_new_element_into_buffer(self) -> None:
@@ -110,7 +106,7 @@ class BufferedPatchDataset:
         new_datum_index = self.remaining_to_be_in_buffer.popleft()
         self.buffer_history.append(new_datum_index)
         self.buffer.append(self.dataset[new_datum_index])
-        logger.info(f'Added item {new_datum_index} into buffer')
+        logger.info(f"Added item {new_datum_index} into buffer")
         self._check_last_datum()
 
     def get_random_patch(self) -> List[ArrayLike]:
@@ -143,7 +139,7 @@ class BufferedPatchDataset:
                 ends = starts + np.array(self.patch_shape)
                 slices = tuple(slice(s, e) for s, e in zip(starts, ends))
             # Pad slices with "slice(None)" if there are non-spatial dimensions
-            slices_pad = (slice(None),)*(len(part.shape) - len(shape_spatial))
+            slices_pad = (slice(None),) * (len(part.shape) - len(shape_spatial))
             patch.append(part[slices_pad + slices])
         return patch
 
@@ -162,9 +158,8 @@ class BufferedPatchDataset:
 
         """
         return tuple(
-            torch.tensor(np.stack(part)) for part in zip(
-                *[next(self) for _ in range(batch_size)]
-            )
+            torch.tensor(np.stack(part))
+            for part in zip(*[next(self) for _ in range(batch_size)])
         )
 
     def get_buffer_history(self) -> List[int]:

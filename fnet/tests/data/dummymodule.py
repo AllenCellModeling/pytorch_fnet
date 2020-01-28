@@ -5,11 +5,11 @@ import pandas as pd
 import tifffile
 import torch
 
-from fnet.data import TiffDataset
+from fnet.data.tiffdataset import TiffDataset
 from fnet.utils.general_utils import add_augmentations
 
 
-def DummyFnetDataset(train: bool = False) -> TiffDataset:
+def dummy_fnet_dataset(train: bool = False) -> TiffDataset:
     """Returns a dummy Fnetdataset."""
     df = pd.DataFrame(
         {
@@ -42,7 +42,7 @@ class _CustomDataset:
         return (sig, tar)
 
 
-def DummyCustomFnetDataset(train: bool = False) -> TiffDataset:
+def dummy_custom_dataset(train: bool = False) -> TiffDataset:
     """Returns a dummy custom dataset."""
     df = pd.DataFrame(
         {
