@@ -34,10 +34,10 @@ class _CustomDataset:
     def __getitem__(self, idx):
         loc = self._df.index[idx]
         sig = torch.from_numpy(
-            tifffile.imread(self._df.loc[loc, "path_signal"])[np.newaxis, ]
+            tifffile.imread(self._df.loc[loc, "path_signal"])[np.newaxis,]
         )
         tar = torch.from_numpy(
-            tifffile.imread(self._df.loc[loc, "path_target"])[np.newaxis, ]
+            tifffile.imread(self._df.loc[loc, "path_target"])[np.newaxis,]
         )
         return (sig, tar)
 

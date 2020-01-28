@@ -10,4 +10,4 @@ def get_module_version():
     return __version__
 
 
-__all__ = ['models', 'FnetLogger']
+__all__ = ["models", "FnetLogger"]

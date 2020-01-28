@@ -14,8 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 def files_from_dir(
-        path_dir: str,
-        extensions: Optional[Sequence[str]] = None,
+    path_dir: str, extensions: Optional[Sequence[str]] = None
 ) -> List[str]:
     """Returns sorted list of files in a directory with optional extension(s).
 
@@ -28,7 +27,7 @@ def files_from_dir(
 
     """
     if extensions is None:
-        extensions = ['']  # Allows for all extensions
+        extensions = [""]  # Allows for all extensions
     paths = []
     for entry in os.scandir(path_dir):
         if any(entry.path.endswith(ext) for ext in extensions):
@@ -45,9 +44,9 @@ def str_to_object(str_o: str):
         Fully qualified object name.
 
     """
-    parts = str_o.split('.')
+    parts = str_o.split(".")
     if len(parts) > 1:
-        module = importlib.import_module('.'.join(parts[:-1]))
+        module = importlib.import_module(".".join(parts[:-1]))
         return getattr(module, parts[-1])
     return inspect.currentframe().f_back.f_globals[str_o]
 
@@ -63,23 +62,24 @@ def to_objects(slist):
                 continue
             olist.append(s)
             continue
-        if s.lower() == 'none':
+        if s.lower() == "none":
             continue
-        s_split = s.split('.')
+        s_split = s.split(".")
         for idx_part, part in enumerate(s_split):
             if not part.isidentifier():
                 break
-        importee = '.'.join(s_split[:idx_part])
-        so = '.'.join(s_split[idx_part:])
+        importee = ".".join(s_split[:idx_part])
+        so = ".".join(s_split[idx_part:])
         if len(importee) > 0:
             module = importlib.import_module(importee)  # noqa: F841
-            so = 'module.' + so
+            so = "module." + so
         olist.append(eval(so))
     return olist
 
 
 def retry_if_oserror(fn: Callable):
     """Retries input function if an OSError is encountered."""
+
     def wrapper(*args, **kwargs):
         count = 0
         while True:
@@ -88,10 +88,8 @@ def retry_if_oserror(fn: Callable):
                 fn(*args, **kwargs)
                 break
             except OSError as err:
-                wait = 2**min(count, 5)
-                logger.info(
-                    f'Attempt {count} failed: {err}. Waiting {wait} seconds.'
-                )
+                wait = 2 ** min(count, 5)
+                logger.info(f"Attempt {count} failed: {err}. Waiting {wait} seconds.")
                 time.sleep(wait)
 
     return wrapper
@@ -129,13 +127,13 @@ def get_args():
 
 def str_to_class(string: str):
     """Return class from string representation."""
-    idx_dot = string.rfind('.')
+    idx_dot = string.rfind(".")
     if idx_dot < 0:
-        module_str = 'fnet.nn_modules'
+        module_str = "fnet.nn_modules"
         class_str = string
     else:
         module_str = string[:idx_dot]
-        class_str = string[idx_dot + 1:]
+        class_str = string[idx_dot + 1 :]
     module = importlib.import_module(module_str)
     return getattr(module, class_str)
 
@@ -162,23 +160,20 @@ def add_augmentations(df: pd.DataFrame) -> pd.DataFrame:
     df_flip_x = df.assign(flip_x=1)
     df_both = df.assign(flip_y=1, flip_x=1)
     name_index = df.index.name
-    df_aug = (
-        pd.concat(
-            [df, df_flip_y, df_flip_x, df_both], ignore_index=True, sort=False
-        )
-        .rename_axis(name_index)
-    )
+    df_aug = pd.concat(
+        [df, df_flip_y, df_flip_x, df_both], ignore_index=True, sort=False
+    ).rename_axis(name_index)
     return df_aug
 
 
 def whats_my_name(obj: object):
     """Returns object's name."""
-    return obj.__module__ + '.' + obj.__qualname__
+    return obj.__module__ + "." + obj.__qualname__
 
 
 def create_formatter():
     """Creates a default logging Formatter."""
-    return logging.Formatter('%(levelname)s:%(name)s: %(message)s')
+    return logging.Formatter("%(levelname)s:%(name)s: %(message)s")
 
 
 def add_logging_file_handler(path_save: Path) -> None:
@@ -195,9 +190,9 @@ def add_logging_file_handler(path_save: Path) -> None:
 
     """
     path_save.parent.mkdir(parents=True, exist_ok=True)
-    fh = logging.FileHandler(path_save, mode='a')
+    fh = logging.FileHandler(path_save, mode="a")
     fh.setFormatter(create_formatter())
-    logging.getLogger('fnet').addHandler(fh)
+    logging.getLogger("fnet").addHandler(fh)
 
 
 def init_fnet_logging() -> None:
@@ -218,7 +213,7 @@ def init_fnet_logging() -> None:
     for handler in logger_root.handlers:
         logger_root.removeHandler(handler)
     # Init fnet logger
-    logger_fnet = logging.getLogger('fnet')
+    logger_fnet = logging.getLogger("fnet")
     logger_fnet.setLevel(logging.INFO)
     if logger_fnet.hasHandlers():  # avoids redundant handlers
         return

@@ -11,23 +11,10 @@ from fnet.cli.init import save_default_train_options
 
 parser = argparse.ArgumentParser()
 
+parser.add_argument("--gpu_id", default=0, type=int, help="GPU to use.")
+parser.add_argument("--n_imgs", default=40, type=int, help="Number of images to use.")
 parser.add_argument(
-    "--gpu_id",
-    default=0,
-    type=int,
-    help="GPU to use.",
-)
-parser.add_argument(
-    "--n_imgs",
-    default=40,
-    type=int,
-    help="Number of images to use.",
-)
-parser.add_argument(
-    "--n_iterations",
-    default=50000,
-    type=int,
-    help="Number of training iterations.",
+    "--n_iterations", default=50000, type=int, help="Number of training iterations."
 )
 parser.add_argument(
     "--interval_checkpoint",

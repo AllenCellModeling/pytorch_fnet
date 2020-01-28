@@ -79,7 +79,8 @@ extra_requirements = {
 }
 
 setup(
-    author="Ounkomol, Chek and Fernandes, Daniel A. and Seshamani, Sharmishtaa and Maleckar, Mary M. and Collman, Forrest and Johnson, Gregory R.",
+    author="Ounkomol, Chek and Fernandes, Daniel A. and Seshamani, Sharmishtaa and "
+    "Maleckar, Mary M. and Collman, Forrest and Johnson, Gregory R.",
     author_email="gregj@alleninstitute.org",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
@@ -89,7 +90,8 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
     ],
-    description="A machine learning model for transforming microsocpy images between modalities",
+    description="A machine learning model for transforming microsocpy images between "
+    "modalities",
     entry_points={
         "console_scripts": ["fnet = fnet.cli.main:main"],
     },

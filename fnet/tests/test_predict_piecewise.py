@@ -15,23 +15,18 @@ def test_predict_piecewise():
     shape = (1, 32, 512, 256)
     ar_in = 1
     for idx in range(1, len(shape)):
-        slices = [None]*len(shape)
+        slices = [None] * len(shape)
         slices[idx] = slice(None)
-        ar_in = ar_in*np.linspace(
-            0, 1, num=shape[idx], endpoint=False
-        )[tuple(slices)]
+        ar_in = ar_in * np.linspace(0, 1, num=shape[idx], endpoint=False)[tuple(slices)]
     ar_in = torch.tensor(ar_in.astype(np.float32))
     predictor = FakePredictor()
     ar_out = predict_piecewise(
-        predictor,
-        ar_in,
-        dims_max=[None, 32, 128, 64],
-        overlaps=16,
+        predictor, ar_in, dims_max=[None, 32, 128, 64], overlaps=16
     )
     got = ar_out.numpy()
     expected = ar_in.numpy() + 0.42
     npt.assert_almost_equal(got, expected)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_predict_piecewise()
