@@ -67,7 +67,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
-docs/aicsimageio.*rst
+docs/fnet.*rst
 
 # PyBuilder
 target/
@@ -116,3 +116,4 @@ data/*/
 !data/csvs/
 data/csvs/*/
 .vscode
+
