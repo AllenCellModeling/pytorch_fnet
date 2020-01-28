@@ -31,8 +31,7 @@ jobs:
         pip install .[test]
     - name: Test with pytest
       run: |
-        pytest --cov-report xml --cov=fnet fnet/tests/
-        codecov -t ${{ secrets.CODECOV_TOKEN }}
+        pytest fnet/tests/
 
   lint:
     runs-on: ubuntu-latest
