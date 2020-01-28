@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/AllenCellModeling/pytorch_fnet/workflows/Build%20Master/badge.svg)](https://github.com/AllenCellModeling/pytorch_fnet/actions)
 [![Documentation](https://github.com/AllenCellModeling/pytorch_fnet/workflows/Documentation/badge.svg)](https://allencellmodeling.github.io/pytorch_fnet/)
-![Combined outputs](./docs/_static/PredictingStructures-1.jpg?raw=true "Combined outputs")
+![Combined outputs](resources/PredictingStructures-1.jpg?raw=true "Combined outputs")
 
 ## Support
 
@@ -40,7 +40,7 @@ pip install .[examples]
 ```
 
 ## Demo on Canned AICS Data
-This will download some images from our [Integrated Cell Quilt repository](https://open.quiltdata.com/b/allencell/tree/aics/pipeline_integrated_cell/) and start training a model 
+This will download some images from our [Integrated Cell Quilt repository](https://open.quiltdata.com/b/allencell/tree/aics/pipeline_integrated_cell/) and start training a model
 ```shell
 cd examples
 python download_and_train.py
