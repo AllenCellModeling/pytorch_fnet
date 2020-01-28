@@ -4,12 +4,11 @@ import os
 
 class FnetLogger(object):
     """Log values in a dict of lists."""
-
     def __init__(self, path_csv=None, columns=None):
         if path_csv is not None:
             df = pd.read_csv(path_csv)
             self.columns = list(df.columns)
-            self.data = df.to_dict(orient="list")
+            self.data = df.to_dict(orient='list')
         else:
             self.columns = columns
             self.data = {}
@@ -17,7 +16,7 @@ class FnetLogger(object):
                 self.data[c] = []
 
     def __repr__(self):
-        return "FnetLogger({})".format(self.columns)
+        return 'FnetLogger({})'.format(self.columns)
 
     def add(self, entry):
         if isinstance(entry, dict):

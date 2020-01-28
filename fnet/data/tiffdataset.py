@@ -41,13 +41,13 @@ class TiffDataset(FnetDataset):
     """
 
     def __init__(
-        self,
-        col_index: Optional[str] = None,
-        col_signal: str = "path_signal",
-        col_target: str = "path_target",
-        col_weight_map: str = "path_weight_map",
-        augment: bool = False,
-        **kwargs,
+            self,
+            col_index: Optional[str] = None,
+            col_signal: str = 'path_signal',
+            col_target: str = 'path_target',
+            col_weight_map: str = 'path_weight_map',
+            augment: bool = False,
+            **kwargs,
     ):
         super().__init__(**kwargs)
         self.col_index = col_index
@@ -62,21 +62,25 @@ class TiffDataset(FnetDataset):
         if self.col_weight_map not in self.df.columns:
             self.col_weight_map = None
 
-        for col in [self.col_signal, self.col_target, self.col_weight_map]:
+        for col in [
+                self.col_signal,
+                self.col_target,
+                self.col_weight_map,
+        ]:
             if col is not None and col not in self.df.columns:
-                raise ValueError(f"{col} not a dataset DataFrame column")
+                raise ValueError(f'{col} not a dataset DataFrame column')
 
     def __len__(self):
         return self.df.shape[0]
 
     def __getitem__(self, idx):
-        flip_y = self.df.iloc[idx, :].get("flip_y", -1) > 0
-        flip_x = self.df.iloc[idx, :].get("flip_x", -1) > 0
+        flip_y = self.df.iloc[idx, :].get('flip_y', -1) > 0
+        flip_x = self.df.iloc[idx, :].get('flip_x', -1) > 0
         datum = []
         for col, transforms in [
-            [self.col_signal, self.transform_signal],
-            [self.col_target, self.transform_target],
-            [self.col_weight_map, None],  # optional weight maps
+                [self.col_signal, self.transform_signal],
+                [self.col_target, self.transform_target],
+                [self.col_weight_map, None],  # optional weight maps
         ]:
             if col is None:
                 continue
@@ -94,7 +98,9 @@ class TiffDataset(FnetDataset):
             for transform in transforms:
                 ar = transform(ar)
             datum.append(
-                torch.tensor(ar[np.newaxis,].astype(np.float32), dtype=torch.float32)
+                torch.tensor(
+                    ar[np.newaxis, ].astype(np.float32), dtype=torch.float32
+                )
             )
         return tuple(datum)
 

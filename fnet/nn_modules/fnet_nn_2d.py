@@ -9,7 +9,9 @@ class Net(torch.nn.Module):
         self.net_recurse = _Net_recurse(
             n_in_channels=1, mult_chan=mult_chan, depth=depth
         )
-        self.conv_out = torch.nn.Conv2d(mult_chan, 1, kernel_size=3, padding=1)
+        self.conv_out = torch.nn.Conv2d(
+            mult_chan, 1, kernel_size=3, padding=1
+        )
 
     def forward(self, x):
         x_rec = self.net_recurse(x)
@@ -37,7 +39,9 @@ class _Net_recurse(torch.nn.Module):
         self.sub_2conv_more = SubNet2Conv(n_in_channels, n_out_channels)
 
         if depth > 0:
-            self.sub_2conv_less = SubNet2Conv(2 * n_out_channels, n_out_channels)
+            self.sub_2conv_less = SubNet2Conv(
+                2 * n_out_channels, n_out_channels
+            )
             self.conv_down = torch.nn.Conv2d(
                 n_out_channels, n_out_channels, 2, stride=2
             )
@@ -48,7 +52,9 @@ class _Net_recurse(torch.nn.Module):
             )
             self.bn1 = torch.nn.BatchNorm2d(n_out_channels)
             self.relu1 = torch.nn.ReLU()
-            self.sub_u = _Net_recurse(n_out_channels, mult_chan=2, depth=(depth - 1))
+            self.sub_u = _Net_recurse(
+                n_out_channels, mult_chan=2, depth=(depth - 1)
+            )
 
     def forward(self, x):
         if self.depth == 0:

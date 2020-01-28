@@ -15,8 +15,8 @@ logger = logging.info(__name__)
 def _load_model(path_model: str) -> Model:
     """Load saved model from path."""
     state = torch.load(path_model)
-    fnet_model_class = state["fnet_model_class"]
-    fnet_model_kwargs = state["fnet_model_kwargs"]
+    fnet_model_class = state['fnet_model_class']
+    fnet_model_kwargs = state['fnet_model_kwargs']
     model = str_to_class(fnet_model_class)(**fnet_model_kwargs)
     model.load_state(state, no_optim=True)
     return model
@@ -44,9 +44,8 @@ class FnetEnsemble(Model):
             assert os.path.isdir(paths_model)
             paths_model = sorted(
                 [
-                    p.path
-                    for p in os.scandir(os.path.abspath(paths_model))
-                    if p.path.lower().endswith(".p")
+                    p.path for p in os.scandir(os.path.abspath(paths_model))
+                    if p.path.lower().endswith('.p')
                 ]
             )
         assert len(paths_model) > 0
@@ -55,11 +54,11 @@ class FnetEnsemble(Model):
 
     def __str__(self):
         str_out = []
-        str_out.append(f"{len(self.paths_model)}-model ensemble:")
+        str_out.append(f'{len(self.paths_model)}-model ensemble:')
         str_out.extend([p for p in self.paths_model])
         return os.linesep.join(str_out)
 
-    def to_gpu(self, gpu_ids: Union[int, list]) -> None:
+    def to_gpu(self, gpu_ids: Union[int, list, ]) -> None:
         """Move network to specified GPU(s).
 
         Parameters
@@ -73,7 +72,9 @@ class FnetEnsemble(Model):
         self.gpu_ids = gpu_ids
 
     def predict(
-        self, x: Union[torch.Tensor, np.ndarray], tta: bool = False
+            self,
+            x: Union[torch.Tensor, np.ndarray],
+            tta: bool = False
     ) -> torch.Tensor:
         """Performs model prediction.
 
@@ -98,7 +99,7 @@ class FnetEnsemble(Model):
             if y_hat_mean is None:
                 y_hat_mean = torch.zeros(*y_hat.size())
             y_hat_mean += y_hat
-        return y_hat_mean / len(self.paths_model)
+        return y_hat_mean/len(self.paths_model)
 
     # Override
     def save(self, path_save: str):
@@ -111,14 +112,16 @@ class FnetEnsemble(Model):
 
         """
         state = {
-            "fnet_model_class": (self.__module__ + "." + self.__class__.__qualname__),
-            "fnet_model_kwargs": {"paths_model": self.paths_model},
+            'fnet_model_class': (
+                self.__module__ + '.' + self.__class__.__qualname__
+            ),
+            'fnet_model_kwargs': {'paths_model': self.paths_model},
         }
         dirname = os.path.dirname(path_save)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         torch.save(state, path_save)
-        logger.info(f"Ensemble model saved to: {path_save}")
+        logger.info(f'Ensemble model saved to: {path_save}')
 
     # Override
     def load_state(self, state: dict, no_optim: bool = False):

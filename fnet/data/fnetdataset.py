@@ -54,11 +54,11 @@ class FnetDataset(torch.utils.data.Dataset):
     """
 
     def __init__(
-        self,
-        dataframe: Optional[pd.DataFrame] = None,
-        path_csv: Optional[str] = None,
-        transform_signal: Optional[list] = None,
-        transform_target: Optional[list] = None,
+            self,
+            dataframe: Optional[pd.DataFrame] = None,
+            path_csv: Optional[str] = None,
+            transform_signal: Optional[list] = None,
+            transform_target: Optional[list] = None,
     ):
         self.path_csv = None
         if dataframe is not None:
@@ -79,9 +79,13 @@ class FnetDataset(torch.utils.data.Dataset):
             return self._metadata
         self._metadata = {}
         if self.path_csv is not None:
-            self._metadata["path_csv"] = self.path_csv
-        self._metadata["transform_signal"] = _to_str_list(self.transform_signal)
-        self._metadata["transform_target"] = _to_str_list(self.transform_target)
+            self._metadata['path_csv'] = self.path_csv
+        self._metadata['transform_signal'] = _to_str_list(
+            self.transform_signal
+        )
+        self._metadata['transform_target'] = _to_str_list(
+            self.transform_target
+        )
         return self._metadata
 
     def get_information(self, index) -> Union[dict, str]:
