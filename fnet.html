@@ -1,0 +1,952 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fnet package &mdash; fnet 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="fnet.cli package" href="fnet.cli.html" />
+    <link rel="prev" title="Pytorch_fnet" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> fnet
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">fnet package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="fnet.cli.html">fnet.cli package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fnet.data.html">fnet.data package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fnet.nn_modules.html">fnet.nn_modules package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fnet.utils.html">fnet.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fnet.fnet_ensemble">fnet.fnet_ensemble module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fnet.fnet_model">fnet.fnet_model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fnet.fnetlogger">fnet.fnetlogger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fnet.losses">fnet.losses module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fnet.metrics">fnet.metrics module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fnet.models">fnet.models module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fnet.predict_piecewise">fnet.predict_piecewise module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fnet.transforms">fnet.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-fnet">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">fnet</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>fnet package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/fnet.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="fnet-package">
+<h1>fnet package<a class="headerlink" href="#fnet-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="fnet.cli.html">fnet.cli package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fnet.cli.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.cli.html#module-fnet.cli.init">fnet.cli.init module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.cli.html#module-fnet.cli.main">fnet.cli.main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.cli.html#module-fnet.cli.predict">fnet.cli.predict module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.cli.html#module-fnet.cli.train_model">fnet.cli.train_model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.cli.html#module-fnet.cli">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fnet.data.html">fnet.data package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fnet.data.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.data.html#module-fnet.data.bufferedpatchdataset">fnet.data.bufferedpatchdataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.data.html#fnet-data-czidataset-module">fnet.data.czidataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.data.html#fnet-data-czireader-module">fnet.data.czireader module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.data.html#module-fnet.data.dummydataset">fnet.data.dummydataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.data.html#module-fnet.data.fnetdataset">fnet.data.fnetdataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.data.html#module-fnet.data.multichtiffdataset">fnet.data.multichtiffdataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.data.html#module-fnet.data.tiffdataset">fnet.data.tiffdataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.data.html#module-fnet.data">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fnet.nn_modules.html">fnet.nn_modules package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fnet.nn_modules.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.nn_modules.html#module-fnet.nn_modules.dummy">fnet.nn_modules.dummy module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.nn_modules.html#module-fnet.nn_modules.fnet_nn_2d">fnet.nn_modules.fnet_nn_2d module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.nn_modules.html#module-fnet.nn_modules.fnet_nn_3d">fnet.nn_modules.fnet_nn_3d module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.nn_modules.html#module-fnet.nn_modules.fnet_nn_3d_params">fnet.nn_modules.fnet_nn_3d_params module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.nn_modules.html#module-fnet.nn_modules">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fnet.utils.html">fnet.utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fnet.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.utils.html#module-fnet.utils.general_utils">fnet.utils.general_utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.utils.html#module-fnet.utils.model_utils">fnet.utils.model_utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.utils.html#module-fnet.utils.split_dataset">fnet.utils.split_dataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.utils.html#module-fnet.utils.viz_utils">fnet.utils.viz_utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.utils.html#module-fnet.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-fnet.fnet_ensemble">
+<span id="fnet-fnet-ensemble-module"></span><h2>fnet.fnet_ensemble module<a class="headerlink" href="#module-fnet.fnet_ensemble" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fnet.fnet_ensemble.FnetEnsemble">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.fnet_ensemble.</code><code class="sig-name descname">FnetEnsemble</code><span class="sig-paren">(</span><em class="sig-param">paths_model: Union[str, List[str]]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/fnet_ensemble.html#FnetEnsemble"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_ensemble.FnetEnsemble" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fnet.fnet_model.Model" title="fnet.fnet_model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">fnet.fnet_model.Model</span></code></a></p>
+<p>Ensemble of FnetModels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>paths_model</strong> – Path to a directory of saved models or a list of paths to saved models.</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="fnet.fnet_ensemble.FnetEnsemble.paths_model">
+<code class="sig-name descname">paths_model</code><a class="headerlink" href="#fnet.fnet_ensemble.FnetEnsemble.paths_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Paths to saved models in the ensemble.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Union[str, List[str]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="fnet.fnet_ensemble.FnetEnsemble.gpu_ids">
+<code class="sig-name descname">gpu_ids</code><a class="headerlink" href="#fnet.fnet_ensemble.FnetEnsemble.gpu_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>GPU(s) used for prediction tasks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>List[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.fnet_ensemble.FnetEnsemble.load_state">
+<code class="sig-name descname">load_state</code><span class="sig-paren">(</span><em class="sig-param">state: dict</em>, <em class="sig-param">no_optim: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/fnet_ensemble.html#FnetEnsemble.load_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_ensemble.FnetEnsemble.load_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="fnet.fnet_ensemble.FnetEnsemble.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">x: Union[torch.Tensor, numpy.ndarray], tta: bool = False</em><span class="sig-paren">)</span> &#x2192; torch.Tensor<a class="reference internal" href="_modules/fnet/fnet_ensemble.html#FnetEnsemble.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_ensemble.FnetEnsemble.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs model prediction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Batched input.</p></li>
+<li><p><strong>tta</strong> – Set to to use test-time augmentation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Model prediction.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.fnet_ensemble.FnetEnsemble.save">
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">path_save: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/fnet_ensemble.html#FnetEnsemble.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_ensemble.FnetEnsemble.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves model to disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_save</strong> – Filename to which model is saved.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.fnet_ensemble.FnetEnsemble.to_gpu">
+<code class="sig-name descname">to_gpu</code><span class="sig-paren">(</span><em class="sig-param">gpu_ids: Union[int, list]</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/fnet_ensemble.html#FnetEnsemble.to_gpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_ensemble.FnetEnsemble.to_gpu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move network to specified GPU(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>gpu_ids</strong> – GPU(s) on which to perform training or prediction.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet.fnet_model">
+<span id="fnet-fnet-model-module"></span><h2>fnet.fnet_model module<a class="headerlink" href="#module-fnet.fnet_model" title="Permalink to this headline">¶</a></h2>
+<p>Module to define main fnet model wrapper class.</p>
+<dl class="class">
+<dt id="fnet.fnet_model.Model">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.fnet_model.</code><code class="sig-name descname">Model</code><span class="sig-paren">(</span><em class="sig-param">betas=(0.5</em>, <em class="sig-param">0.999)</em>, <em class="sig-param">criterion_class='fnet.losses.WeightedMSE'</em>, <em class="sig-param">init_weights=True</em>, <em class="sig-param">lr=0.001</em>, <em class="sig-param">nn_class='fnet.nn_modules.fnet_nn_3d.Net'</em>, <em class="sig-param">nn_kwargs={}</em>, <em class="sig-param">scheduler=None</em>, <em class="sig-param">weight_decay=0</em>, <em class="sig-param">gpu_ids=-1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/fnet_model.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_model.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class that encompasses a pytorch network and its optimizer.</p>
+<dl class="method">
+<dt id="fnet.fnet_model.Model.apply_on_single_zstack">
+<code class="sig-name descname">apply_on_single_zstack</code><span class="sig-paren">(</span><em class="sig-param">input_img: Optional[numpy.ndarray] = None</em>, <em class="sig-param">filename: Union[pathlib.Path</em>, <em class="sig-param">str</em>, <em class="sig-param">None] = None</em>, <em class="sig-param">inputCh: Optional[int] = None</em>, <em class="sig-param">normalization: Optional[Callable] = None</em>, <em class="sig-param">already_normalized: bool = False</em>, <em class="sig-param">ResizeRatio: Optional[Sequence[float]] = None</em>, <em class="sig-param">cutoff: Optional[float] = None</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/fnet/fnet_model.html#Model.apply_on_single_zstack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_model.Model.apply_on_single_zstack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies model to a single z-stack input.</p>
+<p>This assumes the loaded network architecture can receive 3d grayscale
+images as input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_img</strong> – 3d or 4d image with shape (Z, Y, X) or (C, Z, Y, X) respectively.</p></li>
+<li><p><strong>filename</strong> – Path to input image. Ignored if input_img is supplied.</p></li>
+<li><p><strong>inputCh</strong> – Selected channel if filename is a path to a 4d image.</p></li>
+<li><p><strong>normalization</strong> – Input image normalization function.</p></li>
+<li><p><strong>already_normalized</strong> – Set to skip input normalization.</p></li>
+<li><p><strong>ResizeRatio</strong> – Resizes each dimension of the the input image by the specified
+factor if specified.</p></li>
+<li><p><strong>cutoff</strong> – If specified, converts the output to a binary image with cutoff as
+threshold value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Predicted image with shape (Z, Y, X). If cutoff is set, dtype will
+be numpy.uint8. Otherwise, dtype will be numpy.float.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If parameters are invalid.</p></li>
+<li><p><strong>FileNotFoundError</strong> – If specified file does not exist.</p></li>
+<li><p><strong>IndexError</strong> – If inputCh is invalid.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.fnet_model.Model.evaluate">
+<code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param">x: torch.Tensor</em>, <em class="sig-param">y: torch.Tensor</em>, <em class="sig-param">metric: Optional = None</em>, <em class="sig-param">piecewise: bool = False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; Tuple[float, torch.Tensor]<a class="reference internal" href="_modules/fnet/fnet_model.html#Model.evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_model.Model.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates model output using a metric function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Input data.</p></li>
+<li><p><strong>y</strong> – Target data.</p></li>
+<li><p><strong>metric</strong> – Metric function. If None, uses fnet.metrics.corr_coef.</p></li>
+<li><p><strong>piecewise</strong> – Set to perform predictions piecewise.</p></li>
+<li><p><strong>**kwargs</strong> – Additional kwargs to be passed to predict() method.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>float</em> – Evaluation as determined by metric function.</p></li>
+<li><p><em>torch.Tensor</em> – Model prediction.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.fnet_model.Model.get_state">
+<code class="sig-name descname">get_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/fnet_model.html#Model.get_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_model.Model.get_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="fnet.fnet_model.Model.load_state">
+<code class="sig-name descname">load_state</code><span class="sig-paren">(</span><em class="sig-param">state: dict</em>, <em class="sig-param">no_optim: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/fnet_model.html#Model.load_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_model.Model.load_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="fnet.fnet_model.Model.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">x: Union[torch.Tensor, numpy.ndarray], tta: bool = False</em><span class="sig-paren">)</span> &#x2192; torch.Tensor<a class="reference internal" href="_modules/fnet/fnet_model.html#Model.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_model.Model.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs model prediction on a single example.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Input data.</p></li>
+<li><p><strong>piecewise</strong> – Set to perform piecewise predictions. i.e., predict on patches of
+the input and stitch together the predictions.</p></li>
+<li><p><strong>tta</strong> – Set to use test-time augmentation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Model prediction.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.fnet_model.Model.predict_on_batch">
+<code class="sig-name descname">predict_on_batch</code><span class="sig-paren">(</span><em class="sig-param">x_batch: torch.Tensor</em><span class="sig-paren">)</span> &#x2192; torch.Tensor<a class="reference internal" href="_modules/fnet/fnet_model.html#Model.predict_on_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_model.Model.predict_on_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs model prediction on a batch of data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x_batch</strong> – Batch of input data.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Batch of model predictions.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.fnet_model.Model.predict_piecewise">
+<code class="sig-name descname">predict_piecewise</code><span class="sig-paren">(</span><em class="sig-param">x: Union[torch.Tensor, numpy.ndarray], **predict_kwargs</em><span class="sig-paren">)</span> &#x2192; torch.Tensor<a class="reference internal" href="_modules/fnet/fnet_model.html#Model.predict_piecewise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_model.Model.predict_piecewise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs model prediction piecewise on a single example.</p>
+<p>Predicts on patches of the input and stitchs together the predictions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Input data.</p></li>
+<li><p><strong>**predict_kwargs</strong> – Kwargs to pass to predict method.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Model prediction.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.fnet_model.Model.save">
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">path_save: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/fnet_model.html#Model.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_model.Model.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves model to disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_save</strong> – Filename to which model is saved.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.fnet_model.Model.test_on_batch">
+<code class="sig-name descname">test_on_batch</code><span class="sig-paren">(</span><em class="sig-param">x_batch: torch.Tensor</em>, <em class="sig-param">y_batch: torch.Tensor</em>, <em class="sig-param">weight_map_batch: Optional[torch.Tensor] = None</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/fnet/fnet_model.html#Model.test_on_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_model.Model.test_on_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test model on a batch of inputs and targets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_batch</strong> – Batched input.</p></li>
+<li><p><strong>y_batch</strong> – Batched target.</p></li>
+<li><p><strong>weight_map_batch</strong> – Optional batched weight map.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Loss as evaluated by self.criterion.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.fnet_model.Model.test_on_iterator">
+<code class="sig-name descname">test_on_iterator</code><span class="sig-paren">(</span><em class="sig-param">iterator: Iterator</em>, <em class="sig-param">**kwargs: dict</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/fnet/fnet_model.html#Model.test_on_iterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_model.Model.test_on_iterator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test model on iterator which has items to be passed to
+test_on_batch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>iterator</strong> – Iterator that generates items to be passed to test_on_batch.</p></li>
+<li><p><strong>kwargs</strong> – Additional keyword arguments to be passed to test_on_batch.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Mean loss for items in iterable.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.fnet_model.Model.to_gpu">
+<code class="sig-name descname">to_gpu</code><span class="sig-paren">(</span><em class="sig-param">gpu_ids: Union[int, List[int]]</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/fnet_model.html#Model.to_gpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_model.Model.to_gpu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move network to specified GPU(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>gpu_ids</strong> – GPU(s) on which to perform training or prediction.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.fnet_model.Model.train_on_batch">
+<code class="sig-name descname">train_on_batch</code><span class="sig-paren">(</span><em class="sig-param">x_batch: torch.Tensor</em>, <em class="sig-param">y_batch: torch.Tensor</em>, <em class="sig-param">weight_map_batch: Optional[torch.Tensor] = None</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/fnet/fnet_model.html#Model.train_on_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_model.Model.train_on_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update model using a batch of inputs and targets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_batch</strong> – Batched input.</p></li>
+<li><p><strong>y_batch</strong> – Batched target.</p></li>
+<li><p><strong>weight_map_batch</strong> – Optional batched weight map.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Loss as determined by self.criterion.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.fnet_model.get_per_param_options">
+<code class="sig-prename descclassname">fnet.fnet_model.</code><code class="sig-name descname">get_per_param_options</code><span class="sig-paren">(</span><em class="sig-param">module</em>, <em class="sig-param">wd</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/fnet_model.html#get_per_param_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnet_model.get_per_param_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns list of per parameter group options.</p>
+<p>Applies the specified weight decay (wd) to parameters except parameters
+within batch norm layers and bias parameters.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet.fnetlogger">
+<span id="fnet-fnetlogger-module"></span><h2>fnet.fnetlogger module<a class="headerlink" href="#module-fnet.fnetlogger" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fnet.fnetlogger.FnetLogger">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.fnetlogger.</code><code class="sig-name descname">FnetLogger</code><span class="sig-paren">(</span><em class="sig-param">path_csv=None</em>, <em class="sig-param">columns=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/fnetlogger.html#FnetLogger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnetlogger.FnetLogger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Log values in a dict of lists.</p>
+<dl class="method">
+<dt id="fnet.fnetlogger.FnetLogger.add">
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/fnetlogger.html#FnetLogger.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnetlogger.FnetLogger.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="fnet.fnetlogger.FnetLogger.to_csv">
+<code class="sig-name descname">to_csv</code><span class="sig-paren">(</span><em class="sig-param">path_csv</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/fnetlogger.html#FnetLogger.to_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.fnetlogger.FnetLogger.to_csv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet.losses">
+<span id="fnet-losses-module"></span><h2>fnet.losses module<a class="headerlink" href="#module-fnet.losses" title="Permalink to this headline">¶</a></h2>
+<p>Loss functions for fnet models.</p>
+<dl class="class">
+<dt id="fnet.losses.HeteroscedasticLoss">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.losses.</code><code class="sig-name descname">HeteroscedasticLoss</code><a class="reference internal" href="_modules/fnet/losses.html#HeteroscedasticLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.losses.HeteroscedasticLoss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Loss function to capture heteroscedastic aleatoric uncertainty.</p>
+<dl class="method">
+<dt id="fnet.losses.HeteroscedasticLoss.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">y_hat_batch: torch.Tensor</em>, <em class="sig-param">y_batch: torch.Tensor</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/losses.html#HeteroscedasticLoss.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.losses.HeteroscedasticLoss.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates loss.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_hat_batch</strong> – Batched, 2-channel model output.</p></li>
+<li><p><strong>y_batch</strong> – Batched, 1-channel target output.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fnet.losses.WeightedMSE">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.losses.</code><code class="sig-name descname">WeightedMSE</code><a class="reference internal" href="_modules/fnet/losses.html#WeightedMSE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.losses.WeightedMSE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Criterion for weighted mean-squared error.</p>
+<dl class="method">
+<dt id="fnet.losses.WeightedMSE.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">y_hat_batch: torch.Tensor</em>, <em class="sig-param">y_batch: torch.Tensor</em>, <em class="sig-param">weight_map_batch: Optional[torch.Tensor] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/losses.html#WeightedMSE.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.losses.WeightedMSE.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates weighted MSE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_hat_batch</strong> – Batched prediction.</p></li>
+<li><p><strong>y_batch</strong> – Batched target.</p></li>
+<li><p><strong>weight_map_batch</strong> – Optional weight map.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet.metrics">
+<span id="fnet-metrics-module"></span><h2>fnet.metrics module<a class="headerlink" href="#module-fnet.metrics" title="Permalink to this headline">¶</a></h2>
+<p>Model evaluation metrics.</p>
+<dl class="function">
+<dt id="fnet.metrics.corr_coef">
+<code class="sig-prename descclassname">fnet.metrics.</code><code class="sig-name descname">corr_coef</code><span class="sig-paren">(</span><em class="sig-param">a: Union[numpy.ndarray, torch.Tensor], b: Union[numpy.ndarray, torch.Tensor]</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/fnet/metrics.html#corr_coef"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.metrics.corr_coef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the Pearson correlation coefficient between the inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> – First input.</p></li>
+<li><p><strong>b</strong> – Second input.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Pearson correlation coefficient between the inputs.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.metrics.corr_coef_chan0">
+<code class="sig-prename descclassname">fnet.metrics.</code><code class="sig-name descname">corr_coef_chan0</code><span class="sig-paren">(</span><em class="sig-param">a: Union[numpy.ndarray, torch.Tensor], b: Union[numpy.ndarray, torch.Tensor]</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/fnet/metrics.html#corr_coef_chan0"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.metrics.corr_coef_chan0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the Pearson correlation coefficient between channel 0 of the
+inputs.</p>
+<p>Assumes the first dimension of the inputs is the channel dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> – First input.</p></li>
+<li><p><strong>b</strong> – Second input.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Pearson correlation coefficient between channel 0 of the inputs.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet.models">
+<span id="fnet-models-module"></span><h2>fnet.models module<a class="headerlink" href="#module-fnet.models" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fnet.models.create_ensemble">
+<code class="sig-prename descclassname">fnet.models.</code><code class="sig-name descname">create_ensemble</code><span class="sig-paren">(</span><em class="sig-param">paths_model: Union[str, List[str]], path_save_dir: str</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/models.html#create_ensemble"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.models.create_ensemble" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create and save an ensemble model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>paths_model</strong> – Paths to models or model directories. Paths can be specified as items
+in list or as a string with paths separated by spaces. Any model
+specified as a directory assumed to be at ‘directory/model.p’.</p></li>
+<li><p><strong>path_save_dir</strong> – Model save path directory. Model will be saved at in path_save_dir as
+‘model.p’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.models.load_model">
+<code class="sig-prename descclassname">fnet.models.</code><code class="sig-name descname">load_model</code><span class="sig-paren">(</span><em class="sig-param">path_model: str</em>, <em class="sig-param">no_optim: bool = False</em>, <em class="sig-param">checkpoint: Optional[str] = None</em>, <em class="sig-param">path_options: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; fnet.fnet_model.Model<a class="reference internal" href="_modules/fnet/models.html#load_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.models.load_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loaded saved FnetModel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_model</strong> – Path to model as a directory or .p file.</p></li>
+<li><p><strong>no_optim</strong> – Set to not the model optimizer.</p></li>
+<li><p><strong>checkpoint</strong> – Optional string that identifies a model checkpoint</p></li>
+<li><p><strong>path_options</strong> – Path to training options json. For legacy saved models where the
+FnetModel class/kwargs are not not included in the model save file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Loaded model.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#fnet.fnet_model.Model" title="fnet.fnet_model.Model">Model</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.models.load_or_init_model">
+<code class="sig-prename descclassname">fnet.models.</code><code class="sig-name descname">load_or_init_model</code><span class="sig-paren">(</span><em class="sig-param">path_model: str</em>, <em class="sig-param">path_options: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/models.html#load_or_init_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.models.load_or_init_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loaded saved model if it exists otherwise inititialize new model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_model</strong> – Path to saved model.</p></li>
+<li><p><strong>path_options</strong> – Path to json where model training options are saved.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Loaded or new FnetModel instance.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>FnetModel</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet.predict_piecewise">
+<span id="fnet-predict-piecewise-module"></span><h2>fnet.predict_piecewise module<a class="headerlink" href="#module-fnet.predict_piecewise" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fnet.predict_piecewise.predict_piecewise">
+<code class="sig-prename descclassname">fnet.predict_piecewise.</code><code class="sig-name descname">predict_piecewise</code><span class="sig-paren">(</span><em class="sig-param">predictor</em>, <em class="sig-param">tensor_in: torch.Tensor</em>, <em class="sig-param">dims_max: Union[int</em>, <em class="sig-param">List[int]] = 64</em>, <em class="sig-param">overlaps: Union[int</em>, <em class="sig-param">List[int]] = 0</em>, <em class="sig-param">**predict_kwargs</em><span class="sig-paren">)</span> &#x2192; torch.Tensor<a class="reference internal" href="_modules/fnet/predict_piecewise.html#predict_piecewise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.predict_piecewise.predict_piecewise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs piecewise prediction and combines results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>predictor</strong> – An object with a predict() method.</p></li>
+<li><p><strong>tensor_in</strong> – Tensor to be input into predictor piecewise. Should be 3d or 4d with
+with the first dimension channel.</p></li>
+<li><p><strong>dims_max</strong> – Specifies dimensions of each sub prediction.</p></li>
+<li><p><strong>overlaps</strong> – Specifies overlap along each dimension for sub predictions.</p></li>
+<li><p><strong>**predict_kwargs</strong> – Kwargs to pass to predict method.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Prediction with size tensor_in.size().</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet.transforms">
+<span id="fnet-transforms-module"></span><h2>fnet.transforms module<a class="headerlink" href="#module-fnet.transforms" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fnet.transforms.Capper">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.transforms.</code><code class="sig-name descname">Capper</code><span class="sig-paren">(</span><em class="sig-param">low=None</em>, <em class="sig-param">hi=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/transforms.html#Capper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.transforms.Capper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="fnet.transforms.Cropper">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.transforms.</code><code class="sig-name descname">Cropper</code><span class="sig-paren">(</span><em class="sig-param">cropping='-'</em>, <em class="sig-param">by=16</em>, <em class="sig-param">offset='mid'</em>, <em class="sig-param">n_max_pixels=9732096</em>, <em class="sig-param">dims_no_crop=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/transforms.html#Cropper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.transforms.Cropper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="fnet.transforms.Cropper.undo_last">
+<code class="sig-name descname">undo_last</code><span class="sig-paren">(</span><em class="sig-param">x_in</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/transforms.html#Cropper.undo_last"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.transforms.Cropper.undo_last" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pads input with zeros so its dimensions matches dimensions of last input to __call__.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fnet.transforms.Normalize">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.transforms.</code><code class="sig-name descname">Normalize</code><span class="sig-paren">(</span><em class="sig-param">per_dim=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/transforms.html#Normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.transforms.Normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="fnet.transforms.Padder">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.transforms.</code><code class="sig-name descname">Padder</code><span class="sig-paren">(</span><em class="sig-param">padding='+'</em>, <em class="sig-param">by=16</em>, <em class="sig-param">mode='constant'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/transforms.html#Padder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.transforms.Padder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="fnet.transforms.Padder.undo_last">
+<code class="sig-name descname">undo_last</code><span class="sig-paren">(</span><em class="sig-param">x_in</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/transforms.html#Padder.undo_last"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.transforms.Padder.undo_last" title="Permalink to this definition">¶</a></dt>
+<dd><p>Crops input so its dimensions matches dimensions of last input to __call__.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fnet.transforms.Propper">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.transforms.</code><code class="sig-name descname">Propper</code><span class="sig-paren">(</span><em class="sig-param">action='-'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/transforms.html#Propper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.transforms.Propper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Padder + Cropper</p>
+<dl class="method">
+<dt id="fnet.transforms.Propper.undo_last">
+<code class="sig-name descname">undo_last</code><span class="sig-paren">(</span><em class="sig-param">x_in</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/transforms.html#Propper.undo_last"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.transforms.Propper.undo_last" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fnet.transforms.Resizer">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.transforms.</code><code class="sig-name descname">Resizer</code><span class="sig-paren">(</span><em class="sig-param">factors</em>, <em class="sig-param">per_dim=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/transforms.html#Resizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.transforms.Resizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="fnet.transforms.ToFloat">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.transforms.</code><code class="sig-name descname">ToFloat</code><a class="reference internal" href="_modules/fnet/transforms.html#ToFloat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.transforms.ToFloat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.transforms.do_nothing">
+<code class="sig-prename descclassname">fnet.transforms.</code><code class="sig-name descname">do_nothing</code><span class="sig-paren">(</span><em class="sig-param">img</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/transforms.html#do_nothing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.transforms.do_nothing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="fnet.transforms.flip_x">
+<code class="sig-prename descclassname">fnet.transforms.</code><code class="sig-name descname">flip_x</code><span class="sig-paren">(</span><em class="sig-param">ar: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/fnet/transforms.html#flip_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.transforms.flip_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flip array along x axis.</p>
+<p>Array dimensions should end in YX.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ar</strong> – Input array to be flipped.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Flipped array.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.transforms.flip_y">
+<code class="sig-prename descclassname">fnet.transforms.</code><code class="sig-name descname">flip_y</code><span class="sig-paren">(</span><em class="sig-param">ar: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/fnet/transforms.html#flip_y"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.transforms.flip_y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flip array along y axis.</p>
+<p>Array dimensions should end in YX.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ar</strong> – Input array to be flipped.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Flipped array.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.transforms.norm_around_center">
+<code class="sig-prename descclassname">fnet.transforms.</code><code class="sig-name descname">norm_around_center</code><span class="sig-paren">(</span><em class="sig-param">ar: numpy.ndarray</em>, <em class="sig-param">z_center: Optional[int] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/transforms.html#norm_around_center"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.transforms.norm_around_center" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns normalized version of input array.</p>
+<p>The array will be normalized with respect to the mean, std pixel intensity
+of the sub-array of length 32 in the z-dimension centered around the
+array’s “z_center”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ar</strong> – Input 3d array to be normalized.</p></li>
+<li><p><strong>z_center</strong> – Z-index of cell centers.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Nomralized array, dtype = float32</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.transforms.normalize">
+<code class="sig-prename descclassname">fnet.transforms.</code><code class="sig-name descname">normalize</code><span class="sig-paren">(</span><em class="sig-param">img</em>, <em class="sig-param">per_dim=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/transforms.html#normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.transforms.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subtract mean, set STD to 1.0</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>per_dim</strong> – normalize along other axes dimensions not equal to per dim</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-fnet" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fnet.FnetLogger">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.</code><code class="sig-name descname">FnetLogger</code><span class="sig-paren">(</span><em class="sig-param">path_csv=None</em>, <em class="sig-param">columns=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/fnetlogger.html#FnetLogger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.FnetLogger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Log values in a dict of lists.</p>
+<dl class="method">
+<dt id="fnet.FnetLogger.add">
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param">entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/fnetlogger.html#FnetLogger.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.FnetLogger.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="fnet.FnetLogger.to_csv">
+<code class="sig-name descname">to_csv</code><span class="sig-paren">(</span><em class="sig-param">path_csv</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/fnetlogger.html#FnetLogger.to_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.FnetLogger.to_csv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="fnet.cli.html" class="btn btn-neutral float-right" title="fnet.cli package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Pytorch_fnet" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Chek
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

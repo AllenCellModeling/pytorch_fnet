@@ -1,0 +1,512 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fnet.cli.predict &mdash; fnet 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> fnet
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fnet.html">fnet package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">fnet</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>fnet.cli.predict</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fnet.cli.predict</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Generates predictions from a model.&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">tifffile</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">from</span> <span class="nn">fnet.cli.init</span> <span class="kn">import</span> <span class="n">save_default_predict_options</span>
+<span class="kn">from</span> <span class="nn">fnet.data</span> <span class="kn">import</span> <span class="n">FnetDataset</span><span class="p">,</span> <span class="n">TiffDataset</span>
+<span class="kn">from</span> <span class="nn">fnet.models</span> <span class="kn">import</span> <span class="n">load_model</span>
+<span class="kn">from</span> <span class="nn">fnet.transforms</span> <span class="kn">import</span> <span class="n">norm_around_center</span>
+<span class="kn">from</span> <span class="nn">fnet.utils.general_utils</span> <span class="kn">import</span> <span class="n">files_from_dir</span>
+<span class="kn">from</span> <span class="nn">fnet.utils.general_utils</span> <span class="kn">import</span> <span class="n">retry_if_oserror</span>
+<span class="kn">from</span> <span class="nn">fnet.utils.general_utils</span> <span class="kn">import</span> <span class="n">str_to_object</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_dataset"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.predict.get_dataset">[docs]</a><span class="k">def</span> <span class="nf">get_dataset</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns dataset.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    torch.utils.data.Dataset</span>
+<span class="sd">        Dataset object.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">sum</span><span class="p">([</span><span class="n">args</span><span class="o">.</span><span class="n">dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">path_tif</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify one input source type&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ds_fn</span> <span class="o">=</span> <span class="n">str_to_object</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ds_fn</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{args.dataset}</span><span class="s2"> must be callable&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ds_fn</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="o">.</span><span class="n">dataset_kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">path_tif</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path_tif</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Path does not exists: </span><span class="si">{args.path_tif}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">paths_tif</span> <span class="o">=</span> <span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">path_tif</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path_tif</span><span class="p">):</span>
+            <span class="n">paths_tif</span> <span class="o">=</span> <span class="n">files_from_dir</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path_tif</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">TiffDataset</span><span class="p">(</span>
+            <span class="n">dataframe</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;path_bf&quot;</span><span class="p">:</span> <span class="n">paths_tif</span><span class="p">,</span> <span class="s2">&quot;path_target&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}),</span>
+            <span class="n">transform_signal</span><span class="o">=</span><span class="p">[</span><span class="n">norm_around_center</span><span class="p">],</span>
+            <span class="n">transform_target</span><span class="o">=</span><span class="p">[</span><span class="n">norm_around_center</span><span class="p">],</span>
+            <span class="n">col_signal</span><span class="o">=</span><span class="s2">&quot;path_bf&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ds</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="get_indices"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.predict.get_indices">[docs]</a><span class="k">def</span> <span class="nf">get_indices</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Returns indices of dataset items on which to perform predictions.&quot;&quot;&quot;</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">idx_sel</span>
+    <span class="k">if</span> <span class="n">indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">FnetDataset</span><span class="p">):</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">n_images</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">indices</span><span class="p">[:</span> <span class="n">args</span><span class="o">.</span><span class="n">n_images</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">indices</span></div>
+
+
+<div class="viewcode-block" id="item_from_dataset"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.predict.item_from_dataset">[docs]</a><span class="k">def</span> <span class="nf">item_from_dataset</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Returns signal-target image pair from dataset.</span>
+
+<span class="sd">    If the dataset is a FnetDataset, it will be indexed using &#39;loc&#39;-style</span>
+<span class="sd">    indexing.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataset</span>
+<span class="sd">        Object with __getitem__ implemented.</span>
+<span class="sd">    idx</span>
+<span class="sd">        Index of data to be retrieved from dataset.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tuple[torch.Tensor, Optional[torch.Tensor]]</span>
+<span class="sd">        Signal-target data pair. Target can be None if dataset does not return</span>
+<span class="sd">        a target for the given index.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">FnetDataset</span><span class="p">):</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">):</span>
+        <span class="n">signal</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">signal</span> <span class="o">=</span> <span class="n">item</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="save_tif"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.predict.save_tif">[docs]</a><span class="k">def</span> <span class="nf">save_tif</span><span class="p">(</span><span class="n">fname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ar</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">path_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Saves a tif and returns tif save path relative to root save directory.</span>
+
+<span class="sd">    Image will be stored at: &#39;path_root/tifs/fname&#39;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname</span>
+<span class="sd">        Basename of save path.</span>
+<span class="sd">    ar</span>
+<span class="sd">        Array to be saved as tif.</span>
+<span class="sd">    path_root</span>
+<span class="sd">        Root directory of save path.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Save path relative to root directory.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path_tif_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_root</span><span class="p">,</span> <span class="s2">&quot;tifs&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_tif_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path_tif_dir</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created: </span><span class="si">{path_tif_dir}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">path_save</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_tif_dir</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+    <span class="n">tifffile</span><span class="o">.</span><span class="n">imsave</span><span class="p">(</span><span class="n">path_save</span><span class="p">,</span> <span class="n">ar</span><span class="p">,</span> <span class="n">compress</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved: </span><span class="si">{path_save}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">path_save</span><span class="p">,</span> <span class="n">path_root</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="parse_model"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.predict.parse_model">[docs]</a><span class="k">def</span> <span class="nf">parse_model</span><span class="p">(</span><span class="n">model_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Parse model definition string into dictionary.&quot;&quot;&quot;</span>
+    <span class="n">model_def</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">model_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Multiple &quot;:&quot; in specified model&#39;</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))</span>
+    <span class="n">model_def</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">model_def</span><span class="p">[</span><span class="s2">&quot;options&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">options</span>
+    <span class="n">model_def</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">name</span><span class="p">]</span> <span class="o">+</span> <span class="n">options</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model_def</span></div>
+
+
+<div class="viewcode-block" id="save_predictions_csv"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.predict.save_predictions_csv">[docs]</a><span class="k">def</span> <span class="nf">save_predictions_csv</span><span class="p">(</span>
+    <span class="n">path_csv</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pred_records</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">Any</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Saves csv with metadata of predictions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path_csv</span>
+<span class="sd">        CSV save path.</span>
+<span class="sd">    pred_records</span>
+<span class="sd">        List of metadata for each prediction.</span>
+<span class="sd">    dataset</span>
+<span class="sd">        Dataset from where signal-target pairs were retrieved.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">pred_records</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">FnetDataset</span><span class="p">):</span>
+        <span class="c1"># For FnetDataset, add additional metadata</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">lsuffix</span><span class="o">=</span><span class="s2">&quot;_pre&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_csv</span><span class="p">):</span>
+        <span class="n">df_old</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path_csv</span><span class="p">)</span>
+        <span class="n">col_index</span> <span class="o">=</span> <span class="n">df_old</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Assumes first col is index col</span>
+        <span class="n">df_old</span> <span class="o">=</span> <span class="n">df_old</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">col_index</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">combine_first</span><span class="p">(</span><span class="n">df_old</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path_csv</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created: </span><span class="si">{dirname}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">retry_if_oserror</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">)(</span><span class="n">path_csv</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved: </span><span class="si">{path_csv}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="save_args_as_json"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.predict.save_args_as_json">[docs]</a><span class="k">def</span> <span class="nf">save_args_as_json</span><span class="p">(</span><span class="n">path_save_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Saves script arguments as json in save directory.</span>
+
+<span class="sd">    A json is saved only if the &quot;--json&quot; option was not specified.</span>
+
+<span class="sd">    By default, this function tries to save arguments as predict_options.json</span>
+<span class="sd">    within the save directory. If that file already exists, appends a digit to</span>
+<span class="sd">    uniquify the save path.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path_save_dir</span>
+<span class="sd">        Save directory</span>
+<span class="sd">    args</span>
+<span class="sd">        Script arguments.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">json</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">args</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;json&quot;</span><span class="p">)</span>
+    <span class="n">path_json</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_save_dir</span><span class="p">,</span> <span class="s2">&quot;predict_options.json&quot;</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_json</span><span class="p">):</span>
+        <span class="n">number</span> <span class="o">=</span> <span class="n">path_json</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">number</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="s2">&quot;-1&quot;</span>
+        <span class="n">number</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">number</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">path_json</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">path_save_dir</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;predict_options&quot;</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="s2">&quot;json&quot;</span><span class="p">])</span>
+        <span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_json</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fo</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="n">args</span><span class="p">),</span> <span class="n">fo</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved: </span><span class="si">{path_json}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="load_from_json"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.predict.load_from_json">[docs]</a><span class="k">def</span> <span class="nf">load_from_json</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Loads arguments from if a json is specified.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">json</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">with</span> <span class="n">args</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fi</span><span class="p">:</span>
+        <span class="n">predict_options</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fi</span><span class="p">)</span>
+    <span class="n">args</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">predict_options</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="add_parser_arguments"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.predict.add_parser_arguments">[docs]</a><span class="k">def</span> <span class="nf">add_parser_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Add training script arguments to parser.&quot;&quot;&quot;</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--dataset&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;dataset name&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--dataset_kwargs&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">{},</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;dataset kwargs&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--gpu_ids&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;GPU ID&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--idx_sel&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;specify dataset indices&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--json&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to prediction options json&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--metric&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;fnet.metrics.corr_coef&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;evaluation metric&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--n_images&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;max number of images to test&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--no_prediction&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;set to not save predicted image&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--no_signal&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;set to not save signal image&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--no_target&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;set to not save target image&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--path_model_dir&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path(s) to model directory&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--path_save_dir&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;predictions&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to output root directory&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--path_tif&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path(s) to input tif(s)&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.predict.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Predicts using model.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+        <span class="n">add_parser_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">json</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">save_default_predict_options</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">json</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="n">load_from_json</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">metric</span> <span class="o">=</span> <span class="n">str_to_object</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">metric</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">get_dataset</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">entries</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">get_indices</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">count</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing: </span><span class="si">{idx:3d}</span><span class="s2"> (</span><span class="si">{count}</span><span class="s2">/{len(indices)})&quot;</span><span class="p">)</span>
+        <span class="n">entry</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span>
+        <span class="n">signal</span><span class="p">,</span> <span class="n">target</span> <span class="o">=</span> <span class="n">item_from_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">no_signal</span><span class="p">:</span>
+            <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;path_signal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">save_tif</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{idx}</span><span class="s2">_signal.tif&quot;</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">,],</span> <span class="n">args</span><span class="o">.</span><span class="n">path_save_dir</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">no_target</span> <span class="ow">and</span> <span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;path_target&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">save_tif</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{idx}</span><span class="s2">_target.tif&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">,],</span> <span class="n">args</span><span class="o">.</span><span class="n">path_save_dir</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">path_model_dir</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">path_model_dir</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path_model_dir</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">model_def</span> <span class="o">=</span> <span class="n">parse_model</span><span class="p">(</span><span class="n">path_model_dir</span><span class="p">)</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">model_def</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">],</span> <span class="n">no_optim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">to_gpu</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">gpu_ids</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Loaded model: </span><span class="si">{model_def[&quot;name&quot;]}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_piecewise</span><span class="p">(</span>
+                <span class="n">signal</span><span class="p">,</span> <span class="n">tta</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;no_tta&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">model_def</span><span class="p">[</span><span class="s2">&quot;options&quot;</span><span class="p">])</span>
+            <span class="p">)</span>
+            <span class="n">evaluation</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">prediction</span><span class="p">)</span>
+            <span class="n">entry</span><span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">metric</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;.</span><span class="si">{model_def[&quot;name&quot;]}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">evaluation</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">no_prediction</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">idx_c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">prediction</span><span class="o">.</span><span class="n">size</span><span class="p">()[</span><span class="mi">0</span><span class="p">]):</span>
+                    <span class="n">tag</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;prediction_c</span><span class="si">{idx_c}</span><span class="s1">.</span><span class="si">{model_def[&quot;name&quot;]}</span><span class="s1">&#39;</span>
+                    <span class="n">pred_c</span> <span class="o">=</span> <span class="n">prediction</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="n">idx_c</span><span class="p">,]</span>
+                    <span class="n">entry</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;path_</span><span class="si">{tag}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">save_tif</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{idx}</span><span class="s2">_</span><span class="si">{tag}</span><span class="s2">.tif&quot;</span><span class="p">,</span> <span class="n">pred_c</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">path_save_dir</span>
+                    <span class="p">)</span>
+        <span class="n">entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="n">save_predictions_csv</span><span class="p">(</span>
+            <span class="n">path_csv</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path_save_dir</span><span class="p">,</span> <span class="s2">&quot;predictions.csv&quot;</span><span class="p">),</span>
+            <span class="n">pred_records</span><span class="o">=</span><span class="n">entries</span><span class="p">,</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">save_args_as_json</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path_save_dir</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Chek
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

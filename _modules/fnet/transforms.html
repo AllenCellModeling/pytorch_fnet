@@ -1,0 +1,562 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fnet.transforms &mdash; fnet 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> fnet
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fnet.html">fnet package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fnet</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>fnet.transforms</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fnet.transforms</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Normalize"><a class="viewcode-back" href="../../fnet.html#fnet.transforms.Normalize">[docs]</a><span class="k">class</span> <span class="nc">Normalize</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">per_dim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Class version of normalize function.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">per_dim</span> <span class="o">=</span> <span class="n">per_dim</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">normalize</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">per_dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">per_dim</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Normalize(</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">per_dim</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToFloat"><a class="viewcode-back" href="../../fnet.html#fnet.transforms.ToFloat">[docs]</a><span class="k">class</span> <span class="nc">ToFloat</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;ToFloat()&quot;</span></div>
+
+
+<div class="viewcode-block" id="normalize"><a class="viewcode-back" href="../../fnet.html#fnet.transforms.normalize">[docs]</a><span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">per_dim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Subtract mean, set STD to 1.0</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">      per_dim: normalize along other axes dimensions not equal to per dim</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">axis</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">ndim</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">per_dim</span><span class="p">])</span>
+    <span class="n">slices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+        <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">per_dim</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">ndim</span><span class="p">)]</span>
+    <span class="p">)</span>  <span class="c1"># to handle broadcasting</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)[</span><span class="n">slices</span><span class="p">]</span>
+    <span class="n">result</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)[</span><span class="n">slices</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="do_nothing"><a class="viewcode-back" href="../../fnet.html#fnet.transforms.do_nothing">[docs]</a><span class="k">def</span> <span class="nf">do_nothing</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">img</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Propper"><a class="viewcode-back" href="../../fnet.html#fnet.transforms.Propper">[docs]</a><span class="k">class</span> <span class="nc">Propper</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Padder + Cropper&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">action</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="s2">&quot;pad&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span> <span class="o">=</span> <span class="n">Padder</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;crop&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span> <span class="o">=</span> <span class="n">Cropper</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_in</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="p">(</span><span class="n">x_in</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Propper.undo_last"><a class="viewcode-back" href="../../fnet.html#fnet.transforms.Propper.undo_last">[docs]</a>    <span class="k">def</span> <span class="nf">undo_last</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_in</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">undo_last</span><span class="p">(</span><span class="n">x_in</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Padder"><a class="viewcode-back" href="../../fnet.html#fnet.transforms.Padder">[docs]</a><span class="k">class</span> <span class="nc">Padder</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;constant&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        padding: &#39;+&#39;, int, sequence</span>
+<span class="sd">          &#39;+&#39;: pad dimensions up to multiple of &quot;by&quot;</span>
+<span class="sd">          int: pad each dimension by this value</span>
+<span class="sd">          sequence: pad each dimensions by corresponding value in sequence</span>
+<span class="sd">        by: int</span>
+<span class="sd">          for use with &#39;+&#39; padding option</span>
+<span class="sd">        mode: str</span>
+<span class="sd">          passed to numpy.pad function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">padding</span> <span class="o">=</span> <span class="n">padding</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">by</span> <span class="o">=</span> <span class="n">by</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pads</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_pad</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Padder</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">by</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_calc_pad_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape_in</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
+            <span class="n">paddings</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape_in</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">paddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">padding</span>
+        <span class="n">pad_width</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shape_in</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">paddings</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">pad_width</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">paddings</span><span class="p">[</span><span class="n">i</span><span class="p">],)</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">paddings</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;+&quot;</span><span class="p">:</span>
+                <span class="n">padding_total</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">shape_in</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">by</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">by</span><span class="p">)</span> <span class="o">-</span> <span class="n">shape_in</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">pad_left</span> <span class="o">=</span> <span class="n">padding_total</span> <span class="o">//</span> <span class="mi">2</span>
+                <span class="n">pad_right</span> <span class="o">=</span> <span class="n">padding_total</span> <span class="o">-</span> <span class="n">pad_left</span>
+                <span class="n">pad_width</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">pad_left</span><span class="p">,</span> <span class="n">pad_right</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pad_width</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape_in</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pad_width</span>
+
+<div class="viewcode-block" id="Padder.undo_last"><a class="viewcode-back" href="../../fnet.html#fnet.transforms.Padder.undo_last">[docs]</a>    <span class="k">def</span> <span class="nf">undo_last</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_in</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Crops input so its dimensions matches dimensions of last input to __call__.&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">x_in</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_pad</span><span class="p">[</span><span class="s2">&quot;shape_out&quot;</span><span class="p">]</span>
+        <span class="n">slices</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">slice</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">-</span><span class="n">b</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">else</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_pad</span><span class="p">[</span><span class="s2">&quot;pad_width&quot;</span><span class="p">]</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">x_in</span><span class="p">[</span><span class="n">slices</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_in</span><span class="p">):</span>
+        <span class="n">shape_in</span> <span class="o">=</span> <span class="n">x_in</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">pad_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pads</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">shape_in</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_pad_width</span><span class="p">(</span><span class="n">shape_in</span><span class="p">))</span>
+        <span class="n">x_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">x_in</span><span class="p">,</span> <span class="n">pad_width</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shape_in</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pads</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pads</span><span class="p">[</span><span class="n">shape_in</span><span class="p">]</span> <span class="o">=</span> <span class="n">pad_width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_pad</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;shape_in&quot;</span><span class="p">:</span> <span class="n">shape_in</span><span class="p">,</span>
+            <span class="s2">&quot;pad_width&quot;</span><span class="p">:</span> <span class="n">pad_width</span><span class="p">,</span>
+            <span class="s2">&quot;shape_out&quot;</span><span class="p">:</span> <span class="n">x_out</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">x_out</span></div>
+
+
+<div class="viewcode-block" id="Cropper"><a class="viewcode-back" href="../../fnet.html#fnet.transforms.Cropper">[docs]</a><span class="k">class</span> <span class="nc">Cropper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">cropping</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="s2">&quot;mid&quot;</span><span class="p">,</span> <span class="n">n_max_pixels</span><span class="o">=</span><span class="mi">9732096</span><span class="p">,</span> <span class="n">dims_no_crop</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Crop input array to given shape.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cropping</span> <span class="o">=</span> <span class="n">cropping</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="n">offset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">by</span> <span class="o">=</span> <span class="n">by</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_max_pixels</span> <span class="o">=</span> <span class="n">n_max_pixels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dims_no_crop</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="n">dims_no_crop</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dims_no_crop</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">dims_no_crop</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">crops</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_crop</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Cropper</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cropping</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">by</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_max_pixels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dims_no_crop</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_adjust_shape_crop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape_crop</span><span class="p">):</span>
+        <span class="n">shape_crop_new</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">shape_crop</span><span class="p">)</span>
+        <span class="n">prod_shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">shape_crop_new</span><span class="p">)</span>
+        <span class="n">idx_dim_reduce</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">order_dim_reduce</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shape_crop</span><span class="p">))[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>
+        <span class="p">)</span>  <span class="c1"># alternate between last two dimensions</span>
+        <span class="k">while</span> <span class="n">prod_shape</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_max_pixels</span><span class="p">:</span>
+            <span class="n">dim</span> <span class="o">=</span> <span class="n">order_dim_reduce</span><span class="p">[</span><span class="n">idx_dim_reduce</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">dim</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">shape_crop_new</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">64</span><span class="p">):</span>
+                <span class="n">shape_crop_new</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">by</span>
+                <span class="n">prod_shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">shape_crop_new</span><span class="p">)</span>
+            <span class="n">idx_dim_reduce</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">idx_dim_reduce</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">order_dim_reduce</span><span class="p">):</span>
+                <span class="n">idx_dim_reduce</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">shape_crop_new</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">_calc_shape_crop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape_in</span><span class="p">):</span>
+        <span class="n">croppings</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cropping</span><span class="p">,)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape_in</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cropping</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span>
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">cropping</span>
+        <span class="p">)</span>
+        <span class="n">shape_crop</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shape_in</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">croppings</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dims_no_crop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dims_no_crop</span>
+            <span class="p">):</span>
+                <span class="n">shape_crop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shape_in</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">croppings</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">shape_crop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shape_in</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">croppings</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">croppings</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span><span class="p">:</span>
+                <span class="n">shape_crop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shape_in</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">by</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">by</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_max_pixels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">shape_crop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_adjust_shape_crop</span><span class="p">(</span><span class="n">shape_crop</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">crops</span><span class="p">[</span><span class="n">shape_in</span><span class="p">][</span><span class="s2">&quot;shape_crop&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shape_crop</span>
+        <span class="k">return</span> <span class="n">shape_crop</span>
+
+    <span class="k">def</span> <span class="nf">_calc_offsets_crop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape_in</span><span class="p">,</span> <span class="n">shape_crop</span><span class="p">):</span>
+        <span class="n">offsets</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">,)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape_in</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span>
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span>
+        <span class="p">)</span>
+        <span class="n">offsets_crop</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shape_in</span><span class="p">)):</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">shape_in</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">shape_crop</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">//</span> <span class="mi">2</span>
+                <span class="k">if</span> <span class="n">offsets</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;mid&quot;</span>
+                <span class="k">else</span> <span class="n">offsets</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">shape_crop</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">shape_in</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Cannot crop outsize image dimensions (</span><span class="si">{offset}</span><span class="s2">:{offset + shape_crop[i]} for dim </span><span class="si">{i}</span><span class="s2">)&quot;</span>
+                <span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span>
+            <span class="n">offsets_crop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">crops</span><span class="p">[</span><span class="n">shape_in</span><span class="p">][</span><span class="s2">&quot;offsets_crop&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">offsets_crop</span>
+        <span class="k">return</span> <span class="n">offsets_crop</span>
+
+    <span class="k">def</span> <span class="nf">_calc_slices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape_in</span><span class="p">):</span>
+        <span class="n">shape_crop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_shape_crop</span><span class="p">(</span><span class="n">shape_in</span><span class="p">)</span>
+        <span class="n">offsets_crop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_offsets_crop</span><span class="p">(</span><span class="n">shape_in</span><span class="p">,</span> <span class="n">shape_crop</span><span class="p">)</span>
+        <span class="n">slices</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">slice</span><span class="p">(</span><span class="n">offsets_crop</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">offsets_crop</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">shape_crop</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shape_in</span><span class="p">))</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">crops</span><span class="p">[</span><span class="n">shape_in</span><span class="p">][</span><span class="s2">&quot;slices&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slices</span>
+        <span class="k">return</span> <span class="n">slices</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_in</span><span class="p">):</span>
+        <span class="n">shape_in</span> <span class="o">=</span> <span class="n">x_in</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="n">shape_in</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">crops</span><span class="p">:</span>
+            <span class="n">slices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crops</span><span class="p">[</span><span class="n">shape_in</span><span class="p">][</span><span class="s2">&quot;slices&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">crops</span><span class="p">[</span><span class="n">shape_in</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">slices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_slices</span><span class="p">(</span><span class="n">shape_in</span><span class="p">)</span>
+        <span class="n">x_out</span> <span class="o">=</span> <span class="n">x_in</span><span class="p">[</span><span class="n">slices</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_crop</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;shape_in&quot;</span><span class="p">:</span> <span class="n">shape_in</span><span class="p">,</span>
+            <span class="s2">&quot;slices&quot;</span><span class="p">:</span> <span class="n">slices</span><span class="p">,</span>
+            <span class="s2">&quot;shape_out&quot;</span><span class="p">:</span> <span class="n">x_out</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">x_out</span>
+
+<div class="viewcode-block" id="Cropper.undo_last"><a class="viewcode-back" href="../../fnet.html#fnet.transforms.Cropper.undo_last">[docs]</a>    <span class="k">def</span> <span class="nf">undo_last</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_in</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Pads input with zeros so its dimensions matches dimensions of last input to __call__.&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">x_in</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_crop</span><span class="p">[</span><span class="s2">&quot;shape_out&quot;</span><span class="p">]</span>
+        <span class="n">shape_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_crop</span><span class="p">[</span><span class="s2">&quot;shape_in&quot;</span><span class="p">]</span>
+        <span class="n">slices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_crop</span><span class="p">[</span><span class="s2">&quot;slices&quot;</span><span class="p">]</span>
+        <span class="n">x_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape_out</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">x_in</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">x_out</span><span class="p">[</span><span class="n">slices</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_in</span>
+        <span class="k">return</span> <span class="n">x_out</span></div></div>
+
+
+<div class="viewcode-block" id="Resizer"><a class="viewcode-back" href="../../fnet.html#fnet.transforms.Resizer">[docs]</a><span class="k">class</span> <span class="nc">Resizer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factors</span><span class="p">,</span> <span class="n">per_dim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters:</span>
+<span class="sd">          factors: tuple of resizing factors for each dimension of the input array</span>
+<span class="sd">          per_dim: normalize along other axes dimensions not equal to per dim</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factors</span> <span class="o">=</span> <span class="n">factors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">per_dim</span> <span class="o">=</span> <span class="n">per_dim</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">per_dim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span>
+        <span class="n">ars_resized</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">per_dim</span><span class="p">]):</span>
+            <span class="n">slices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">idx</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">per_dim</span> <span class="k">else</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">ndim</span><span class="p">)]</span>
+            <span class="p">)</span>
+            <span class="n">ars_resized</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">slices</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">ars_resized</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">per_dim</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Resizer(</span><span class="si">{:s}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">per_dim</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Capper"><a class="viewcode-back" href="../../fnet.html#fnet.transforms.Capper">[docs]</a><span class="k">class</span> <span class="nc">Capper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hi</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_low</span> <span class="o">=</span> <span class="n">low</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hi</span> <span class="o">=</span> <span class="n">hi</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ar</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">result</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hi</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hi</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_low</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">result</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_low</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_low</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Capper(</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_low</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hi</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="flip_y"><a class="viewcode-back" href="../../fnet.html#fnet.transforms.flip_y">[docs]</a><span class="k">def</span> <span class="nf">flip_y</span><span class="p">(</span><span class="n">ar</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Flip array along y axis.</span>
+
+<span class="sd">    Array dimensions should end in YX.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ar</span>
+<span class="sd">        Input array to be flipped.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        Flipped array.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">ar</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="flip_x"><a class="viewcode-back" href="../../fnet.html#fnet.transforms.flip_x">[docs]</a><span class="k">def</span> <span class="nf">flip_x</span><span class="p">(</span><span class="n">ar</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Flip array along x axis.</span>
+
+<span class="sd">    Array dimensions should end in YX.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ar</span>
+<span class="sd">        Input array to be flipped.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        Flipped array.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">ar</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="norm_around_center"><a class="viewcode-back" href="../../fnet.html#fnet.transforms.norm_around_center">[docs]</a><span class="k">def</span> <span class="nf">norm_around_center</span><span class="p">(</span><span class="n">ar</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">z_center</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns normalized version of input array.</span>
+
+<span class="sd">    The array will be normalized with respect to the mean, std pixel intensity</span>
+<span class="sd">    of the sub-array of length 32 in the z-dimension centered around the</span>
+<span class="sd">    array&#39;s &quot;z_center&quot;.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ar</span>
+<span class="sd">        Input 3d array to be normalized.</span>
+<span class="sd">    z_center</span>
+<span class="sd">        Z-index of cell centers.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">       Nomralized array, dtype = float32</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">ar</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input array must be 3d&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ar</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">32</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input array must be at least length 32 in first dimension&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">z_center</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">z_center</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">chunk_zlen</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">z_start</span> <span class="o">=</span> <span class="n">z_center</span> <span class="o">-</span> <span class="n">chunk_zlen</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="k">if</span> <span class="n">z_start</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">z_start</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: z_start set to </span><span class="si">{z_start}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">z_start</span> <span class="o">+</span> <span class="n">chunk_zlen</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">ar</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">z_start</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">chunk_zlen</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: z_start set to </span><span class="si">{z_start}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">chunk</span> <span class="o">=</span> <span class="n">ar</span><span class="p">[</span><span class="n">z_start</span> <span class="p">:</span> <span class="n">z_start</span> <span class="o">+</span> <span class="n">chunk_zlen</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="n">ar</span> <span class="o">=</span> <span class="n">ar</span> <span class="o">-</span> <span class="n">chunk</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">ar</span> <span class="o">=</span> <span class="n">ar</span> <span class="o">/</span> <span class="n">chunk</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">ar</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Chek
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

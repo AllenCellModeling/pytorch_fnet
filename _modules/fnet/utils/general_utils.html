@@ -1,0 +1,411 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fnet.utils.general_utils &mdash; fnet 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> fnet
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fnet.html">fnet package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">fnet</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>fnet.utils.general_utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fnet.utils.general_utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="files_from_dir"><a class="viewcode-back" href="../../../fnet.utils.html#fnet.utils.general_utils.files_from_dir">[docs]</a><span class="k">def</span> <span class="nf">files_from_dir</span><span class="p">(</span>
+    <span class="n">path_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">extensions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Returns sorted list of files in a directory with optional extension(s).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path_dir</span>
+<span class="sd">        Input directory.</span>
+<span class="sd">    extensions</span>
+<span class="sd">        Optional file extensions.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">extensions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">extensions</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span>  <span class="c1"># Allows for all extensions</span>
+    <span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">scandir</span><span class="p">(</span><span class="n">path_dir</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span> <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">extensions</span><span class="p">):</span>
+            <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="str_to_object"><a class="viewcode-back" href="../../../fnet.utils.html#fnet.utils.general_utils.str_to_object">[docs]</a><span class="k">def</span> <span class="nf">str_to_object</span><span class="p">(</span><span class="n">str_o</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get object from string.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    str_o</span>
+<span class="sd">        Fully qualified object name.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">str_o</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_globals</span><span class="p">[</span><span class="n">str_o</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="to_objects"><a class="viewcode-back" href="../../../fnet.utils.html#fnet.utils.general_utils.to_objects">[docs]</a><span class="k">def</span> <span class="nf">to_objects</span><span class="p">(</span><span class="n">slist</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get a list of objects from list of object __repr__s.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">slist</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">olist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">slist</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">olist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">s_split</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx_part</span><span class="p">,</span> <span class="n">part</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">s_split</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">part</span><span class="o">.</span><span class="n">isidentifier</span><span class="p">():</span>
+                <span class="k">break</span>
+        <span class="n">importee</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s_split</span><span class="p">[:</span><span class="n">idx_part</span><span class="p">])</span>
+        <span class="n">so</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s_split</span><span class="p">[</span><span class="n">idx_part</span><span class="p">:])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">importee</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">importee</span><span class="p">)</span>  <span class="c1"># noqa: F841</span>
+            <span class="n">so</span> <span class="o">=</span> <span class="s2">&quot;module.&quot;</span> <span class="o">+</span> <span class="n">so</span>
+        <span class="n">olist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">eval</span><span class="p">(</span><span class="n">so</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">olist</span></div>
+
+
+<div class="viewcode-block" id="retry_if_oserror"><a class="viewcode-back" href="../../../fnet.utils.html#fnet.utils.general_utils.retry_if_oserror">[docs]</a><span class="k">def</span> <span class="nf">retry_if_oserror</span><span class="p">(</span><span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Retries input function if an OSError is encountered.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="n">wait</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="nb">min</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attempt </span><span class="si">{count}</span><span class="s2"> failed: </span><span class="si">{err}</span><span class="s2">. Waiting </span><span class="si">{wait}</span><span class="s2"> seconds.&quot;</span><span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wrapper</span></div>
+
+
+<div class="viewcode-block" id="get_args"><a class="viewcode-back" href="../../../fnet.utils.html#fnet.utils.general_utils.get_args">[docs]</a><span class="k">def</span> <span class="nf">get_args</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Returns the arguments passed to the calling function.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; def foo(a, b, *args, **kwargs):</span>
+<span class="sd">    ...     print(get_args())</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; foo(1, 2, 3, &#39;bar&#39;, fizz=&#39;buzz&#39;)</span>
+<span class="sd">    ({&#39;b&#39;: 2, &#39;a&#39;: 1, &#39;fizz&#39;: &#39;buzz&#39;}, (3, &#39;bar&#39;))</span>
+
+<span class="sd">    References:</span>
+<span class="sd">    kbyanc.blogspot.com/2007/07/python-aggregating-function-arguments.html</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">         Named arguments</span>
+<span class="sd">    list</span>
+<span class="sd">         Unnamed positional arguments</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">frame</span>  <span class="c1"># Look at caller</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">varargs</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">named_args</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargvalues</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+    <span class="n">named_args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">named_args</span><span class="p">)</span>
+    <span class="n">named_args</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">named_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="n">pos_args</span> <span class="o">=</span> <span class="n">named_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">varargs</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">return</span> <span class="n">named_args</span><span class="p">,</span> <span class="n">pos_args</span></div>
+
+
+<div class="viewcode-block" id="str_to_class"><a class="viewcode-back" href="../../../fnet.utils.html#fnet.utils.general_utils.str_to_class">[docs]</a><span class="k">def</span> <span class="nf">str_to_class</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return class from string representation.&quot;&quot;&quot;</span>
+    <span class="n">idx_dot</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">idx_dot</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">module_str</span> <span class="o">=</span> <span class="s2">&quot;fnet.nn_modules&quot;</span>
+        <span class="n">class_str</span> <span class="o">=</span> <span class="n">string</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">module_str</span> <span class="o">=</span> <span class="n">string</span><span class="p">[:</span><span class="n">idx_dot</span><span class="p">]</span>
+        <span class="n">class_str</span> <span class="o">=</span> <span class="n">string</span><span class="p">[</span><span class="n">idx_dot</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_str</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">class_str</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="add_augmentations"><a class="viewcode-back" href="../../../fnet.utils.html#fnet.utils.general_utils.add_augmentations">[docs]</a><span class="k">def</span> <span class="nf">add_augmentations</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Adds augmented versions of dataframe rows.</span>
+
+<span class="sd">    This is intended to be used on dataframes that represent datasets. Two</span>
+<span class="sd">    columns will be added: flip_y, flip_x. Each dataframe row will be</span>
+<span class="sd">    replicated 3 more times with flip_y, flip_x, or both columns set to 1.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df</span>
+<span class="sd">        Dataset dataframe to be augmented.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Augmented dataset dataframe.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df_flip_y</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">flip_y</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">df_flip_x</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">flip_x</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">df_both</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">flip_y</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">flip_x</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">name_index</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">df_aug</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">df</span><span class="p">,</span> <span class="n">df_flip_y</span><span class="p">,</span> <span class="n">df_flip_x</span><span class="p">,</span> <span class="n">df_both</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="n">name_index</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_aug</span></div>
+
+
+<div class="viewcode-block" id="whats_my_name"><a class="viewcode-back" href="../../../fnet.utils.html#fnet.utils.general_utils.whats_my_name">[docs]</a><span class="k">def</span> <span class="nf">whats_my_name</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns object&#39;s name.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__qualname__</span></div>
+
+
+<div class="viewcode-block" id="create_formatter"><a class="viewcode-back" href="../../../fnet.utils.html#fnet.utils.general_utils.create_formatter">[docs]</a><span class="k">def</span> <span class="nf">create_formatter</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Creates a default logging Formatter.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%(levelname)s</span><span class="s2">:</span><span class="si">%(name)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="add_logging_file_handler"><a class="viewcode-back" href="../../../fnet.utils.html#fnet.utils.general_utils.add_logging_file_handler">[docs]</a><span class="k">def</span> <span class="nf">add_logging_file_handler</span><span class="p">(</span><span class="n">path_save</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Adds a file handler to fnet logger.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path_save</span>
+<span class="sd">        Location to save logging records.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path_save</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">fh</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">path_save</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
+    <span class="n">fh</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">create_formatter</span><span class="p">())</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;fnet&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="init_fnet_logging"><a class="viewcode-back" href="../../../fnet.utils.html#fnet.utils.general_utils.init_fnet_logging">[docs]</a><span class="k">def</span> <span class="nf">init_fnet_logging</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Initializes logging for fnet.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path_save</span>
+<span class="sd">        Location to save logging records.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Remove root logger handlers potentially set by third-party packages</span>
+    <span class="n">logger_root</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="n">logger_root</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
+        <span class="n">logger_root</span><span class="o">.</span><span class="n">removeHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+    <span class="c1"># Init fnet logger</span>
+    <span class="n">logger_fnet</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;fnet&quot;</span><span class="p">)</span>
+    <span class="n">logger_fnet</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">logger_fnet</span><span class="o">.</span><span class="n">hasHandlers</span><span class="p">():</span>  <span class="c1"># avoids redundant handlers</span>
+        <span class="k">return</span>
+    <span class="n">sh</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+    <span class="n">sh</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">create_formatter</span><span class="p">())</span>
+    <span class="n">logger_fnet</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Chek
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

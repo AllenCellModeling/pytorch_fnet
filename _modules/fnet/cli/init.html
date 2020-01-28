@@ -1,0 +1,353 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fnet.cli.init &mdash; fnet 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> fnet
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fnet.html">fnet package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">fnet</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>fnet.cli.init</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fnet.cli.init</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="save_example_scripts"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.init.save_example_scripts">[docs]</a><span class="k">def</span> <span class="nf">save_example_scripts</span><span class="p">(</span><span class="n">path_save_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Save example training and prediction scripts.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path_save_dir</span>
+<span class="sd">        Directory in which to save scripts.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_save_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path_save_dir</span><span class="p">)</span>
+    <span class="n">path_examples_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s2">&quot;fnet&quot;</span><span class="p">]</span><span class="o">.</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;cli&quot;</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;train_model.py&quot;</span><span class="p">,</span> <span class="s2">&quot;predict.py&quot;</span><span class="p">]:</span>
+        <span class="n">path_src</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_examples_dir</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+        <span class="n">path_dst</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_save_dir</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_dst</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Example script already exists: </span><span class="si">{path_dst}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">path_src</span><span class="p">,</span> <span class="n">path_dst</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved: </span><span class="si">{path_dst}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="save_options_json"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.init.save_options_json">[docs]</a><span class="k">def</span> <span class="nf">save_options_json</span><span class="p">(</span><span class="n">path_save</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Saves options dictionary as a json.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path_save</span>
+<span class="sd">        JSON save path.</span>
+<span class="sd">    options</span>
+<span class="sd">        Options dictionary.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">path_save</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Options json already exists: </span><span class="si">{path_save}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="n">path_save</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">path_save</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fo</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">fo</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved: </span><span class="si">{path_save}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="save_default_train_options"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.init.save_default_train_options">[docs]</a><span class="k">def</span> <span class="nf">save_default_train_options</span><span class="p">(</span><span class="n">path_save</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Save default training options json.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path_save</span>
+<span class="sd">        Save path for default training options json.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">train_options</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">28</span><span class="p">,</span>
+        <span class="s2">&quot;bpds_kwargs&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;buffer_size&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+            <span class="s2">&quot;buffer_switch_interval&quot;</span><span class="p">:</span> <span class="mi">2800</span><span class="p">,</span>  <span class="c1"># every 100 updates</span>
+            <span class="s2">&quot;patch_shape&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;dataset_train&quot;</span><span class="p">:</span> <span class="s2">&quot;fnet.data.TiffDataset&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dataset_train_kwargs&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;path_csv&quot;</span><span class="p">:</span> <span class="s2">&quot;some_training_set.csv&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;col_index&quot;</span><span class="p">:</span> <span class="s2">&quot;some_id_col&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;col_signal&quot;</span><span class="p">:</span> <span class="s2">&quot;some_signal_col&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;col_target&quot;</span><span class="p">:</span> <span class="s2">&quot;some_target_col&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;transform_signal&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;fnet.transforms.norm_around_center&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;transform_target&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;fnet.transforms.norm_around_center&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;dataset_val&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;dataset_val_kwargs&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;fnet_model_class&quot;</span><span class="p">:</span> <span class="s2">&quot;fnet.fnet_model.Model&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fnet_model_kwargs&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;betas&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.999</span><span class="p">],</span>
+            <span class="s2">&quot;criterion_class&quot;</span><span class="p">:</span> <span class="s2">&quot;fnet.losses.WeightedMSE&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;init_weights&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+            <span class="s2">&quot;nn_class&quot;</span><span class="p">:</span> <span class="s2">&quot;fnet.nn_modules.fnet_nn_3d.Net&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;scheduler&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;interval_checkpoint&quot;</span><span class="p">:</span> <span class="mi">50000</span><span class="p">,</span>
+        <span class="s2">&quot;interval_save&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="s2">&quot;iter_checkpoint&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;n_iter&quot;</span><span class="p">:</span> <span class="mi">50000</span><span class="p">,</span>
+        <span class="s2">&quot;path_save_dir&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">path_save</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span>
+        <span class="s2">&quot;seed&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">save_options_json</span><span class="p">(</span><span class="n">path_save</span><span class="p">,</span> <span class="n">train_options</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="save_default_predict_options"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.init.save_default_predict_options">[docs]</a><span class="k">def</span> <span class="nf">save_default_predict_options</span><span class="p">(</span><span class="n">path_save</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Save default prediction options json.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path_save</span>
+<span class="sd">        Save path for default prediction options json.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">predict_options</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;dataset&quot;</span><span class="p">:</span> <span class="s2">&quot;fnet.data.TiffDataset&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dataset_kwargs&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;col_index&quot;</span><span class="p">:</span> <span class="s2">&quot;some_id_col&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;col_signal&quot;</span><span class="p">:</span> <span class="s2">&quot;some_signal_col&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;col_target&quot;</span><span class="p">:</span> <span class="s2">&quot;some_target_col&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;path_csv&quot;</span><span class="p">:</span> <span class="s2">&quot;some_test_set.csv&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;transform_signal&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;fnet.transforms.norm_around_center&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;transform_target&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;fnet.transforms.norm_around_center&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;gpu_ids&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;idx_sel&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;metric&quot;</span><span class="p">:</span> <span class="s2">&quot;fnet.metrics.corr_coef&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;n_images&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;no_prediction&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;no_signal&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;no_target&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;path_model_dir&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;some_model&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;path_save_dir&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">path_save</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span>
+        <span class="s2">&quot;path_tif&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">save_options_json</span><span class="p">(</span><span class="n">path_save</span><span class="p">,</span> <span class="n">predict_options</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="add_parser_arguments"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.init.add_parser_arguments">[docs]</a><span class="k">def</span> <span class="nf">add_parser_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Add init script arguments to parser.&quot;&quot;&quot;</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--path_scripts_dir&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;scripts&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to where example scripts should be saved.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--path_train_template&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;train_options_templates/default.json&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to where training options template should be saved.&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.init.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Install default training options and example model training/prediction</span>
+<span class="sd">    scripts into current directory.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+        <span class="n">add_parser_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">save_example_scripts</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path_scripts_dir</span><span class="p">)</span>
+    <span class="n">save_default_train_options</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path_train_template</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Chek
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

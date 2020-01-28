@@ -1,0 +1,496 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fnet.cli package &mdash; fnet 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="fnet.data package" href="fnet.data.html" />
+    <link rel="prev" title="fnet package" href="fnet.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> fnet
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="fnet.html">fnet package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="fnet.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">fnet.cli package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-fnet.cli.init">fnet.cli.init module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-fnet.cli.main">fnet.cli.main module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-fnet.cli.predict">fnet.cli.predict module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-fnet.cli.train_model">fnet.cli.train_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-fnet.cli">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="fnet.data.html">fnet.data package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fnet.nn_modules.html">fnet.nn_modules package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fnet.utils.html">fnet.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.fnet_ensemble">fnet.fnet_ensemble module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.fnet_model">fnet.fnet_model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.fnetlogger">fnet.fnetlogger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.losses">fnet.losses module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.metrics">fnet.metrics module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.models">fnet.models module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.predict_piecewise">fnet.predict_piecewise module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.transforms">fnet.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">fnet</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="fnet.html">fnet package</a> &raquo;</li>
+        
+      <li>fnet.cli package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/fnet.cli.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="fnet-cli-package">
+<h1>fnet.cli package<a class="headerlink" href="#fnet-cli-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-fnet.cli.init">
+<span id="fnet-cli-init-module"></span><h2>fnet.cli.init module<a class="headerlink" href="#module-fnet.cli.init" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fnet.cli.init.add_parser_arguments">
+<code class="sig-prename descclassname">fnet.cli.init.</code><code class="sig-name descname">add_parser_arguments</code><span class="sig-paren">(</span><em class="sig-param">parser: argparse.ArgumentParser</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/cli/init.html#add_parser_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.init.add_parser_arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add init script arguments to parser.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.init.main">
+<code class="sig-prename descclassname">fnet.cli.init.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">args: Optional[argparse.Namespace] = None</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/cli/init.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.init.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Install default training options and example model training/prediction
+scripts into current directory.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.init.save_default_predict_options">
+<code class="sig-prename descclassname">fnet.cli.init.</code><code class="sig-name descname">save_default_predict_options</code><span class="sig-paren">(</span><em class="sig-param">path_save: pathlib.Path</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/cli/init.html#save_default_predict_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.init.save_default_predict_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save default prediction options json.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_save</strong> – Save path for default prediction options json.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.init.save_default_train_options">
+<code class="sig-prename descclassname">fnet.cli.init.</code><code class="sig-name descname">save_default_train_options</code><span class="sig-paren">(</span><em class="sig-param">path_save: pathlib.Path</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/cli/init.html#save_default_train_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.init.save_default_train_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save default training options json.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_save</strong> – Save path for default training options json.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.init.save_example_scripts">
+<code class="sig-prename descclassname">fnet.cli.init.</code><code class="sig-name descname">save_example_scripts</code><span class="sig-paren">(</span><em class="sig-param">path_save_dir: str</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/cli/init.html#save_example_scripts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.init.save_example_scripts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save example training and prediction scripts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_save_dir</strong> – Directory in which to save scripts.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.init.save_options_json">
+<code class="sig-prename descclassname">fnet.cli.init.</code><code class="sig-name descname">save_options_json</code><span class="sig-paren">(</span><em class="sig-param">path_save: pathlib.Path</em>, <em class="sig-param">options: Dict</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/cli/init.html#save_options_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.init.save_options_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves options dictionary as a json.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_save</strong> – JSON save path.</p></li>
+<li><p><strong>options</strong> – Options dictionary.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet.cli.main">
+<span id="fnet-cli-main-module"></span><h2>fnet.cli.main module<a class="headerlink" href="#module-fnet.cli.main" title="Permalink to this headline">¶</a></h2>
+<p>Module for command-line ‘fnet’ command.</p>
+<dl class="function">
+<dt id="fnet.cli.main.main">
+<code class="sig-prename descclassname">fnet.cli.main.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/cli/main.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.main.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main function for command-line ‘fnet’ command.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet.cli.predict">
+<span id="fnet-cli-predict-module"></span><h2>fnet.cli.predict module<a class="headerlink" href="#module-fnet.cli.predict" title="Permalink to this headline">¶</a></h2>
+<p>Generates predictions from a model.</p>
+<dl class="function">
+<dt id="fnet.cli.predict.add_parser_arguments">
+<code class="sig-prename descclassname">fnet.cli.predict.</code><code class="sig-name descname">add_parser_arguments</code><span class="sig-paren">(</span><em class="sig-param">parser</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/cli/predict.html#add_parser_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.predict.add_parser_arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add training script arguments to parser.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.predict.get_dataset">
+<code class="sig-prename descclassname">fnet.cli.predict.</code><code class="sig-name descname">get_dataset</code><span class="sig-paren">(</span><em class="sig-param">args: argparse.Namespace</em><span class="sig-paren">)</span> &#x2192; torch.utils.data.dataset.Dataset<a class="reference internal" href="_modules/fnet/cli/predict.html#get_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.predict.get_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dataset object.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>torch.utils.data.Dataset</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.predict.get_indices">
+<code class="sig-prename descclassname">fnet.cli.predict.</code><code class="sig-name descname">get_indices</code><span class="sig-paren">(</span><em class="sig-param">args: argparse.Namespace</em>, <em class="sig-param">dataset: Any</em><span class="sig-paren">)</span> &#x2192; List[int]<a class="reference internal" href="_modules/fnet/cli/predict.html#get_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.predict.get_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns indices of dataset items on which to perform predictions.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.predict.item_from_dataset">
+<code class="sig-prename descclassname">fnet.cli.predict.</code><code class="sig-name descname">item_from_dataset</code><span class="sig-paren">(</span><em class="sig-param">dataset: Any</em>, <em class="sig-param">idx: int</em><span class="sig-paren">)</span> &#x2192; Tuple[torch.Tensor, Optional[torch.Tensor]]<a class="reference internal" href="_modules/fnet/cli/predict.html#item_from_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.predict.item_from_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns signal-target image pair from dataset.</p>
+<p>If the dataset is a FnetDataset, it will be indexed using ‘loc’-style
+indexing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> – Object with __getitem__ implemented.</p></li>
+<li><p><strong>idx</strong> – Index of data to be retrieved from dataset.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Signal-target data pair. Target can be None if dataset does not return
+a target for the given index.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple[torch.Tensor, Optional[torch.Tensor]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.predict.load_from_json">
+<code class="sig-prename descclassname">fnet.cli.predict.</code><code class="sig-name descname">load_from_json</code><span class="sig-paren">(</span><em class="sig-param">args: argparse.Namespace</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/cli/predict.html#load_from_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.predict.load_from_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads arguments from if a json is specified.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.predict.main">
+<code class="sig-prename descclassname">fnet.cli.predict.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">args: Optional[argparse.Namespace] = None</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/cli/predict.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.predict.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts using model.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.predict.parse_model">
+<code class="sig-prename descclassname">fnet.cli.predict.</code><code class="sig-name descname">parse_model</code><span class="sig-paren">(</span><em class="sig-param">model_str: str</em><span class="sig-paren">)</span> &#x2192; Dict<a class="reference internal" href="_modules/fnet/cli/predict.html#parse_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.predict.parse_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse model definition string into dictionary.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.predict.save_args_as_json">
+<code class="sig-prename descclassname">fnet.cli.predict.</code><code class="sig-name descname">save_args_as_json</code><span class="sig-paren">(</span><em class="sig-param">path_save_dir: str</em>, <em class="sig-param">args: argparse.Namespace</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/cli/predict.html#save_args_as_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.predict.save_args_as_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves script arguments as json in save directory.</p>
+<p>A json is saved only if the “–json” option was not specified.</p>
+<p>By default, this function tries to save arguments as predict_options.json
+within the save directory. If that file already exists, appends a digit to
+uniquify the save path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_save_dir</strong> – Save directory</p></li>
+<li><p><strong>args</strong> – Script arguments.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.predict.save_predictions_csv">
+<code class="sig-prename descclassname">fnet.cli.predict.</code><code class="sig-name descname">save_predictions_csv</code><span class="sig-paren">(</span><em class="sig-param">path_csv: pathlib.Path, pred_records: List[Dict], dataset: Any</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/cli/predict.html#save_predictions_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.predict.save_predictions_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves csv with metadata of predictions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_csv</strong> – CSV save path.</p></li>
+<li><p><strong>pred_records</strong> – List of metadata for each prediction.</p></li>
+<li><p><strong>dataset</strong> – Dataset from where signal-target pairs were retrieved.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.predict.save_tif">
+<code class="sig-prename descclassname">fnet.cli.predict.</code><code class="sig-name descname">save_tif</code><span class="sig-paren">(</span><em class="sig-param">fname: str</em>, <em class="sig-param">ar: numpy.ndarray</em>, <em class="sig-param">path_root: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/fnet/cli/predict.html#save_tif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.predict.save_tif" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves a tif and returns tif save path relative to root save directory.</p>
+<p>Image will be stored at: ‘path_root/tifs/fname’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> – Basename of save path.</p></li>
+<li><p><strong>ar</strong> – Array to be saved as tif.</p></li>
+<li><p><strong>path_root</strong> – Root directory of save path.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Save path relative to root directory.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet.cli.train_model">
+<span id="fnet-cli-train-model-module"></span><h2>fnet.cli.train_model module<a class="headerlink" href="#module-fnet.cli.train_model" title="Permalink to this headline">¶</a></h2>
+<p>Trains a model.</p>
+<dl class="function">
+<dt id="fnet.cli.train_model.add_parser_arguments">
+<code class="sig-prename descclassname">fnet.cli.train_model.</code><code class="sig-name descname">add_parser_arguments</code><span class="sig-paren">(</span><em class="sig-param">parser</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/cli/train_model.html#add_parser_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.train_model.add_parser_arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add training script arguments to parser.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.train_model.get_bpds_train">
+<code class="sig-prename descclassname">fnet.cli.train_model.</code><code class="sig-name descname">get_bpds_train</code><span class="sig-paren">(</span><em class="sig-param">args: argparse.Namespace</em><span class="sig-paren">)</span> &#x2192; fnet.data.bufferedpatchdataset.BufferedPatchDataset<a class="reference internal" href="_modules/fnet/cli/train_model.html#get_bpds_train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.train_model.get_bpds_train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates data provider for training.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.train_model.get_bpds_val">
+<code class="sig-prename descclassname">fnet.cli.train_model.</code><code class="sig-name descname">get_bpds_val</code><span class="sig-paren">(</span><em class="sig-param">args: argparse.Namespace</em><span class="sig-paren">)</span> &#x2192; Optional[fnet.data.bufferedpatchdataset.BufferedPatchDataset]<a class="reference internal" href="_modules/fnet/cli/train_model.html#get_bpds_val"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.train_model.get_bpds_val" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates data provider for validation.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.train_model.init_cuda">
+<code class="sig-prename descclassname">fnet.cli.train_model.</code><code class="sig-name descname">init_cuda</code><span class="sig-paren">(</span><em class="sig-param">gpu: int</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/cli/train_model.html#init_cuda"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.train_model.init_cuda" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize Pytorch CUDA state.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.train_model.log_training_options">
+<code class="sig-prename descclassname">fnet.cli.train_model.</code><code class="sig-name descname">log_training_options</code><span class="sig-paren">(</span><em class="sig-param">options: Dict</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/cli/train_model.html#log_training_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.train_model.log_training_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs training options.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.train_model.main">
+<code class="sig-prename descclassname">fnet.cli.train_model.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">args: Optional[argparse.Namespace] = None</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/cli/train_model.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.train_model.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trains a model.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.train_model.set_seeds">
+<code class="sig-prename descclassname">fnet.cli.train_model.</code><code class="sig-name descname">set_seeds</code><span class="sig-paren">(</span><em class="sig-param">seed: Optional[int]</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/cli/train_model.html#set_seeds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.train_model.set_seeds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets random seeds</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.cli.train_model.train_model">
+<code class="sig-prename descclassname">fnet.cli.train_model.</code><code class="sig-name descname">train_model</code><span class="sig-paren">(</span><em class="sig-param">batch_size: int = 28</em>, <em class="sig-param">bpds_kwargs: Optional[Dict] = None</em>, <em class="sig-param">dataset_train: str = 'fnet.data.TiffDataset'</em>, <em class="sig-param">dataset_train_kwargs: Optional[Dict] = None</em>, <em class="sig-param">dataset_val: Optional[str] = None</em>, <em class="sig-param">dataset_val_kwargs: Optional[Dict] = None</em>, <em class="sig-param">fnet_model_class: str = 'fnet.fnet_model.Model'</em>, <em class="sig-param">fnet_model_kwargs: Optional[Dict] = None</em>, <em class="sig-param">interval_checkpoint: int = 50000</em>, <em class="sig-param">interval_save: int = 1000</em>, <em class="sig-param">iter_checkpoint: Optional[List] = None</em>, <em class="sig-param">n_iter: int = 250000</em>, <em class="sig-param">path_save_dir: str = 'models/some_model'</em>, <em class="sig-param">seed: Optional[int] = None</em>, <em class="sig-param">json: Optional[str] = None</em>, <em class="sig-param">gpu_ids: Optional[List[int]] = None</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/cli/train_model.html#train_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.cli.train_model.train_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Python API for training.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet.cli">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-fnet.cli" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="fnet.data.html" class="btn btn-neutral float-right" title="fnet.data package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="fnet.html" class="btn btn-neutral float-left" title="fnet package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Chek
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

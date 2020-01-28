@@ -1,0 +1,46 @@
+fnet.cli package
+================
+
+Submodules
+----------
+
+fnet.cli.init module
+--------------------
+
+.. automodule:: fnet.cli.init
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fnet.cli.main module
+--------------------
+
+.. automodule:: fnet.cli.main
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fnet.cli.predict module
+-----------------------
+
+.. automodule:: fnet.cli.predict
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fnet.cli.train\_model module
+----------------------------
+
+.. automodule:: fnet.cli.train_model
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: fnet.cli
+   :members:
+   :undoc-members:
+   :show-inheritance:

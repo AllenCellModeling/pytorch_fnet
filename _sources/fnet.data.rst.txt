@@ -1,0 +1,70 @@
+fnet.data package
+=================
+
+Submodules
+----------
+
+fnet.data.bufferedpatchdataset module
+-------------------------------------
+
+.. automodule:: fnet.data.bufferedpatchdataset
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fnet.data.czidataset module
+---------------------------
+
+.. automodule:: fnet.data.czidataset
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fnet.data.czireader module
+--------------------------
+
+.. automodule:: fnet.data.czireader
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fnet.data.dummydataset module
+-----------------------------
+
+.. automodule:: fnet.data.dummydataset
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fnet.data.fnetdataset module
+----------------------------
+
+.. automodule:: fnet.data.fnetdataset
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fnet.data.multichtiffdataset module
+-----------------------------------
+
+.. automodule:: fnet.data.multichtiffdataset
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fnet.data.tiffdataset module
+----------------------------
+
+.. automodule:: fnet.data.tiffdataset
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: fnet.data
+   :members:
+   :undoc-members:
+   :show-inheritance:

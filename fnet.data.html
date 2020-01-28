@@ -1,0 +1,605 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fnet.data package &mdash; fnet 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="fnet.nn_modules package" href="fnet.nn_modules.html" />
+    <link rel="prev" title="fnet.cli package" href="fnet.cli.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> fnet
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="fnet.html">fnet package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="fnet.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="fnet.cli.html">fnet.cli package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">fnet.data package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-fnet.data.bufferedpatchdataset">fnet.data.bufferedpatchdataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fnet-data-czidataset-module">fnet.data.czidataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fnet-data-czireader-module">fnet.data.czireader module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-fnet.data.dummydataset">fnet.data.dummydataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-fnet.data.fnetdataset">fnet.data.fnetdataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-fnet.data.multichtiffdataset">fnet.data.multichtiffdataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-fnet.data.tiffdataset">fnet.data.tiffdataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-fnet.data">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="fnet.nn_modules.html">fnet.nn_modules package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fnet.utils.html">fnet.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.fnet_ensemble">fnet.fnet_ensemble module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.fnet_model">fnet.fnet_model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.fnetlogger">fnet.fnetlogger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.losses">fnet.losses module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.metrics">fnet.metrics module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.models">fnet.models module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.predict_piecewise">fnet.predict_piecewise module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.transforms">fnet.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">fnet</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="fnet.html">fnet package</a> &raquo;</li>
+        
+      <li>fnet.data package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/fnet.data.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="fnet-data-package">
+<h1>fnet.data package<a class="headerlink" href="#fnet-data-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-fnet.data.bufferedpatchdataset">
+<span id="fnet-data-bufferedpatchdataset-module"></span><h2>fnet.data.bufferedpatchdataset module<a class="headerlink" href="#module-fnet.data.bufferedpatchdataset" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fnet.data.bufferedpatchdataset.BufferedPatchDataset">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.data.bufferedpatchdataset.</code><code class="sig-name descname">BufferedPatchDataset</code><span class="sig-paren">(</span><em class="sig-param">dataset: collections.abc.Sequence</em>, <em class="sig-param">patch_shape: Sequence[int] = (32</em>, <em class="sig-param">64</em>, <em class="sig-param">64)</em>, <em class="sig-param">buffer_size: int = 1</em>, <em class="sig-param">buffer_switch_interval: int = -1</em>, <em class="sig-param">shuffle_images: bool = True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/data/bufferedpatchdataset.html#BufferedPatchDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.bufferedpatchdataset.BufferedPatchDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Provides patches from items of a dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> – Dataset object.</p></li>
+<li><p><strong>patch_shape</strong> – Shape of patch to be extracted from dataset items.</p></li>
+<li><p><strong>buffer_size</strong> – Size of buffer.</p></li>
+<li><p><strong>buffer_switch_interval</strong> – Number of patches provided between buffer item exchanges. Set to -1 to
+disable exchanges.</p></li>
+<li><p><strong>shuffle_images</strong> – Set to randomize order of dataset item insertion into buffer.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="fnet.data.bufferedpatchdataset.BufferedPatchDataset.get_batch">
+<code class="sig-name descname">get_batch</code><span class="sig-paren">(</span><em class="sig-param">batch_size: int</em><span class="sig-paren">)</span> &#x2192; Sequence[torch.Tensor]<a class="reference internal" href="_modules/fnet/data/bufferedpatchdataset.html#BufferedPatchDataset.get_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.bufferedpatchdataset.BufferedPatchDataset.get_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a batch of patches.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>batch_size</strong> – Number of patches in batch.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Batch of patches.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Sequence[torch.Tensor]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.data.bufferedpatchdataset.BufferedPatchDataset.get_buffer_history">
+<code class="sig-name descname">get_buffer_history</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[int]<a class="reference internal" href="_modules/fnet/data/bufferedpatchdataset.html#BufferedPatchDataset.get_buffer_history"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.bufferedpatchdataset.BufferedPatchDataset.get_buffer_history" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of indices of dataset elements inserted into the
+buffer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Indices of dataset elements.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.data.bufferedpatchdataset.BufferedPatchDataset.get_random_patch">
+<code class="sig-name descname">get_random_patch</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[Union[numpy.ndarray, torch.Tensor]]<a class="reference internal" href="_modules/fnet/data/bufferedpatchdataset.html#BufferedPatchDataset.get_random_patch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.bufferedpatchdataset.BufferedPatchDataset.get_random_patch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples random patch from an item in the buffer.</p>
+<p>Let nd be the number of dimensions of the patch. If the item has more
+dimensions than the patch, then sampling will be from the last nd
+dimensions of the item.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Random patch sampled from a dataset item.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[ArrayLike]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.data.bufferedpatchdataset.BufferedPatchDataset.insert_new_element_into_buffer">
+<code class="sig-name descname">insert_new_element_into_buffer</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/data/bufferedpatchdataset.html#BufferedPatchDataset.insert_new_element_into_buffer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.bufferedpatchdataset.BufferedPatchDataset.insert_new_element_into_buffer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts new dataset item into buffer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="fnet-data-czidataset-module">
+<h2>fnet.data.czidataset module<a class="headerlink" href="#fnet-data-czidataset-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="fnet-data-czireader-module">
+<h2>fnet.data.czireader module<a class="headerlink" href="#fnet-data-czireader-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-fnet.data.dummydataset">
+<span id="fnet-data-dummydataset-module"></span><h2>fnet.data.dummydataset module<a class="headerlink" href="#module-fnet.data.dummydataset" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fnet.data.dummydataset.DummyCustomFnetDataset">
+<code class="sig-prename descclassname">fnet.data.dummydataset.</code><code class="sig-name descname">DummyCustomFnetDataset</code><span class="sig-paren">(</span><em class="sig-param">train: bool = False</em><span class="sig-paren">)</span> &#x2192; fnet.data.tiffdataset.TiffDataset<a class="reference internal" href="_modules/fnet/data/dummydataset.html#DummyCustomFnetDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.dummydataset.DummyCustomFnetDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dummy custom dataset.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.data.dummydataset.DummyFnetDataset">
+<code class="sig-prename descclassname">fnet.data.dummydataset.</code><code class="sig-name descname">DummyFnetDataset</code><span class="sig-paren">(</span><em class="sig-param">train: bool = False</em><span class="sig-paren">)</span> &#x2192; fnet.data.tiffdataset.TiffDataset<a class="reference internal" href="_modules/fnet/data/dummydataset.html#DummyFnetDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.dummydataset.DummyFnetDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dummy Fnetdataset.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet.data.fnetdataset">
+<span id="fnet-data-fnetdataset-module"></span><h2>fnet.data.fnetdataset module<a class="headerlink" href="#module-fnet.data.fnetdataset" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fnet.data.fnetdataset.FnetDataset">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.data.fnetdataset.</code><code class="sig-name descname">FnetDataset</code><span class="sig-paren">(</span><em class="sig-param">dataframe: Optional[pandas.core.frame.DataFrame] = None</em>, <em class="sig-param">path_csv: Optional[str] = None</em>, <em class="sig-param">transform_signal: Optional[list] = None</em>, <em class="sig-param">transform_target: Optional[list] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/data/fnetdataset.html#FnetDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.fnetdataset.FnetDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.dataset.Dataset</span></code></p>
+<p>Abstract class for fnet datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataframe</strong> – DataFrame where rows are dataset elements. Overrides path_csv.</p></li>
+<li><p><strong>path_csv</strong> – Path to csv from which to create DataFrame.</p></li>
+<li><p><strong>transform_signal</strong> – List of transforms to apply to signal image.</p></li>
+<li><p><strong>transform_target</strong> – List of transforms to apply to target image.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="fnet.data.fnetdataset.FnetDataset.get_information">
+<code class="sig-name descname">get_information</code><span class="sig-paren">(</span><em class="sig-param">index</em><span class="sig-paren">)</span> &#x2192; Union[dict, str]<a class="reference internal" href="_modules/fnet/data/fnetdataset.html#FnetDataset.get_information"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.fnetdataset.FnetDataset.get_information" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information to identify dataset element specified by index.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.data.fnetdataset.FnetDataset.metadata">
+<em class="property">property </em><code class="sig-name descname">metadata</code><a class="headerlink" href="#fnet.data.fnetdataset.FnetDataset.metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns metadata about the dataset.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet.data.multichtiffdataset">
+<span id="fnet-data-multichtiffdataset-module"></span><h2>fnet.data.multichtiffdataset module<a class="headerlink" href="#module-fnet.data.multichtiffdataset" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fnet.data.multichtiffdataset.MultiChTiffDataset">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.data.multichtiffdataset.</code><code class="sig-name descname">MultiChTiffDataset</code><span class="sig-paren">(</span><em class="sig-param">dataframe: pandas.core.frame.DataFrame = None</em>, <em class="sig-param">path_csv: str = None</em>, <em class="sig-param">transform_signal=None</em>, <em class="sig-param">transform_target=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/data/multichtiffdataset.html#MultiChTiffDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.multichtiffdataset.MultiChTiffDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fnet.data.fnetdataset.FnetDataset" title="fnet.data.fnetdataset.FnetDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">fnet.data.fnetdataset.FnetDataset</span></code></a></p>
+<p>Dataset for multi-channel tiff files.</p>
+<p>Currently assumes that images are loaded in STCZYX format</p>
+<dl class="method">
+<dt id="fnet.data.multichtiffdataset.MultiChTiffDataset.get_information">
+<code class="sig-name descname">get_information</code><span class="sig-paren">(</span><em class="sig-param">index: int</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/fnet/data/multichtiffdataset.html#MultiChTiffDataset.get_information"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.multichtiffdataset.MultiChTiffDataset.get_information" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information to identify dataset element specified by index.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet.data.tiffdataset">
+<span id="fnet-data-tiffdataset-module"></span><h2>fnet.data.tiffdataset module<a class="headerlink" href="#module-fnet.data.tiffdataset" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fnet.data.tiffdataset.TiffDataset">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.data.tiffdataset.</code><code class="sig-name descname">TiffDataset</code><span class="sig-paren">(</span><em class="sig-param">col_index: Optional[str] = None</em>, <em class="sig-param">col_signal: str = 'path_signal'</em>, <em class="sig-param">col_target: str = 'path_target'</em>, <em class="sig-param">col_weight_map: str = 'path_weight_map'</em>, <em class="sig-param">augment: bool = False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/data/tiffdataset.html#TiffDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.tiffdataset.TiffDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fnet.data.fnetdataset.FnetDataset" title="fnet.data.fnetdataset.FnetDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">fnet.data.fnetdataset.FnetDataset</span></code></a></p>
+<p>Dataset where each row is a signal-target pairing from TIFF files.</p>
+<dl class="simple">
+<dt>Dataset items will be 2-item or 3-item tuples:</dt><dd><p>(signal image, target image) or
+(signal image, target image, cost map)</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>augment</strong> – Set to augment dataset with flips about the x and/or y axis.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="fnet.data.tiffdataset.TiffDataset.get_information">
+<code class="sig-name descname">get_information</code><span class="sig-paren">(</span><em class="sig-param">idx: int</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/fnet/data/tiffdataset.html#TiffDataset.get_information"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.tiffdataset.TiffDataset.get_information" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information about the dataset item.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>idx</strong> – Index of dataset item for which to retrieve information.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Information about dataset item.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet.data">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-fnet.data" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fnet.data.BufferedPatchDataset">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.data.</code><code class="sig-name descname">BufferedPatchDataset</code><span class="sig-paren">(</span><em class="sig-param">dataset: collections.abc.Sequence</em>, <em class="sig-param">patch_shape: Sequence[int] = (32</em>, <em class="sig-param">64</em>, <em class="sig-param">64)</em>, <em class="sig-param">buffer_size: int = 1</em>, <em class="sig-param">buffer_switch_interval: int = -1</em>, <em class="sig-param">shuffle_images: bool = True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/data/bufferedpatchdataset.html#BufferedPatchDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.BufferedPatchDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Provides patches from items of a dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> – Dataset object.</p></li>
+<li><p><strong>patch_shape</strong> – Shape of patch to be extracted from dataset items.</p></li>
+<li><p><strong>buffer_size</strong> – Size of buffer.</p></li>
+<li><p><strong>buffer_switch_interval</strong> – Number of patches provided between buffer item exchanges. Set to -1 to
+disable exchanges.</p></li>
+<li><p><strong>shuffle_images</strong> – Set to randomize order of dataset item insertion into buffer.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="fnet.data.BufferedPatchDataset.get_batch">
+<code class="sig-name descname">get_batch</code><span class="sig-paren">(</span><em class="sig-param">batch_size: int</em><span class="sig-paren">)</span> &#x2192; Sequence[torch.Tensor]<a class="reference internal" href="_modules/fnet/data/bufferedpatchdataset.html#BufferedPatchDataset.get_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.BufferedPatchDataset.get_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a batch of patches.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>batch_size</strong> – Number of patches in batch.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Batch of patches.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Sequence[torch.Tensor]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.data.BufferedPatchDataset.get_buffer_history">
+<code class="sig-name descname">get_buffer_history</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[int]<a class="reference internal" href="_modules/fnet/data/bufferedpatchdataset.html#BufferedPatchDataset.get_buffer_history"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.BufferedPatchDataset.get_buffer_history" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of indices of dataset elements inserted into the
+buffer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Indices of dataset elements.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.data.BufferedPatchDataset.get_random_patch">
+<code class="sig-name descname">get_random_patch</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[Union[numpy.ndarray, torch.Tensor]]<a class="reference internal" href="_modules/fnet/data/bufferedpatchdataset.html#BufferedPatchDataset.get_random_patch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.BufferedPatchDataset.get_random_patch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples random patch from an item in the buffer.</p>
+<p>Let nd be the number of dimensions of the patch. If the item has more
+dimensions than the patch, then sampling will be from the last nd
+dimensions of the item.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Random patch sampled from a dataset item.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[ArrayLike]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.data.BufferedPatchDataset.insert_new_element_into_buffer">
+<code class="sig-name descname">insert_new_element_into_buffer</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/data/bufferedpatchdataset.html#BufferedPatchDataset.insert_new_element_into_buffer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.BufferedPatchDataset.insert_new_element_into_buffer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts new dataset item into buffer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fnet.data.FnetDataset">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.data.</code><code class="sig-name descname">FnetDataset</code><span class="sig-paren">(</span><em class="sig-param">dataframe: Optional[pandas.core.frame.DataFrame] = None</em>, <em class="sig-param">path_csv: Optional[str] = None</em>, <em class="sig-param">transform_signal: Optional[list] = None</em>, <em class="sig-param">transform_target: Optional[list] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/data/fnetdataset.html#FnetDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.FnetDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.dataset.Dataset</span></code></p>
+<p>Abstract class for fnet datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataframe</strong> – DataFrame where rows are dataset elements. Overrides path_csv.</p></li>
+<li><p><strong>path_csv</strong> – Path to csv from which to create DataFrame.</p></li>
+<li><p><strong>transform_signal</strong> – List of transforms to apply to signal image.</p></li>
+<li><p><strong>transform_target</strong> – List of transforms to apply to target image.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="fnet.data.FnetDataset.get_information">
+<code class="sig-name descname">get_information</code><span class="sig-paren">(</span><em class="sig-param">index</em><span class="sig-paren">)</span> &#x2192; Union[dict, str]<a class="reference internal" href="_modules/fnet/data/fnetdataset.html#FnetDataset.get_information"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.FnetDataset.get_information" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information to identify dataset element specified by index.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="fnet.data.FnetDataset.metadata">
+<em class="property">property </em><code class="sig-name descname">metadata</code><a class="headerlink" href="#fnet.data.FnetDataset.metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns metadata about the dataset.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fnet.data.TiffDataset">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.data.</code><code class="sig-name descname">TiffDataset</code><span class="sig-paren">(</span><em class="sig-param">col_index: Optional[str] = None</em>, <em class="sig-param">col_signal: str = 'path_signal'</em>, <em class="sig-param">col_target: str = 'path_target'</em>, <em class="sig-param">col_weight_map: str = 'path_weight_map'</em>, <em class="sig-param">augment: bool = False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/data/tiffdataset.html#TiffDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.TiffDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fnet.data.fnetdataset.FnetDataset" title="fnet.data.fnetdataset.FnetDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">fnet.data.fnetdataset.FnetDataset</span></code></a></p>
+<p>Dataset where each row is a signal-target pairing from TIFF files.</p>
+<dl class="simple">
+<dt>Dataset items will be 2-item or 3-item tuples:</dt><dd><p>(signal image, target image) or
+(signal image, target image, cost map)</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>augment</strong> – Set to augment dataset with flips about the x and/or y axis.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="fnet.data.TiffDataset.get_information">
+<code class="sig-name descname">get_information</code><span class="sig-paren">(</span><em class="sig-param">idx: int</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/fnet/data/tiffdataset.html#TiffDataset.get_information"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.TiffDataset.get_information" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information about the dataset item.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>idx</strong> – Index of dataset item for which to retrieve information.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Information about dataset item.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fnet.data.MultiChTiffDataset">
+<em class="property">class </em><code class="sig-prename descclassname">fnet.data.</code><code class="sig-name descname">MultiChTiffDataset</code><span class="sig-paren">(</span><em class="sig-param">dataframe: pandas.core.frame.DataFrame = None</em>, <em class="sig-param">path_csv: str = None</em>, <em class="sig-param">transform_signal=None</em>, <em class="sig-param">transform_target=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/data/multichtiffdataset.html#MultiChTiffDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.MultiChTiffDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fnet.data.fnetdataset.FnetDataset" title="fnet.data.fnetdataset.FnetDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">fnet.data.fnetdataset.FnetDataset</span></code></a></p>
+<p>Dataset for multi-channel tiff files.</p>
+<p>Currently assumes that images are loaded in STCZYX format</p>
+<dl class="method">
+<dt id="fnet.data.MultiChTiffDataset.get_information">
+<code class="sig-name descname">get_information</code><span class="sig-paren">(</span><em class="sig-param">index: int</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/fnet/data/multichtiffdataset.html#MultiChTiffDataset.get_information"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.MultiChTiffDataset.get_information" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information to identify dataset element specified by index.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.data.DummyFnetDataset">
+<code class="sig-prename descclassname">fnet.data.</code><code class="sig-name descname">DummyFnetDataset</code><span class="sig-paren">(</span><em class="sig-param">train: bool = False</em><span class="sig-paren">)</span> &#x2192; fnet.data.tiffdataset.TiffDataset<a class="reference internal" href="_modules/fnet/data/dummydataset.html#DummyFnetDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.DummyFnetDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dummy Fnetdataset.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.data.DummyCustomFnetDataset">
+<code class="sig-prename descclassname">fnet.data.</code><code class="sig-name descname">DummyCustomFnetDataset</code><span class="sig-paren">(</span><em class="sig-param">train: bool = False</em><span class="sig-paren">)</span> &#x2192; fnet.data.tiffdataset.TiffDataset<a class="reference internal" href="_modules/fnet/data/dummydataset.html#DummyCustomFnetDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.data.DummyCustomFnetDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dummy custom dataset.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="fnet.nn_modules.html" class="btn btn-neutral float-right" title="fnet.nn_modules package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="fnet.cli.html" class="btn btn-neutral float-left" title="fnet.cli package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Chek
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

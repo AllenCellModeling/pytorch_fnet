@@ -1,0 +1,46 @@
+fnet.utils package
+==================
+
+Submodules
+----------
+
+fnet.utils.general\_utils module
+--------------------------------
+
+.. automodule:: fnet.utils.general_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fnet.utils.model\_utils module
+------------------------------
+
+.. automodule:: fnet.utils.model_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fnet.utils.split\_dataset module
+--------------------------------
+
+.. automodule:: fnet.utils.split_dataset
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fnet.utils.viz\_utils module
+----------------------------
+
+.. automodule:: fnet.utils.viz_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: fnet.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:

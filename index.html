@@ -1,0 +1,354 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Pytorch_fnet &mdash; fnet 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="fnet package" href="fnet.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> fnet
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fnet.html">fnet package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">fnet</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>Pytorch_fnet</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pytorch-fnet">
+<h1>Pytorch_fnet<a class="headerlink" href="#pytorch-fnet" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+<div class="section" id="label-free-prediction-of-three-dimensional-fluorescence-images-from-transmitted-light-microscopy">
+<h1>Label-free prediction of three-dimensional fluorescence images from transmitted-light microscopy<a class="headerlink" href="#label-free-prediction-of-three-dimensional-fluorescence-images-from-transmitted-light-microscopy" title="Permalink to this headline">¶</a></h1>
+<a class="reference external image-reference" href="https://github.com/AllenCellModeling/pytorch_fnet/actions"><img alt="Build Status" src="https://github.com/AllenCellModeling/pytorch_fnet/workflows/Build%20Master/badge.svg" /></a>
+<a class="reference external image-reference" href="https://allencellmodeling.github.io/pytorch_fnet/"><img alt="Documentation" src="https://github.com/AllenCellModeling/pytorch_fnet/workflows/Documentation/badge.svg" /></a>
+<a class="reference external image-reference" href="./resources/PredictingStructures-1.jpg?raw=true"><img alt="Combined outputs" src="./resources/PredictingStructures-1.jpg?raw=true" /></a>
+<div class="section" id="support">
+<h2>Support<a class="headerlink" href="#support" title="Permalink to this headline">¶</a></h2>
+<p>This code is in active development and is used within our organization. We are currently not supporting this code for external use and are simply releasing the code to the community AS IS. The community is welcome to submit issues, but you should not expect an active response.</p>
+<p>For the code corresponding to our Nature Methods paper, please use the <code class="docutils literal notranslate"><span class="pre">release_1</span></code> branch <a class="reference external" href="https://github.com/AllenCellModeling/pytorch_fnet/tree/release_1">here</a>.</p>
+</div>
+<div class="section" id="system-requirements">
+<h2>System requirements<a class="headerlink" href="#system-requirements" title="Permalink to this headline">¶</a></h2>
+<p>We recommend installation on Linux and an NVIDIA graphics card with 12+ GB of RAM (e.g., NVIDIA Titan X Pascal) with the latest drivers installed.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>We recommend an environment manager such as <a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html">Conda</a>.</p></li>
+<li><p>Install Python 3.6+ if necessary.</p></li>
+<li><p>All commands listed below assume the bash shell.</p></li>
+<li><p>Clone and install the repo:</p></li>
+</ul>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/AllenCellModeling/pytorch_fnet.git
+<span class="nb">cd</span> pytorch_fnet
+pip install .
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>If you would like to instead install for development:</p></li>
+</ul>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install -e .<span class="o">[</span>dev<span class="o">]</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>If you want to run the demos in the examples directory:</p></li>
+</ul>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install .<span class="o">[</span>examples<span class="o">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="demo-on-canned-aics-data">
+<h2>Demo on Canned AICS Data<a class="headerlink" href="#demo-on-canned-aics-data" title="Permalink to this headline">¶</a></h2>
+<p>This will download some images from our <a class="reference external" href="https://open.quiltdata.com/b/allencell/tree/aics/pipeline_integrated_cell/">Integrated Cell Quilt repository</a> and start training a model</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> examples
+python download_and_train.py
+</pre></div>
+</div>
+<p>When training is complete, you can predict on the held-out data with</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python predict.py
+</pre></div>
+</div>
+</div>
+<div class="section" id="command-line-tool">
+<h2>Command-line tool<a class="headerlink" href="#command-line-tool" title="Permalink to this headline">¶</a></h2>
+<p>Once the package is installed, users can train and use models through the <code class="docutils literal notranslate"><span class="pre">fnet</span></code> command-line tool. To see what commands are available, use the <code class="docutils literal notranslate"><span class="pre">-h</span></code> flag.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>fnet -h
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">-h</span></code> flag is also available for all <code class="docutils literal notranslate"><span class="pre">fnet</span></code> commands. For example,</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>fnet train -h
+</pre></div>
+</div>
+</div>
+<div class="section" id="train-a-model">
+<h2>Train a model<a class="headerlink" href="#train-a-model" title="Permalink to this headline">¶</a></h2>
+<p>Model training is done through the the <code class="docutils literal notranslate"><span class="pre">fnet</span> <span class="pre">train</span></code> command, which requires a json indicating various training parameters. e.g., what dataset to use, where to save the model, how the hyperparameters should be set, etc. To create a template json:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>fnet train --json /path/to/train_options.json
+</pre></div>
+</div>
+<p>Users are expected to modify this json to suit their needs. At a minimum, users should verify the following json fields and change them if necessary:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;dataset_train&quot;</span></code>: The name of the training dataset.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;path_save_dir&quot;</span></code>: The directory where the model will be saved. We recommend that the model be saved in the same directory as the training options json.</p></li>
+</ul>
+<p>Once any modifications are complete, initiate training by repeating the above command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>fnet train --json /path/to/train_options.json
+</pre></div>
+</div>
+<p>Since this time the json already exists, training should commence.</p>
+</div>
+<div class="section" id="perform-predictions-with-a-trained-model">
+<h2>Perform predictions with a trained model<a class="headerlink" href="#perform-predictions-with-a-trained-model" title="Permalink to this headline">¶</a></h2>
+<p>User can perform predictions using a trained model with the <code class="docutils literal notranslate"><span class="pre">fnet</span> <span class="pre">predict</span></code> command. A path to a saved model and a data source must be specified. For example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>fnet predict --json path/to/predict_options.json
+</pre></div>
+</div>
+<p>As above, users are expected to modify this json to suit their needs. At a minimum, populate the following fields and/or copy and paste corresponding dataset values from <code class="docutils literal notranslate"><span class="pre">/path/to/train_options.json</span></code></p>
+<p>e.g.:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;dataset_kwargs&quot;</span>: <span class="o">{</span>
+    <span class="s2">&quot;col_index&quot;</span>: <span class="s2">&quot;Index&quot;</span>,
+    <span class="s2">&quot;col_signal&quot;</span>: <span class="s2">&quot;signal&quot;</span>,
+    <span class="s2">&quot;col_target&quot;</span>: <span class="s2">&quot;target&quot;</span>,
+    <span class="s2">&quot;path_csv&quot;</span>: <span class="s2">&quot;path/to/my/train.csv&quot;</span>,
+...
+<span class="s2">&quot;path_model_dir&quot;</span>: <span class="o">[</span>
+    <span class="s2">&quot;models/model_0&quot;</span>
+<span class="o">]</span>,
+<span class="s2">&quot;path_save_dir&quot;</span>: <span class="s2">&quot;path/to/predictions/dir&quot;</span>,
+</pre></div>
+</div>
+<p>This will use the model save <code class="docutils literal notranslate"><span class="pre">models/dna</span></code> to perform predictions on the <code class="docutils literal notranslate"><span class="pre">some.dataset</span></code> dataset. To see additional command options, use <code class="docutils literal notranslate"><span class="pre">fnet</span> <span class="pre">predict</span> <span class="pre">-h</span></code>.</p>
+<p>Once any modifications are complete, initiate training by repeating the above command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>fnet predict --json path/to/predict_options.json
+</pre></div>
+</div>
+</div>
+<div class="section" id="citation">
+<h2>Citation<a class="headerlink" href="#citation" title="Permalink to this headline">¶</a></h2>
+<p>If you find this code useful in your research, please consider citing our manuscript in Nature Methods:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>@article{Ounkomol2018,
+  doi = {10.1038/s41592-018-0111-2},
+  url = {https://doi.org/10.1038/s41592-018-0111-2},
+  year  = {2018},
+  month = {sep},
+  publisher = {Springer Nature America,  Inc},
+  volume = {15},
+  number = {11},
+  pages = {917--920},
+  author = {Chawin Ounkomol and Sharmishtaa Seshamani and Mary M. Maleckar and Forrest Collman and Gregory R. Johnson},
+  title = {Label-free prediction of three-dimensional fluorescence images from transmitted-light microscopy},
+  journal = {Nature Methods}
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="contact">
+<h2>Contact<a class="headerlink" href="#contact" title="Permalink to this headline">¶</a></h2>
+<p>Gregory Johnson<span class="raw-html-m2r"><br></span>
+E-mail: <a class="reference external" href="mailto:gregj&#37;&#52;&#48;alleninstitute&#46;org">gregj<span>&#64;</span>alleninstitute<span>&#46;</span>org</a></p>
+</div>
+<div class="section" id="allen-institute-software-license">
+<h2>Allen Institute Software License<a class="headerlink" href="#allen-institute-software-license" title="Permalink to this headline">¶</a></h2>
+<p>Allen Institute Software License – This software license is the 2-clause BSD license plus clause a third clause that prohibits redistribution and use for commercial purposes without further permission.<span class="raw-html-m2r"><br></span>
+Copyright © 2018. Allen Institute.  All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
+<ol class="arabic simple">
+<li><p>Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</p></li>
+<li><p>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</p></li>
+<li><p>Redistributions and use for commercial purposes are not permitted without the Allen Institute’s written permission. For purposes of this license, commercial purposes are the incorporation of the Allen Institute’s software into anything for which you will charge fees or other compensation or use of the software to perform a commercial service for a third party. Contact <a class="reference external" href="mailto:terms&#37;&#52;&#48;alleninstitute&#46;org">terms<span>&#64;</span>alleninstitute<span>&#46;</span>org</a> for commercial licensing opportunities.</p></li>
+</ol>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="fnet.html" class="btn btn-neutral float-right" title="fnet package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Chek
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

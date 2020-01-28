@@ -1,0 +1,412 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fnet.cli.train_model &mdash; fnet 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> fnet
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fnet.html">fnet package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">fnet</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>fnet.cli.train_model</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fnet.cli.train_model</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Trains a model.&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">from</span> <span class="nn">fnet.cli.init</span> <span class="kn">import</span> <span class="n">save_default_train_options</span>
+<span class="kn">from</span> <span class="nn">fnet.data</span> <span class="kn">import</span> <span class="n">BufferedPatchDataset</span>
+<span class="kn">from</span> <span class="nn">fnet.utils.general_utils</span> <span class="kn">import</span> <span class="n">add_logging_file_handler</span>
+<span class="kn">from</span> <span class="nn">fnet.utils.general_utils</span> <span class="kn">import</span> <span class="n">str_to_object</span>
+<span class="kn">import</span> <span class="nn">fnet</span>
+<span class="kn">import</span> <span class="nn">fnet.utils.viz_utils</span> <span class="k">as</span> <span class="nn">vu</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="log_training_options"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.train_model.log_training_options">[docs]</a><span class="k">def</span> <span class="nf">log_training_options</span><span class="p">(</span><span class="n">options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Logs training options.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;*** Training options ***&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">options</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">linesep</span>
+    <span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="set_seeds"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.train_model.set_seeds">[docs]</a><span class="k">def</span> <span class="nf">set_seeds</span><span class="p">(</span><span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Sets random seeds&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">manual_seed_all</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="init_cuda"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.train_model.init_cuda">[docs]</a><span class="k">def</span> <span class="nf">init_cuda</span><span class="p">(</span><span class="n">gpu</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Initialize Pytorch CUDA state.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">gpu</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">gpu</span><span class="p">)</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Failed to init CUDA&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_bpds_train"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.train_model.get_bpds_train">[docs]</a><span class="k">def</span> <span class="nf">get_bpds_train</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BufferedPatchDataset</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Creates data provider for training.&quot;&quot;&quot;</span>
+    <span class="n">ds_fn</span> <span class="o">=</span> <span class="n">str_to_object</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">dataset_train</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ds_fn</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Dataset function should be Callable&quot;</span><span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_fn</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="o">.</span><span class="n">dataset_train_kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">BufferedPatchDataset</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="o">.</span><span class="n">bpds_kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_bpds_val"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.train_model.get_bpds_val">[docs]</a><span class="k">def</span> <span class="nf">get_bpds_val</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BufferedPatchDataset</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Creates data provider for validation.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">dataset_val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">bpds_kwargs</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">bpds_kwargs</span><span class="p">)</span>
+    <span class="n">ds_fn</span> <span class="o">=</span> <span class="n">str_to_object</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">dataset_val</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ds_fn</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Dataset function should be Callable&quot;</span><span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_fn</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="o">.</span><span class="n">dataset_val_kwargs</span><span class="p">)</span>
+    <span class="n">bpds_kwargs</span><span class="p">[</span><span class="s2">&quot;buffer_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">))</span>
+    <span class="n">bpds_kwargs</span><span class="p">[</span><span class="s2">&quot;buffer_switch_interval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="n">BufferedPatchDataset</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="o">**</span><span class="n">bpds_kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="add_parser_arguments"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.train_model.add_parser_arguments">[docs]</a><span class="k">def</span> <span class="nf">add_parser_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Add training script arguments to parser.&quot;&quot;&quot;</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--json&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;json with training options&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--gpu_ids&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;gpu_id(s)&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.train_model.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Trains a model.&quot;&quot;&quot;</span>
+    <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+        <span class="n">add_parser_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">json</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">save_default_train_options</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">json</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">json</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fi</span><span class="p">:</span>
+        <span class="n">train_options</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fi</span><span class="p">)</span>
+    <span class="n">args</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">train_options</span><span class="p">)</span>
+    <span class="n">add_logging_file_handler</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path_save_dir</span><span class="p">,</span> <span class="s2">&quot;train_model.log&quot;</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Started training at: {datetime.datetime.now()}&quot;</span><span class="p">)</span>
+
+    <span class="n">set_seeds</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">log_training_options</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+    <span class="n">path_model</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path_save_dir</span><span class="p">,</span> <span class="s2">&quot;model.p&quot;</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">fnet</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">load_or_init_model</span><span class="p">(</span><span class="n">path_model</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">json</span><span class="p">)</span>
+    <span class="n">init_cuda</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">gpu_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">to_gpu</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">gpu_ids</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+    <span class="n">path_losses_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path_save_dir</span><span class="p">,</span> <span class="s2">&quot;losses.csv&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_losses_csv</span><span class="p">):</span>
+        <span class="n">fnetlogger</span> <span class="o">=</span> <span class="n">fnet</span><span class="o">.</span><span class="n">FnetLogger</span><span class="p">(</span><span class="n">path_losses_csv</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;History loaded from: </span><span class="si">{path_losses_csv}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fnetlogger</span> <span class="o">=</span> <span class="n">fnet</span><span class="o">.</span><span class="n">FnetLogger</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;num_iter&quot;</span><span class="p">,</span> <span class="s2">&quot;loss_train&quot;</span><span class="p">,</span> <span class="s2">&quot;loss_val&quot;</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">n_iter</span> <span class="o">-</span> <span class="n">model</span><span class="o">.</span><span class="n">count_iter</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># Stop if no more iterations needed</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Get patch pair providers</span>
+    <span class="n">bpds_train</span> <span class="o">=</span> <span class="n">get_bpds_train</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">bpds_val</span> <span class="o">=</span> <span class="n">get_bpds_val</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">idx_iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">count_iter</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">n_iter</span><span class="p">):</span>
+        <span class="n">do_save</span> <span class="o">=</span> <span class="p">((</span><span class="n">idx_iter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">interval_save</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">idx_iter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">args</span><span class="o">.</span><span class="n">n_iter</span>
+        <span class="p">)</span>
+        <span class="n">loss_train</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">train_on_batch</span><span class="p">(</span><span class="o">*</span><span class="n">bpds_train</span><span class="o">.</span><span class="n">get_batch</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">batch_size</span><span class="p">))</span>
+        <span class="n">loss_val</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">do_save</span> <span class="ow">and</span> <span class="n">bpds_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">loss_val</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">test_on_iterator</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">bpds_val</span><span class="o">.</span><span class="n">get_batch</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+            <span class="p">)</span>
+        <span class="n">fnetlogger</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;num_iter&quot;</span><span class="p">:</span> <span class="n">idx_iter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;loss_train&quot;</span><span class="p">:</span> <span class="n">loss_train</span><span class="p">,</span> <span class="s2">&quot;loss_val&quot;</span><span class="p">:</span> <span class="n">loss_val</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;iter: </span><span class="si">{fnetlogger.data[&quot;num_iter&quot;][-1]:6d}</span><span class="s1"> | &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;loss_train: </span><span class="si">{fnetlogger.data[&quot;loss_train&quot;][-1]:.4f}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">do_save</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path_model</span><span class="p">)</span>
+            <span class="n">fnetlogger</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">path_losses_csv</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;BufferedPatchDataset buffer history: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">bpds_train</span><span class="o">.</span><span class="n">get_buffer_history</span><span class="p">(),</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loss log saved to: </span><span class="si">{path_losses_csv}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model saved to: </span><span class="si">{path_model}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Elapsed time: {time.time() - time_start:.1f} s&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">idx_iter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">iter_checkpoint</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">idx_iter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">interval_checkpoint</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="p">):</span>
+            <span class="n">path_checkpoint</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">path_save_dir</span><span class="p">,</span> <span class="s2">&quot;checkpoints&quot;</span><span class="p">,</span> <span class="s2">&quot;model_</span><span class="si">{:06d}</span><span class="s2">.p&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx_iter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path_checkpoint</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved model checkpoint: </span><span class="si">{path_checkpoint}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">vu</span><span class="o">.</span><span class="n">plot_loss</span><span class="p">(</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">path_save_dir</span><span class="p">,</span>
+                <span class="n">path_save</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path_save_dir</span><span class="p">,</span> <span class="s2">&quot;loss_curves.png&quot;</span><span class="p">),</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="train_model"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.train_model.train_model">[docs]</a><span class="k">def</span> <span class="nf">train_model</span><span class="p">(</span>
+    <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">28</span><span class="p">,</span>
+    <span class="n">bpds_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dataset_train</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;fnet.data.TiffDataset&quot;</span><span class="p">,</span>
+    <span class="n">dataset_train_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dataset_val</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dataset_val_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fnet_model_class</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;fnet.fnet_model.Model&quot;</span><span class="p">,</span>
+    <span class="n">fnet_model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">interval_checkpoint</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50000</span><span class="p">,</span>
+    <span class="n">interval_save</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">iter_checkpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">n_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">250000</span><span class="p">,</span>
+    <span class="n">path_save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;models/some_model&quot;</span><span class="p">,</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">json</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">gpu_ids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Python API for training.&quot;&quot;&quot;</span>
+    <span class="n">bpds_kwargs</span> <span class="o">=</span> <span class="n">bpds_kwargs</span> <span class="ow">or</span> <span class="p">{</span>
+        <span class="s2">&quot;buffer_size&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+        <span class="s2">&quot;buffer_switch_interval&quot;</span><span class="p">:</span> <span class="mi">2800</span><span class="p">,</span>  <span class="c1"># every 100 updates</span>
+        <span class="s2">&quot;patch_shape&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span>
+    <span class="p">}</span>
+    <span class="n">dataset_train_kwargs</span> <span class="o">=</span> <span class="n">dataset_train_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">dataset_val_kwargs</span> <span class="o">=</span> <span class="n">dataset_val_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">fnet_model_kwargs</span> <span class="o">=</span> <span class="n">fnet_model_kwargs</span> <span class="ow">or</span> <span class="p">{</span>
+        <span class="s2">&quot;betas&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.999</span><span class="p">],</span>
+        <span class="s2">&quot;criterion_class&quot;</span><span class="p">:</span> <span class="s2">&quot;fnet.losses.WeightedMSE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;init_weights&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+        <span class="s2">&quot;nn_class&quot;</span><span class="p">:</span> <span class="s2">&quot;fnet.nn_modules.fnet_nn_3d.Net&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scheduler&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">iter_checkpoint</span> <span class="o">=</span> <span class="n">iter_checkpoint</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="n">gpu_ids</span> <span class="o">=</span> <span class="n">gpu_ids</span> <span class="ow">or</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">json</span> <span class="o">=</span> <span class="n">json</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path_save_dir</span><span class="p">,</span> <span class="s2">&quot;train_options.json&quot;</span><span class="p">))</span>
+
+    <span class="n">pnames</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">locs</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargvalues</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">())</span>
+    <span class="n">train_options</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">locs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">pnames</span><span class="p">}</span>
+
+    <span class="n">path_json</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">json</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path_json</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Overwriting existing json: </span><span class="si">{path_json}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path_json</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created: </span><span class="si">{path_json.parent}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">path_json</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">json</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="s2">&quot;json&quot;</span><span class="p">]</span>  <span class="c1"># retrieve global module</span>
+    <span class="k">with</span> <span class="n">path_json</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fo</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">train_options</span><span class="p">,</span> <span class="n">fo</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved: </span><span class="si">{path_json}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">()</span>
+    <span class="n">args</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">train_options</span><span class="p">)</span>
+    <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Chek
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,439 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fnet.utils package &mdash; fnet 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="fnet.nn_modules package" href="fnet.nn_modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> fnet
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="fnet.html">fnet package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="fnet.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="fnet.cli.html">fnet.cli package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fnet.data.html">fnet.data package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fnet.nn_modules.html">fnet.nn_modules package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">fnet.utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-fnet.utils.general_utils">fnet.utils.general_utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-fnet.utils.model_utils">fnet.utils.model_utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-fnet.utils.split_dataset">fnet.utils.split_dataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-fnet.utils.viz_utils">fnet.utils.viz_utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-fnet.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.fnet_ensemble">fnet.fnet_ensemble module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.fnet_model">fnet.fnet_model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.fnetlogger">fnet.fnetlogger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.losses">fnet.losses module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.metrics">fnet.metrics module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.models">fnet.models module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.predict_piecewise">fnet.predict_piecewise module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet.transforms">fnet.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fnet.html#module-fnet">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">fnet</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="fnet.html">fnet package</a> &raquo;</li>
+        
+      <li>fnet.utils package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/fnet.utils.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="fnet-utils-package">
+<h1>fnet.utils package<a class="headerlink" href="#fnet-utils-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-fnet.utils.general_utils">
+<span id="fnet-utils-general-utils-module"></span><h2>fnet.utils.general_utils module<a class="headerlink" href="#module-fnet.utils.general_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fnet.utils.general_utils.add_augmentations">
+<code class="sig-prename descclassname">fnet.utils.general_utils.</code><code class="sig-name descname">add_augmentations</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="reference internal" href="_modules/fnet/utils/general_utils.html#add_augmentations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.utils.general_utils.add_augmentations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds augmented versions of dataframe rows.</p>
+<p>This is intended to be used on dataframes that represent datasets. Two
+columns will be added: flip_y, flip_x. Each dataframe row will be
+replicated 3 more times with flip_y, flip_x, or both columns set to 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>df</strong> – Dataset dataframe to be augmented.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Augmented dataset dataframe.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.utils.general_utils.add_logging_file_handler">
+<code class="sig-prename descclassname">fnet.utils.general_utils.</code><code class="sig-name descname">add_logging_file_handler</code><span class="sig-paren">(</span><em class="sig-param">path_save: pathlib.Path</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/utils/general_utils.html#add_logging_file_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.utils.general_utils.add_logging_file_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a file handler to fnet logger.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_save</strong> – Location to save logging records.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.utils.general_utils.create_formatter">
+<code class="sig-prename descclassname">fnet.utils.general_utils.</code><code class="sig-name descname">create_formatter</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/utils/general_utils.html#create_formatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.utils.general_utils.create_formatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a default logging Formatter.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.utils.general_utils.files_from_dir">
+<code class="sig-prename descclassname">fnet.utils.general_utils.</code><code class="sig-name descname">files_from_dir</code><span class="sig-paren">(</span><em class="sig-param">path_dir: str</em>, <em class="sig-param">extensions: Optional[Sequence[str]] = None</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="reference internal" href="_modules/fnet/utils/general_utils.html#files_from_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.utils.general_utils.files_from_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns sorted list of files in a directory with optional extension(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_dir</strong> – Input directory.</p></li>
+<li><p><strong>extensions</strong> – Optional file extensions.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.utils.general_utils.get_args">
+<code class="sig-prename descclassname">fnet.utils.general_utils.</code><code class="sig-name descname">get_args</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/utils/general_utils.html#get_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.utils.general_utils.get_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the arguments passed to the calling function.</p>
+<p>Example:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">get_args</span><span class="p">())</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="n">fizz</span><span class="o">=</span><span class="s1">&#39;buzz&#39;</span><span class="p">)</span>
+<span class="go">({&#39;b&#39;: 2, &#39;a&#39;: 1, &#39;fizz&#39;: &#39;buzz&#39;}, (3, &#39;bar&#39;))</span>
+</pre></div>
+</div>
+<p>References:
+kbyanc.blogspot.com/2007/07/python-aggregating-function-arguments.html</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>dict</em> – Named arguments</p></li>
+<li><p><em>list</em> – Unnamed positional arguments</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.utils.general_utils.init_fnet_logging">
+<code class="sig-prename descclassname">fnet.utils.general_utils.</code><code class="sig-name descname">init_fnet_logging</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/utils/general_utils.html#init_fnet_logging"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.utils.general_utils.init_fnet_logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes logging for fnet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_save</strong> – Location to save logging records.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.utils.general_utils.retry_if_oserror">
+<code class="sig-prename descclassname">fnet.utils.general_utils.</code><code class="sig-name descname">retry_if_oserror</code><span class="sig-paren">(</span><em class="sig-param">fn: Callable</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/utils/general_utils.html#retry_if_oserror"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.utils.general_utils.retry_if_oserror" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retries input function if an OSError is encountered.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.utils.general_utils.str_to_class">
+<code class="sig-prename descclassname">fnet.utils.general_utils.</code><code class="sig-name descname">str_to_class</code><span class="sig-paren">(</span><em class="sig-param">string: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/utils/general_utils.html#str_to_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.utils.general_utils.str_to_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return class from string representation.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.utils.general_utils.str_to_object">
+<code class="sig-prename descclassname">fnet.utils.general_utils.</code><code class="sig-name descname">str_to_object</code><span class="sig-paren">(</span><em class="sig-param">str_o: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/utils/general_utils.html#str_to_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.utils.general_utils.str_to_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get object from string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>str_o</strong> – Fully qualified object name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.utils.general_utils.to_objects">
+<code class="sig-prename descclassname">fnet.utils.general_utils.</code><code class="sig-name descname">to_objects</code><span class="sig-paren">(</span><em class="sig-param">slist</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/utils/general_utils.html#to_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.utils.general_utils.to_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of objects from list of object __repr__s.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.utils.general_utils.whats_my_name">
+<code class="sig-prename descclassname">fnet.utils.general_utils.</code><code class="sig-name descname">whats_my_name</code><span class="sig-paren">(</span><em class="sig-param">obj: object</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/utils/general_utils.html#whats_my_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.utils.general_utils.whats_my_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns object’s name.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet.utils.model_utils">
+<span id="fnet-utils-model-utils-module"></span><h2>fnet.utils.model_utils module<a class="headerlink" href="#module-fnet.utils.model_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fnet.utils.model_utils.move_optim">
+<code class="sig-prename descclassname">fnet.utils.model_utils.</code><code class="sig-name descname">move_optim</code><span class="sig-paren">(</span><em class="sig-param">optim: torch.optim.optimizer.Optimizer</em>, <em class="sig-param">device: torch.device</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/utils/model_utils.html#move_optim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.utils.model_utils.move_optim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves optimizer parameters to specified device.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet.utils.split_dataset">
+<span id="fnet-utils-split-dataset-module"></span><h2>fnet.utils.split_dataset module<a class="headerlink" href="#module-fnet.utils.split_dataset" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fnet.utils.split_dataset.int_or_float">
+<code class="sig-prename descclassname">fnet.utils.split_dataset.</code><code class="sig-name descname">int_or_float</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/utils/split_dataset.html#int_or_float"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.utils.split_dataset.int_or_float" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="fnet.utils.split_dataset.main">
+<code class="sig-prename descclassname">fnet.utils.split_dataset.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fnet/utils/split_dataset.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.utils.split_dataset.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-fnet.utils.viz_utils">
+<span id="fnet-utils-viz-utils-module"></span><h2>fnet.utils.viz_utils module<a class="headerlink" href="#module-fnet.utils.viz_utils" title="Permalink to this headline">¶</a></h2>
+<p>Visualization tools.</p>
+<dl class="function">
+<dt id="fnet.utils.viz_utils.plot_loss">
+<code class="sig-prename descclassname">fnet.utils.viz_utils.</code><code class="sig-name descname">plot_loss</code><span class="sig-paren">(</span><em class="sig-param">paths_model: Union[List[str], str], path_save: Optional[str] = None, train: bool = True, val: bool = True, title: Optional[str] = None, ymin: Optional[float] = None, ymax: Optional[float] = None</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/utils/viz_utils.html#plot_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.utils.viz_utils.plot_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots model loss curve(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>paths_model</strong> – List of paths to model directories specified as a list or as a string
+of paths separated by spaces.</p></li>
+<li><p><strong>path_save</strong> – If not None, specifies where to save figure and figure will not be
+displayed.</p></li>
+<li><p><strong>train</strong> – Set to plot training curve.</p></li>
+<li><p><strong>val</strong> – Set to plot validation curve.</p></li>
+<li><p><strong>title</strong> – Plot title.</p></li>
+<li><p><strong>ymin</strong> – Y-axis minimum value.</p></li>
+<li><p><strong>ymax</strong> – Y-axis maximum value.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fnet.utils.viz_utils.plot_metric">
+<code class="sig-prename descclassname">fnet.utils.viz_utils.</code><code class="sig-name descname">plot_metric</code><span class="sig-paren">(</span><em class="sig-param">path_csv: str</em>, <em class="sig-param">metric: str</em>, <em class="sig-param">path_save: Optional[str] = None</em>, <em class="sig-param">title: Optional[str] = None</em>, <em class="sig-param">ymin: Optional[float] = None</em>, <em class="sig-param">ymax: Optional[float] = None</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/fnet/utils/viz_utils.html#plot_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fnet.utils.viz_utils.plot_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots box-plot of model performance according to some metric.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_csv</strong> – Path to csv where each row is a dataset item.</p></li>
+<li><p><strong>metric</strong> – Name of metric. Should be within one or more CSV column names.</p></li>
+<li><p><strong>path_save</strong> – If not None, specifies where to save figure and figure will not be
+displayed.</p></li>
+<li><p><strong>title</strong> – Plot title.</p></li>
+<li><p><strong>ymin</strong> – Y-axis minimum value.</p></li>
+<li><p><strong>ymax</strong> – Y-axis maximum value.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fnet.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-fnet.utils" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="fnet.nn_modules.html" class="btn btn-neutral float-left" title="fnet.nn_modules package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Chek
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

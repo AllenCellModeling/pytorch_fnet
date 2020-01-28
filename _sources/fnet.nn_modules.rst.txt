@@ -1,0 +1,46 @@
+fnet.nn\_modules package
+========================
+
+Submodules
+----------
+
+fnet.nn\_modules.dummy module
+-----------------------------
+
+.. automodule:: fnet.nn_modules.dummy
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fnet.nn\_modules.fnet\_nn\_2d module
+------------------------------------
+
+.. automodule:: fnet.nn_modules.fnet_nn_2d
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fnet.nn\_modules.fnet\_nn\_3d module
+------------------------------------
+
+.. automodule:: fnet.nn_modules.fnet_nn_3d
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fnet.nn\_modules.fnet\_nn\_3d\_params module
+--------------------------------------------
+
+.. automodule:: fnet.nn_modules.fnet_nn_3d_params
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: fnet.nn_modules
+   :members:
+   :undoc-members:
+   :show-inheritance:
