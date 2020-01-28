@@ -1,9 +1,8 @@
 # Label-free prediction of three-dimensional fluorescence images from transmitted-light microscopy
 
-[![Build Status](https://github.com/AllenCellModeling/pytorch_fnet/workflows/Test%20and%20Lint/badge.svg)](https://github.com/AllenCellModeling/pytorch_fnet/actions)
-[![Documentation Status](https://readthedocs.org/projects/pytorch-fnet/badge/?version=latest)](https://pytorch-fnet.readthedocs.io/en/latest/?badge=latest)
-
-![Combined outputs](doc/source/_static/PredictingStructures-1.jpg?raw=true "Combined outputs")
+[![Build Status](https://github.com/AllenCellModeling/pytorch_fnet/workflows/Build%20Master/badge.svg)](https://github.com/AllenCellModeling/pytorch_fnet/actions)
+[![Documentation](https://github.com/AllenCellModeling/pytorch_fnet/workflows/Documentation/badge.svg)](https://allencellmodeling.github.io/pytorch_fnet/)
+![Combined outputs](./_static/PredictingStructures-1.jpg?raw=true "Combined outputs")
 
 ## Support
 

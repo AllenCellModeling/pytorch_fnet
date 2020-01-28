@@ -1,21 +1,26 @@
-Welcome to pytorch_fnet's documentation!
-======================================
+.. fnet documentation master file, created by
+   sphinx-quickstart on Tue Sep 18 16:32:49 2018.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Pytorch_fnet
+================================
 
 .. toctree::
    :hidden:
-   :maxdepth: 1
+   :maxdepth: 3
    :caption: Contents:
 
    Overview <self>
-   installation
-   Package modules <modules>
-   contributing
-   math
+   fnet
+
+
 
 .. mdinclude:: ../README.md
 
 Indices and tables
 ==================
+
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
