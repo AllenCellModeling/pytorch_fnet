@@ -79,4 +79,3 @@ def create_multichtiff_data(
     pd.DataFrame(records).set_index("dummy_id").to_csv(path_csv)
 
     return path_csv
-
