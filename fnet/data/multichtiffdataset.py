@@ -23,8 +23,19 @@ class MultiChTiffDataset(FnetDataset):
 
         super().__init__(dataframe, path_csv, transform_signal, transform_target)
 
-        self.df["channel_signal"] = [int(ch) for ch in self.df["channel_signal"]]
-        self.df["channel_target"] = [int(ch) for ch in self.df["channel_target"]]
+        # if this column is a string assume it is in "[ind_1, ind_2, ..., ind_n]" format
+        if isinstance(self.df["channel_signal"][0], str):
+            self.df["channel_signal"] = [
+                np.fromstring(ch[1:-1], sep=" ").astype(int)
+                for ch in self.df["channel_signal"]
+            ]
+            self.df["channel_target"] = [
+                np.fromstring(ch[1:-1], sep=" ").astype(int)
+                for ch in self.df["channel_target"]
+            ]
+        else:
+            self.df["channel_signal"] = [[int(ch)] for ch in self.df["channel_signal"]]
+            self.df["channel_target"] = [[int(ch)] for ch in self.df["channel_target"]]
 
         assert all(
             i in self.df.columns
@@ -33,7 +44,7 @@ class MultiChTiffDataset(FnetDataset):
 
     def __getitem__(self, index):
         element = self.df.iloc[index, :]
-        has_target = not np.isnan(element["channel_target"])
+        has_target = not np.any(np.isnan(element["channel_target"]))
 
         # aicsimageio.imread loads as STCZYX, so we load only CZYX
         with AICSImage(element["path_tiff"]) as img:

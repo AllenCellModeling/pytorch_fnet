@@ -280,14 +280,19 @@ class Model:
 
         """
         x_batch = torch.tensor(x_batch, dtype=torch.float32, device=self.device)
+
         if len(self.gpu_ids) > 1:
-            module = torch.nn.DataParallel(self.net, device_ids=self.gpu_ids)
+            network = torch.nn.DataParallel(self.net, device_ids=self.gpu_ids)
         else:
-            module = self.net
-        module.eval()
+            network = self.net
+
+        network.eval()
         with torch.no_grad():
-            prediction_batch = module(x_batch).cpu()
-        return prediction_batch
+            y_hat_batch = network(x_batch).cpu()
+
+        network.train()
+
+        return y_hat_batch
 
     def predict(
         self, x: Union[torch.Tensor, np.ndarray], tta: bool = False
@@ -369,19 +374,16 @@ class Model:
             Loss as evaluated by self.criterion.
 
         """
-        if len(self.gpu_ids) > 1:
-            network = torch.nn.DataParallel(self.net, device_ids=self.gpu_ids)
-        else:
-            network = self.net
-        network.eval()
-        x_batch = x_batch.to(dtype=torch.float32, device=self.device)
-        with torch.no_grad():
-            y_hat_batch = network(x_batch).cpu()
+
+        y_hat_batch = self.predict_on_batch(x_batch)
+
         args = [y_hat_batch, y_batch]
+
         if weight_map_batch is not None:
             args.append(weight_map_batch)
+
         loss = self.criterion(*args)
-        network.train()
+
         return loss.item()
 
     def test_on_iterator(self, iterator: Iterator, **kwargs: dict) -> float:

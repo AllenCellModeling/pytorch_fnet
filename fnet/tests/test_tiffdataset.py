@@ -28,8 +28,10 @@ def test_TiffDataset(tmp_path, shape: Sequence[int], weights: bool):
     shape_exp = (1,) + shape
     for d in data:
         assert tuple(d.shape) == shape_exp
+
     factor = int((data[1] - data[0]).numpy().mean())
     assert factor == idx
+
     if weights:
         weight_sum_exp = np.prod([d // 2 for d in shape])
         weight_sum_got = int(data[-1].numpy().sum())
