@@ -86,7 +86,7 @@ def add_parser_arguments(parser) -> None:
     parser.add_argument("--gpu_ids", nargs="+", default=[0], type=int, help="gpu_id(s)")
 
 
-def main(args: Optional[argparse.Namespace] = None) -> None:
+def main(args: Optional[argparse.Namespace] = None):
     """Trains a model."""
     time_start = time.time()
     if args is None:
@@ -164,6 +164,8 @@ def main(args: Optional[argparse.Namespace] = None) -> None:
                 path_save=os.path.join(args.path_save_dir, "loss_curves.png"),
             )
 
+    return model
+
 
 def train_model(
     batch_size: int = 28,
@@ -182,7 +184,8 @@ def train_model(
     seed: Optional[int] = None,
     json: Optional[str] = None,
     gpu_ids: Optional[List[int]] = None,
-) -> None:
+):
+
     """Python API for training."""
     bpds_kwargs = bpds_kwargs or {
         "buffer_size": 16,
@@ -220,4 +223,5 @@ def train_model(
 
     args = argparse.Namespace()
     args.__dict__.update(train_options)
-    main(args)
+
+    return main(args)
