@@ -89,15 +89,21 @@ def add_parser_arguments(parser) -> None:
 def main(args: Optional[argparse.Namespace] = None):
     """Trains a model."""
     time_start = time.time()
+
     if args is None:
         parser = argparse.ArgumentParser()
         add_parser_arguments(parser)
         args = parser.parse_args()
-    if args.json and not args.json.exists():
-        save_default_train_options(args.json)
+
+    args.path_json = Path(args.json)
+
+    if args.path_json and not args.path_json.exists():
+        save_default_train_options(args.path_json)
         return
-    with open(args.json, "r") as fi:
+
+    with open(args.path_json, "r") as fi:
         train_options = json.load(fi)
+
     args.__dict__.update(train_options)
     add_logging_file_handler(Path(args.path_save_dir, "train_model.log"))
     logger.info(f"Started training at: {datetime.datetime.now()}")
@@ -105,7 +111,7 @@ def main(args: Optional[argparse.Namespace] = None):
     set_seeds(args.seed)
     log_training_options(vars(args))
     path_model = os.path.join(args.path_save_dir, "model.p")
-    model = fnet.models.load_or_init_model(path_model, args.json)
+    model = fnet.models.load_or_init_model(path_model, args.path_json)
     init_cuda(args.gpu_ids[0])
     model.to_gpu(args.gpu_ids)
     logger.info(model)
@@ -124,6 +130,8 @@ def main(args: Optional[argparse.Namespace] = None):
     # Get patch pair providers
     bpds_train = get_bpds_train(args)
     bpds_val = get_bpds_val(args)
+
+    # MAIN LOOP
     for idx_iter in range(model.count_iter, args.n_iter):
         do_save = ((idx_iter + 1) % args.interval_save == 0) or (
             (idx_iter + 1) == args.n_iter
@@ -185,8 +193,8 @@ def train_model(
     json: Optional[str] = None,
     gpu_ids: Optional[List[int]] = None,
 ):
-
     """Python API for training."""
+
     bpds_kwargs = bpds_kwargs or {
         "buffer_size": 16,
         "buffer_switch_interval": 2800,  # every 100 updates
@@ -204,7 +212,8 @@ def train_model(
     }
     iter_checkpoint = iter_checkpoint or []
     gpu_ids = gpu_ids or [0]
-    json = json or str(Path(path_save_dir, "train_options.json"))
+
+    json = json or f"{path_save_dir}train_options.json"
 
     pnames, _, _, locs = inspect.getargvalues(inspect.currentframe())
     train_options = {k: locs[k] for k in pnames}
@@ -217,8 +226,8 @@ def train_model(
         path_json.parent.mkdir(parents=True)
 
     json = globals()["json"]  # retrieve global module
-    with path_json.open("w") as fo:
-        json.dump(train_options, fo, indent=4, sort_keys=True)
+    with path_json.open("w") as f:
+        json.dump(train_options, f, indent=4, sort_keys=True)
         logger.info(f"Saved: {path_json}")
 
     args = argparse.Namespace()
