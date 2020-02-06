@@ -28,5 +28,5 @@ def test_MultiTiffDataset(tmp_path, n_ch_in, n_ch_out, dims_zyx):
     len_data = 2
     assert len(data) == len_data
 
-    assert tuple(data[0].shape) == (1,) + (n_ch_in,) + dims_zyx
-    assert tuple(data[1].shape) == (1,) + (n_ch_out,) + dims_zyx
+    assert tuple(data[0].shape) == (n_ch_in,) + dims_zyx
+    assert tuple(data[1].shape) == (n_ch_out,) + dims_zyx
