@@ -175,10 +175,12 @@
     <span class="n">init</span><span class="o">.</span><span class="n">add_parser_arguments</span><span class="p">(</span><span class="n">parser_init</span><span class="p">)</span>
     <span class="n">train_model</span><span class="o">.</span><span class="n">add_parser_arguments</span><span class="p">(</span><span class="n">parser_train</span><span class="p">)</span>
     <span class="n">predict</span><span class="o">.</span><span class="n">add_parser_arguments</span><span class="p">(</span><span class="n">parser_predict</span><span class="p">)</span>
+
     <span class="n">parser_init</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">init</span><span class="o">.</span><span class="n">main</span><span class="p">)</span>
     <span class="n">parser_train</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">train_model</span><span class="o">.</span><span class="n">main</span><span class="p">)</span>
     <span class="n">parser_predict</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">predict</span><span class="o">.</span><span class="n">main</span><span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
     <span class="c1"># Remove &#39;func&#39; from args so it is not passed to target script</span>
     <span class="n">func</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">func</span>
     <span class="nb">delattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;func&quot;</span><span class="p">)</span>

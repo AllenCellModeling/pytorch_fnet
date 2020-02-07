@@ -233,18 +233,24 @@
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--gpu_ids&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;gpu_id(s)&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.train_model.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.train_model.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Trains a model.&quot;&quot;&quot;</span>
     <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
     <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
         <span class="n">add_parser_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">json</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-        <span class="n">save_default_train_options</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">json</span><span class="p">)</span>
+
+    <span class="n">args</span><span class="o">.</span><span class="n">path_json</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">json</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">path_json</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">path_json</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">save_default_train_options</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path_json</span><span class="p">)</span>
         <span class="k">return</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">json</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fi</span><span class="p">:</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path_json</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fi</span><span class="p">:</span>
         <span class="n">train_options</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fi</span><span class="p">)</span>
+
     <span class="n">args</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">train_options</span><span class="p">)</span>
     <span class="n">add_logging_file_handler</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path_save_dir</span><span class="p">,</span> <span class="s2">&quot;train_model.log&quot;</span><span class="p">))</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Started training at: {datetime.datetime.now()}&quot;</span><span class="p">)</span>
@@ -252,7 +258,7 @@
     <span class="n">set_seeds</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
     <span class="n">log_training_options</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
     <span class="n">path_model</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path_save_dir</span><span class="p">,</span> <span class="s2">&quot;model.p&quot;</span><span class="p">)</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">fnet</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">load_or_init_model</span><span class="p">(</span><span class="n">path_model</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">json</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">fnet</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">load_or_init_model</span><span class="p">(</span><span class="n">path_model</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">path_json</span><span class="p">)</span>
     <span class="n">init_cuda</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">gpu_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">model</span><span class="o">.</span><span class="n">to_gpu</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">gpu_ids</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
@@ -271,6 +277,8 @@
     <span class="c1"># Get patch pair providers</span>
     <span class="n">bpds_train</span> <span class="o">=</span> <span class="n">get_bpds_train</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="n">bpds_val</span> <span class="o">=</span> <span class="n">get_bpds_val</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="c1"># MAIN LOOP</span>
     <span class="k">for</span> <span class="n">idx_iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">count_iter</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">n_iter</span><span class="p">):</span>
         <span class="n">do_save</span> <span class="o">=</span> <span class="p">((</span><span class="n">idx_iter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">interval_save</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
             <span class="p">(</span><span class="n">idx_iter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">args</span><span class="o">.</span><span class="n">n_iter</span>
@@ -309,7 +317,9 @@
             <span class="n">vu</span><span class="o">.</span><span class="n">plot_loss</span><span class="p">(</span>
                 <span class="n">args</span><span class="o">.</span><span class="n">path_save_dir</span><span class="p">,</span>
                 <span class="n">path_save</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path_save_dir</span><span class="p">,</span> <span class="s2">&quot;loss_curves.png&quot;</span><span class="p">),</span>
-            <span class="p">)</span></div>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">model</span></div>
 
 
 <div class="viewcode-block" id="train_model"><a class="viewcode-back" href="../../../fnet.cli.html#fnet.cli.train_model.train_model">[docs]</a><span class="k">def</span> <span class="nf">train_model</span><span class="p">(</span>
@@ -329,8 +339,9 @@
     <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">json</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">gpu_ids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Python API for training.&quot;&quot;&quot;</span>
+
     <span class="n">bpds_kwargs</span> <span class="o">=</span> <span class="n">bpds_kwargs</span> <span class="ow">or</span> <span class="p">{</span>
         <span class="s2">&quot;buffer_size&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
         <span class="s2">&quot;buffer_switch_interval&quot;</span><span class="p">:</span> <span class="mi">2800</span><span class="p">,</span>  <span class="c1"># every 100 updates</span>
@@ -348,7 +359,8 @@
     <span class="p">}</span>
     <span class="n">iter_checkpoint</span> <span class="o">=</span> <span class="n">iter_checkpoint</span> <span class="ow">or</span> <span class="p">[]</span>
     <span class="n">gpu_ids</span> <span class="o">=</span> <span class="n">gpu_ids</span> <span class="ow">or</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">json</span> <span class="o">=</span> <span class="n">json</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path_save_dir</span><span class="p">,</span> <span class="s2">&quot;train_options.json&quot;</span><span class="p">))</span>
+
+    <span class="n">json</span> <span class="o">=</span> <span class="n">json</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{path_save_dir}</span><span class="s2">train_options.json&quot;</span>
 
     <span class="n">pnames</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">locs</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargvalues</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">())</span>
     <span class="n">train_options</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">locs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">pnames</span><span class="p">}</span>
@@ -361,13 +373,14 @@
         <span class="n">path_json</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">json</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="s2">&quot;json&quot;</span><span class="p">]</span>  <span class="c1"># retrieve global module</span>
-    <span class="k">with</span> <span class="n">path_json</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fo</span><span class="p">:</span>
-        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">train_options</span><span class="p">,</span> <span class="n">fo</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">path_json</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">train_options</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved: </span><span class="si">{path_json}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">()</span>
     <span class="n">args</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">train_options</span><span class="p">)</span>
-    <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+
+    <span class="k">return</span> <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
