@@ -15,7 +15,7 @@ class Net(torch.nn.Module):
         self.out_channels = out_channels
         
         self.net_recurse = _Net_recurse(n_in_channels=self.in_channels, mult_chan=self.mult_chan, depth=self.depth)
-        self.conv_out = torch.nn.Conv3d(self.mult_chan, self.out_channels, kernel_size=3, padding=1)
+        self.conv_out = torch.nn.Conv3d(self.in_channels*self.mult_chan, self.out_channels, kernel_size=3, padding=1)
 
     def forward(self, x):
         x_rec = self.net_recurse(x)
