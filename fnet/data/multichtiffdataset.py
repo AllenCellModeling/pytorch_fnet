@@ -7,10 +7,8 @@ from fnet.data.fnetdataset import FnetDataset
 
 
 class MultiChTiffDataset(FnetDataset):
-    """Dataset for multi-channel tiff files.
-
-    Currently assumes that images are loaded in STCZYX format
-
+    """
+    Dataset for multi-channel tiff files.
     """
 
     def __init__(
@@ -43,6 +41,16 @@ class MultiChTiffDataset(FnetDataset):
         )
 
     def __getitem__(self, index):
+        """
+        Parameters
+        ----------
+        index: integer
+
+        Returns
+        -------
+        C by <spatial dimensions> torch.Tensor
+        """
+
         element = self.df.iloc[index, :]
         has_target = not np.any(np.isnan(element["channel_target"]))
 
@@ -67,7 +75,7 @@ class MultiChTiffDataset(FnetDataset):
         im_out = [torch.from_numpy(im.astype(float)).float() for im in im_out]
 
         # unsqueeze to make the first dimension be the channel dimension
-        im_out = [torch.unsqueeze(im, 0) for im in im_out]
+        # im_out = [torch.unsqueeze(im, 0) for im in im_out]
 
         return tuple(im_out)
 

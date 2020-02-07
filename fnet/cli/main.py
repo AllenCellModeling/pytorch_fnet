@@ -28,10 +28,12 @@ def main() -> None:
     init.add_parser_arguments(parser_init)
     train_model.add_parser_arguments(parser_train)
     predict.add_parser_arguments(parser_predict)
+
     parser_init.set_defaults(func=init.main)
     parser_train.set_defaults(func=train_model.main)
     parser_predict.set_defaults(func=predict.main)
     args = parser.parse_args()
+
     # Remove 'func' from args so it is not passed to target script
     func = args.func
     delattr(args, "func")
