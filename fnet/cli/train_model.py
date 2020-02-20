@@ -142,6 +142,7 @@ def main(args: Optional[argparse.Namespace] = None):
             loss_val = model.test_on_iterator(
                 [bpds_val.get_batch(args.batch_size) for _ in range(4)]
             )
+
         fnetlogger.add(
             {"num_iter": idx_iter + 1, "loss_train": loss_train, "loss_val": loss_val}
         )
@@ -171,6 +172,8 @@ def main(args: Optional[argparse.Namespace] = None):
                 args.path_save_dir,
                 path_save=os.path.join(args.path_save_dir, "loss_curves.png"),
             )
+
+        torch.cuda.empty_cache()
 
     return model
 
