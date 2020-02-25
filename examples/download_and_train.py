@@ -60,8 +60,6 @@ data_manifest = data_manifest.iloc[0:n_images_to_download]
 
 image_source_paths = data_manifest["SourceReadPath"]
 
-pdb.set_trace()
-
 image_target_paths = [
     "{}/{}".format(image_save_dir, image_source_path)
     for image_source_path in image_source_paths
