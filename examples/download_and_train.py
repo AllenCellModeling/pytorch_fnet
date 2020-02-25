@@ -1,10 +1,11 @@
 import argparse
 import os
 import json
+from pathlib import Path
 
 import quilt3
 import pandas as pd
-from pathlib import Path
+import numpy as np
 
 from fnet.cli.init import save_default_train_options
 
@@ -50,10 +51,16 @@ aics_pipeline = quilt3.Package.browse(
 
 data_manifest = aics_pipeline["metadata.csv"]()
 
+# THE ROWS OF THE MANIFEST CORRESPOND TO CELLS, WE TRIM DOWN TO UNIQUIE FOVS
+unique_fov_indices = np.unique(data_manifest['FOVId'], return_index=True)[1]
+data_manifest = data_manifest.iloc[unique_fov_indices]
+
 # SELECT THE FIRST N_IMAGES_TO_DOWNLOAD
 data_manifest = data_manifest.iloc[0:n_images_to_download]
 
 image_source_paths = data_manifest["SourceReadPath"]
+
+pdb.set_trace()
 
 image_target_paths = [
     "{}/{}".format(image_save_dir, image_source_path)

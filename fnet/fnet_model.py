@@ -232,6 +232,7 @@ class Model:
             module = torch.nn.DataParallel(self.net, device_ids=self.gpu_ids)
         else:
             module = self.net
+
         self.optimizer.zero_grad()
         y_hat_batch = module(x_batch)
         args = [y_hat_batch, y_batch]

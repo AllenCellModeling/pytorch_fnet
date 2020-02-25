@@ -99,7 +99,7 @@ def main(args: Optional[argparse.Namespace] = None):
 
     if args.path_json and not args.path_json.exists():
         save_default_train_options(args.path_json)
-        return
+        return None
 
     with open(args.path_json, "r") as fi:
         train_options = json.load(fi)
@@ -125,7 +125,7 @@ def main(args: Optional[argparse.Namespace] = None):
 
     if (args.n_iter - model.count_iter) <= 0:
         # Stop if no more iterations needed
-        return
+        return model
 
     # Get patch pair providers
     bpds_train = get_bpds_train(args)
@@ -136,6 +136,7 @@ def main(args: Optional[argparse.Namespace] = None):
         do_save = ((idx_iter + 1) % args.interval_save == 0) or (
             (idx_iter + 1) == args.n_iter
         )
+
         loss_train = model.train_on_batch(*bpds_train.get_batch(args.batch_size))
         loss_val = None
         if do_save and bpds_val is not None:
@@ -172,8 +173,6 @@ def main(args: Optional[argparse.Namespace] = None):
                 args.path_save_dir,
                 path_save=os.path.join(args.path_save_dir, "loss_curves.png"),
             )
-
-        torch.cuda.empty_cache()
 
     return model
 
