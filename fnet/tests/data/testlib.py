@@ -70,8 +70,8 @@ def create_multichtiff_data(
             {
                 "dummy_id": idx,
                 "path_tiff": path_x,
-                "channel_signal": np.arange(0, n_ch_in),
-                "channel_target": np.arange(0, n_ch_out) + n_ch_in,
+                "channel_signal": list(np.arange(0, n_ch_in)),
+                "channel_target": list(np.arange(0, n_ch_out) + n_ch_in),
             }
         )
 
