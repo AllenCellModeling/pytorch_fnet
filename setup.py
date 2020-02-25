@@ -24,7 +24,7 @@ setup_requirements = [
 ]
 
 examples_requirements = [
-    "quilt3==3.1.5",
+    "quilt3==3.1.10",
     "python-dateutil==2.8.0",
 ]
 
