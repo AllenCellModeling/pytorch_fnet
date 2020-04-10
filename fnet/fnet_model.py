@@ -486,6 +486,7 @@ class Model:
             already_normalized: bool = False,
             ResizeRatio: Optional[Sequence[float]] = None,
             cutoff: Optional[float] = None,
+            use_tta: bool = True,
     ) -> np.ndarray:
         """Applies model to a single z-stack input.
 
@@ -545,7 +546,7 @@ class Model:
                 raise ValueError('ResizeRatio must be length 3')
             input_img = zoom(input_img, zoom=ResizeRatio, mode='nearest')
         yhat = (
-            self.predict_piecewise(input_img[np.newaxis, ], tta=True)
+            self.predict_piecewise(input_img[np.newaxis, ], tta=use_tta)
             .squeeze(dim=0)
             .numpy()
         )
