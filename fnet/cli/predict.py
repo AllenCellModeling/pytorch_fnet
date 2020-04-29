@@ -189,29 +189,6 @@ def save_predictions_csv(
     LOGGER.info(f'Saved: {path_csv}')
 
 
-def save_args_as_json(args: argparse.Namespace) -> None:
-    """Saves predict arguments as json in save directory.
-
-    Parameters
-    ----------
-    path_save_dir
-        Save directory
-    args
-        Script arguments.
-
-    """
-    path_save_dir = Path(args.path_save_dir)
-    if not path_save_dir.exists():
-        path_save_dir.mkdir(parents=True)
-        LOGGER.info(f'Created: {path_save_dir}')
-    path_json = Path(args.path_save_dir, 'predict_options.json')
-    if path_json.exists():
-        LOGGER.warning(f'Overwriting existing json: {path_json}')
-    with path_json.open('w') as fo:
-        json.dump(vars(args), fo, indent=4, sort_keys=True)
-    LOGGER.info(f'Saved: {path_json}')
-
-
 def aggregate_results(path_pred_csv: Path, metric: str) -> Dict[str, float]:
     """Calculates mean metric score for each model.
 
@@ -236,13 +213,21 @@ def aggregate_results(path_pred_csv: Path, metric: str) -> Dict[str, float]:
         .to_dict()
     )
 
+def load_from_json(args: argparse.Namespace) -> None:
+    """Loads arguments from if a json is specified."""
+    if args.json is None:
+        return
+    with args.json.open(mode='r') as fi:
+        predict_options = json.load(fi)
+    args.__dict__.update(predict_options)
 
 def add_parser_arguments(parser) -> None:
     """Add training script arguments to parser."""
-    parser.add_argument('path_model_dir', nargs='+', help='path(s) to model directory')
+    parser.add_argument('--path_model_dir', nargs='+', help='path(s) to model directory')
     parser.add_argument('--dataset', help='dataset name')
     parser.add_argument('--dataset_kwargs', type=json.loads, default={}, help='dataset kwargs')
     parser.add_argument('--gpu_ids', nargs='+', type=int, default=[0], help='GPU ID')
+    parser.add_argument('--json', type=Path, help='path to prediction options json')
     parser.add_argument('--idx_sel', nargs='+', type=int, help='specify dataset indices')
     parser.add_argument('--metric', default='fnet.metrics.corr_coef', help='evaluation metric')
     parser.add_argument('--n_images', type=int, default=-1, help='max number of images to test')
@@ -271,6 +256,10 @@ def main(args: Optional[argparse.Namespace] = None) -> Dict[str, float]:
         parser = argparse.ArgumentParser()
         add_parser_arguments(parser)
         args = parser.parse_args()
+    if (args.json is not None) and (not args.json.exists()):
+        LOGGER.info(f'json file does not exist: {path_pred_csv}')
+        return
+    load_from_json(args)
     path_pred_csv = Path(args.path_save_dir, 'predictions.csv')
     if path_pred_csv.exists():
         LOGGER.info(f'Using existing prediction results: {path_pred_csv}')
@@ -280,7 +269,7 @@ def main(args: Optional[argparse.Namespace] = None) -> Dict[str, float]:
     entries = []
     model = None
     indices = get_indices(args, dataset)
-    save_args_as_json(args)
+    #save_args_as_json(args)
     for count, idx in enumerate(indices, 1):
         LOGGER.info(f'Processing: {idx:3d} ({count}/{len(indices)})')
         entry = {}

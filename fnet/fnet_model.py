@@ -242,7 +242,7 @@ class Model:
         y_hat_batch = module(x_batch)
         args = [y_hat_batch, y_batch]
         if weight_map_batch is not None:
-            args.append(weight_map_batch)
+            args.append(weight_map_batch.to(dtype=torch.float32, device=self.device))
         loss = self.criterion(*args)
         loss.backward()
         self.optimizer.step()
