@@ -82,10 +82,8 @@ for image_source_path, image_target_path in zip(image_source_paths, image_target
 df = pd.DataFrame(columns=["path_tiff", "channel_signal", "channel_target"])
 
 df["path_tiff"] = image_target_paths
-df["channel_signal"] = data_manifest["ChannelNumberBrightfield"]
-df["channel_target"] = data_manifest[
-    "ChannelNumber405"
-]  # this is the DNA channel for all FOVs
+df["channel_signal"] = data_manifest["ChannelNumberBrightfield"].tolist()
+df["channel_target"] = data_manifest["ChannelNumber405"].tolist()  # this is the DNA channel for all FOVs
 
 n_train_images = int(n_images_to_download * train_fraction)
 df_train = df[:n_train_images]
