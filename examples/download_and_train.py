@@ -34,7 +34,7 @@ gpu_id = args.gpu_id
 n_images_to_download = args.n_imgs  # more images the better
 train_fraction = 0.75
 
-image_save_dir = "{}/".format(os.getcwd())
+image_save_dir = "{}".format(os.getcwd())
 model_save_dir = "{}/model/".format(os.getcwd())
 prefs_save_path = "{}/prefs.json".format(model_save_dir)
 
@@ -82,10 +82,8 @@ for image_source_path, image_target_path in zip(image_source_paths, image_target
 df = pd.DataFrame(columns=["path_tiff", "channel_signal", "channel_target"])
 
 df["path_tiff"] = image_target_paths
-df["channel_signal"] = data_manifest["ChannelNumberBrightfield"]
-df["channel_target"] = data_manifest[
-    "ChannelNumber405"
-]  # this is the DNA channel for all FOVs
+df["channel_signal"] = data_manifest["ChannelNumberBrightfield"].tolist()
+df["channel_target"] = data_manifest["ChannelNumber405"].tolist()  # this is the DNA channel for all FOVs
 
 n_train_images = int(n_images_to_download * train_fraction)
 df_train = df[:n_train_images]
