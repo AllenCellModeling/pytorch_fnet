@@ -25,6 +25,11 @@ wheels/
 .installed.cfg
 *.egg
 
+# Data/Predictions
+fovs*
+model*
+predictions*
+
 # OS generated files
 .DS_Store
 
